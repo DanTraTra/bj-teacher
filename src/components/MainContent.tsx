@@ -9,18 +9,6 @@ const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 type Suit = "hearts" | "diamonds" | "spades" | "clubs";
 const animationTime = 600;
 const dealerAnimationTime = animationTime + 300
-// interface  {
-//     suit: Suit;
-//     value: number;
-//     display: string;
-//     visible: boolean;
-// }
-
-// interface Deck {
-//     cards: CardsWithAmount[];
-// }
-
-// const randomNumber = getRandomCard();
 
 function MainContent() {
     type GameOutComeType =
