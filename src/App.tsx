@@ -45,7 +45,7 @@ function App() {
                         </div>
                     ) : (
                         <div>
-                            <div className="absolute inset-0 flex justify-center items-center pt-28">
+                            <div className="absolute inset-0 flex flex-col justify-center items-center h-screen">
                                 <MainContent/>
                             </div>
                             <SVGTwo/>

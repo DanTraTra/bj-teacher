@@ -413,8 +413,8 @@ function MainContent() {
     }, [GameState])
 
     return (
-
-        <div className="flex flex-col items-center text-white h-screen overflow-hidden w-screen">
+        // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
+        <div className="flex flex-col items-center space-y-auto pb-16">
             <div className="flex flex-row text-black">
                 <div>House: {HouseWins} - Player: {PlayerWins} - Count: {Count} </div>
                 {/*<div className="absolute top-16 right-16"> Count Log:*/}
@@ -428,8 +428,8 @@ function MainContent() {
                 {/*        )*/}
                 {/*    }</div>*/}
             </div>
-            <div className="absolute top-64 space-y-6">
-                <div className="flex flex-row justify-center items-center pt-12">
+            <div className="flex flex-col top-64 space-y-6">
+                <div className="flex flex-row justify-center items-center pt-48">
 
                     {
                         DealerHand.map((card, index) =>
@@ -450,7 +450,7 @@ function MainContent() {
                 </div>
                 <div>
                     <div
-                        className="flex w-80 h-24 justify-center items-center bg-info-content/50">
+                        className="flex w-80 h-24 justify-center items-center text-white bg-info-content/50">
                         {GameState != "IN PLAY" ? (
                             <div className="flex-col items-center justify-center mx-auto space-y-2 py-4">
                                 <div className="flex items-center justify-center">{GameState}</div>
