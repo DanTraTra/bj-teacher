@@ -428,8 +428,8 @@ function MainContent() {
                 {/*        )*/}
                 {/*    }</div>*/}
             </div>
-            <div className="absolute top-32 space-y-6">
-                <div className="flex flex-row justify-center items-center pt-64">
+            <div className="absolute top-64 space-y-6">
+                <div className="flex flex-row justify-center items-center pt-12">
 
                     {
                         DealerHand.map((card, index) =>
