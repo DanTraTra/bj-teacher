@@ -445,7 +445,7 @@ function MainContent() {
                         )
                     }
                     {(GameState != 'IN PLAY') &&
-                    <div className="pl-6 pt-14">{DealerHandSumState}</div>
+                    <div className="pl-6 pt-14 text-white">{DealerHandSumState}</div>
                     }
                 </div>
                 <div>
@@ -545,7 +545,7 @@ function MainContent() {
                             )
                         }
                         {(PlayerStand || GameState != 'IN PLAY') &&
-                        <div className="flex justify-center items-center pl-6 pt-14">{PlayerHandSumState}</div>}
+                        <div className="flex justify-center items-center pl-6 pt-14 text-white">{PlayerHandSumState}</div>}
 
                     </div>
                 </div>
