@@ -453,7 +453,7 @@ function MainContent() {
                         className="flex w-80 h-24 justify-center items-center text-white bg-info-content/50">
                         {GameState != "IN PLAY" ? (
                             <div className="flex-col items-center justify-center mx-auto space-y-2 py-4">
-                                <div className="flex items-center justify-center">{GameState}</div>
+                                <div className="flex items-center justify-center text-white">{GameState}</div>
                                 <div className="flex items-center justify-center">
                                     <button className="btn btn-sm items-center justify-center"
                                             onClick={handClickPlayAgain}>Play
