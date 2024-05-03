@@ -43,6 +43,7 @@ function MainContent() {
     const [Count, setCount] = useState(0);
     const [CountLog, setCountLog] = useState([{value: '', change: 0, countNow: 0}]);
 
+
     const initializeDeck = (deck_count: number): CardProps[] => {
         const suits: Suit[] = ["hearts", "diamonds", "spades", "clubs"];
         const picture_card = ['J', 'Q', 'K']
@@ -144,17 +145,24 @@ function MainContent() {
         })
     }
 
+    const [isHitDisabled, setIsHitDisabled] = useState(false);
     const handleClickHit = () => {
         console.log("CLICKED HIT")
+        setIsHitDisabled(true)
         const random_card = getRandomCard(false)
         setPlayerHand(currentHand => [...currentHand, random_card]);
         setTimeout(() => {
             updateCount(random_card)
         }, animationTime)
+        setTimeout(() => {
+            setIsHitDisabled(false)
+        }, animationTime + 100)
     }
 
+    const [isStandDisabled, setIsStandDisabled] = useState(false);
     const handleClickStand = () => {
         console.log("CLICKED STAND")
+        setIsStandDisabled(true)
         setPlayerStand(true)
         //Dealer gets "card dealt" animation toggles off and then the game outcome gets revealed while the player stand continues until next game
         // setDealerHit(true);
@@ -173,6 +181,7 @@ function MainContent() {
     const handClickPlayAgain = () => {
         const newDeck = initializeDeck(1)
         setGlobalDeck(newDeck)
+        setUpGame()
         setGameCount(prevState => prevState + 1)
     }
 
@@ -206,6 +215,7 @@ function MainContent() {
         setGameState("IN PLAY");
         setPlayerStand(false);
         setDealerHit(false);
+        setIsStandDisabled(false);
 
         // setGlobalDeck(initializeDeck(1));
         const random_player_card_1 = getRandomCard(false);
@@ -477,25 +487,27 @@ function MainContent() {
                                 {/*    <div className="text-xs">Double</div>*/}
                                 {/*</div>*/}
                                 <div className="flex flex-col items-center space-y-2">
-                                    <div className={buttonClass + " btn-success"} onClick={handleClickHit}>
+                                    <button className={buttonClass + " btn-success"} onClick={handleClickHit}
+                                            disabled={isHitDisabled}>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                              className="w-6 h-6">
                                             <path fillRule="evenodd"
                                                   d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z"
                                                   clipRule="evenodd"/>
                                         </svg>
-                                    </div>
+                                    </button>
                                     <div className="text-xs">Hit</div>
                                 </div>
                                 <div className="flex flex-col items-center space-y-2">
-                                    <div className={buttonClass + " btn-error"} onClick={handleClickStand}>
+                                    <button className={buttonClass + " btn-error"} onClick={handleClickStand}
+                                        disabled={isStandDisabled}>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                              className="w-6 h-6">
                                             <path fillRule="evenodd"
                                                   d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm3 10.5a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5h6Z"
                                                   clipRule="evenodd"/>
                                         </svg>
-                                    </div>
+                                    </button>
                                     <div className="text-xs">Stand</div>
                                 </div>
                                 {/*<div className="flex flex-col items-center space-y-2">*/}
@@ -545,7 +557,8 @@ function MainContent() {
                             )
                         }
                         {(PlayerStand || GameState != 'IN PLAY') &&
-                        <div className="flex justify-center items-center pl-6 pt-14 text-white">{PlayerHandSumState}</div>}
+                        <div
+                            className="flex justify-center items-center pl-6 pt-14 text-white">{PlayerHandSumState}</div>}
 
                     </div>
                 </div>
