@@ -8,5 +8,5 @@ export default defineConfig({
         react(),
         svgr(),
     ],
-    base: '/bj-teacher/'
+    // base: '/bj-teacher/'
 })
