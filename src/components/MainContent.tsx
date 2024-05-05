@@ -800,10 +800,10 @@ function MainContent() {
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <>
-            <div className="absolute top-12 right-12">
+            <div className="absolute top-8 right-8">
                 <div
-                    className="flex flex-row justify-center items-center space-x-2 bg-grey pl-2.5 pr-5 py-2 rounded-badge">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    className="flex flex-row justify-center items-center space-x-2 bg-grey pl-1.5 pr-3 py-1 rounded-badge">
+                    <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M31.5203 19.8728C33.6592 11.3011 28.4444 2.61853 19.8728 0.479663C11.3011 -1.6592 2.61853 3.5556 0.479663 12.1272C-1.6592 20.6989 3.5556 29.3815 12.1272 31.5203C20.6989 33.6592 29.3815 28.4444 31.5203 19.8728Z"
                             fill="#FDC95A"/>
@@ -815,13 +815,12 @@ function MainContent() {
                             fill="#FFDA77"/>
                     </svg>
                     <div
-                        className="flex flex-col h-full justify-center items-center font-bold text-22px">{BalanceState}</div>
+                        className="flex flex-col h-full justify-center items-center font-bold text-18px">{BalanceState}</div>
                 </div>
             </div>
 
-            <div className="flex flex-col items-center space-y-10">
+            <div className="flex flex-col items-center space-y-0">
                 <div className="flex flex-row text-black">
-                    <div>House Wins: {HouseWins} - Player Wins: {PlayerWins}</div>
                     {/*<div className="absolute top-16 right-16"> Count Log:*/}
                     {/*    <div> Card &gt; Change &gt; Count </div>*/}
                     {/*    {*/}
@@ -833,7 +832,7 @@ function MainContent() {
                     {/*        )*/}
                     {/*    }</div>*/}
                 </div>
-                <div className="flex flex-col top-64 space-y-4">
+                <div className="flex flex-col justify-center space-y-4">
                     <div className="flex flex-row justify-center items-center pt-56">
 
                         {
@@ -912,7 +911,8 @@ function MainContent() {
                     </div>
                 </div>
                 <div className="flex flex-row text-black">
-                    <div>Card Count: ({GameState=="IN PLAY"? Count: "?"}) - Deck Count: {DeckCount} ({Math.round((GlobalDeck.length / (DeckCount * 52)) * 100)}%)
+                    <div>Card Count: ({GameState == "IN PLAY" ? Count : "?"}) - Deck
+                        Count: {DeckCount} ({Math.round((GlobalDeck.length / (DeckCount * 52)) * 100)}%)
                     </div>
                     {/*<div className="absolute top-16 right-16"> Count Log:*/}
                     {/*    <div> Card &gt; Change &gt; Count </div>*/}

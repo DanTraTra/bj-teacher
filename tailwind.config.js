@@ -21,6 +21,12 @@ export default {
                 pastelBlue: '#A2C7D3',  // Define your custom color
                 grey: '#D9D9D9'
             },
+            width: {
+                '420px': '420px',
+            },
+            spacing: {
+                '280px': '280px'
+            },
             filter: ['hover', 'focus'],
         },
     },
