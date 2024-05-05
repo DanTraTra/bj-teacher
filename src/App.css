@@ -1,6 +1,6 @@
 .fade-out {
   opacity: 0;
-  transition: opacity 0.5s ease-out;
+  transition: opacity;
   /*display: none;*/
 }
 /* App.css */
@@ -8,7 +8,7 @@
 }
 
 .svg-container svg {
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.1s ease-in-out;
 }
 
 .hidden {

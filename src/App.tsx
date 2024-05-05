@@ -3,7 +3,7 @@ import './components/MainContent'
 // @ts-ignore
 import SVGOne from './assets/Dealer1.svg?react';
 // @ts-ignore
-import SVGTwo from "./assets/Dealer2.svg?react";
+import SVGTwo from "./assets/Dealer3.svg?react";
 import {useEffect, useState} from "react";
 import {useSpring, animated} from 'react-spring';
 import MainContent from "./components/MainContent";
@@ -28,7 +28,7 @@ function App() {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-center h-screen pb-20 overflow-hidden">
+            <div className="flex flex-col items-center justify-center h-screen pb-20 overflow-hidden bg-pastelBlue">
                 <div className={showButton ? ("py-8") : ("py-8 fade-out")}>
                     {showMessage ? (
                         <div className="btn">Welcome</div>
@@ -48,7 +48,7 @@ function App() {
                             <div className="absolute inset-0 flex flex-col justify-center items-center h-screen">
                                 <MainContent/>
                             </div>
-                            <SVGTwo/>
+                            <SVGTwo className="w-full h-full"/>
                         </div>
 
                     )}

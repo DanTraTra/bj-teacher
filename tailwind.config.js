@@ -10,7 +10,18 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+                money: ['Inter-bold', 'sans'],
             },
+            fontSize: {
+                '10px': '10px',
+                '12px': '12px',
+                '22px': '22px',
+            },
+            colors: {
+                pastelBlue: '#A2C7D3',  // Define your custom color
+                grey: '#D9D9D9'
+            },
+            filter: ['hover', 'focus'],
         },
     },
     daisyui: {
