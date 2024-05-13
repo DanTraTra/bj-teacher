@@ -1,0 +1,5 @@
+AWS Aurora PostgreSQL
+DB Cluster Identifier: database-bj-teacher
+Master username: bj_teacher
+Master Password: 7<`X15c#2rtS
+Endpoint: database-bj-teacher-1.cl2wg0ma2r6v.ap-southeast-2.rds.amazonaws.com

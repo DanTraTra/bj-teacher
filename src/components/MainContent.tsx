@@ -3,6 +3,7 @@ import './PlayingCard'
 import 'tailwindcss/tailwind.css'
 import {Simulate} from "react-dom/test-utils";
 import {CardProps, PlayingCard} from "./PlayingCard"
+import {Screens} from "../App"
 // @ts-ignore
 import C1 from "/src/assets/C1.svg?react"
 // @ts-ignore
@@ -28,14 +29,35 @@ import C50_ from "/src/assets/c50_.svg?react"
 // @ts-ignore
 import C100_ from "/src/assets/c100_.svg?react"
 
-
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 w-14 h-14 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
 type Suit = "hearts" | "diamonds" | "spades" | "clubs";
 const animationTime = 600;
 const dealerAnimationTime = animationTime + 300
 
-function MainContent() {
+interface UserNameProps {
+    onSave: (UserName: string) => Promise<{ success: boolean }>;
+}
+
+interface MainContentProps {
+    onChange: (screen: Screens) => void;
+}
+
+// Card type with specific allowable card values
+// type Card = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
+
+type PlayerHand = { cards: CardProps[], sum: number, bet: number, winMultiplier: number, doubleDown: boolean }
+
+// Interface for a set of player and dealer cards
+export interface GameLog {
+    PlayerCards: PlayerHand[]; // multiple hands per player for when implementing splitting
+    DealerCards: CardProps[];
+    DealerHandSum: number;
+    EndingBalance: number;
+    DateTime: Date;
+}
+
+const MainContent: React.FC<MainContentProps> = ({onChange}) => {
     type GameOutComeType =
         "PLACING BET"
         | "IN PLAY"
@@ -45,18 +67,26 @@ function MainContent() {
         | "HOUSE WINS"
         | "YOU WIN"
         | "PLAYER BLACKJACK"
+        | "GAME OVER"
+        | "SAVING GAME"
 
-    const WIN: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST"]
-    const LOSE: GameOutComeType[] = ['HOUSE WINS', 'PLAYER BUST']
+    const initialBalance = 20
 
-    const [BalanceState, setBalanceState] = useState(200);
+
+    // const [UserName, setUserName] = useState('');
+
+    const [BalanceAmount, setBalanceAmount] = useState<number>(initialBalance);
     const [DeckCount, setDeckCount] = useState(6)
 
     const [GameState, setGameState] = useState<GameOutComeType>("PLACING BET");
     const [GameCount, setGameCount] = useState(0);
 
+    const [GameLog, setGameLog] = useState<GameLog[]>([])
+    const [MaxBet, setMaxBet] = useState(0)
+
+    const [WinMultiplier, setWinMultiplier] = useState(1)
     const [BetAmount, setBetAmount] = useState(0)
-    const [BetChange, setBetChange] = useState(0)
+    const [BetAnimationChange, setBetAnimationChange] = useState(0)
     const [WinAmount, setWinAmount] = useState(0)
 
     const [DealerHand, setDealerHand] = useState<CardProps[]>([]);
@@ -167,7 +197,7 @@ function MainContent() {
         let change = 0;
         if (2 <= card.value && card.value <= 6) {
             change = 1
-            // console.log("count +1 because", card.value)
+            // acount +1 because", card.value)
         } else if (card.value >= 10 || card.value === 1) {
             change = -1;
             // console.log("count -1 because", card.value)
@@ -181,6 +211,29 @@ function MainContent() {
             })
 
             return (currentCount + change)
+        })
+    }
+
+    const updateGameLog = () => {
+        //WIN AMOUNT NEEDS TO CHANGE WHEN IMPLEMENTING SPLITTING
+        const playerCards: PlayerHand = {
+            cards: PlayerHand,
+            sum: PlayerHandSumState,
+            winMultiplier: WinMultiplier,
+            bet: BetAmount,
+            doubleDown: false
+        }
+
+        const thisGameLog: GameLog = {
+            PlayerCards: [playerCards],
+            DealerCards: DealerHand,
+            DealerHandSum: DealerHandSumState,
+            EndingBalance: (BalanceAmount + BetAmount),
+            DateTime: new Date()
+        }
+
+        setGameLog(currentLog => {
+            return [...currentLog, thisGameLog]
         })
     }
 
@@ -217,27 +270,38 @@ function MainContent() {
         setDealerHand(dealHandCopy)
     }
 
-    const handClickPlayAgain = () => {
-        const newDeck = initializeDeck(1)
+    const handleClickStartOver = () => {
+        updateGameLog()
+        const newDeck = initializeDeck(6)
         setGlobalDeck(newDeck)
+        setUpGame()
+        setBalanceAmount(initialBalance)
+        setGameCount(0)
+        setGameLog([])
+    }
+
+    const handleClickKeepGoing = () => {
+        updateGameLog()
         setUpGame()
         setGameCount(prevState => prevState + 1)
     }
 
+    useEffect(() => {
+        console.log("GameLog", GameLog)
+    }, [GameLog])
+
     const handleClickCashOut = () => {
-        const newDeck = initializeDeck(1)
-        setGlobalDeck(newDeck)
-        setUpGame()
-        setGameCount(prevState => prevState + 1)
-        setBalanceState(currentBalance => currentBalance + BetAmount)
+        updateGameLog()
+        setGameState("SAVING GAME")
+        setBalanceAmount(currentBalance => currentBalance + BetAmount)
         setBetAmount(0)
     }
 
     const handleChipClick = (amount: number) => {
         console.log(`Chip Clicked - added ${amount} to BetAmountState`)
-        if (amount <= BalanceState) {
+        if (amount <= BalanceAmount) {
             setBetAmount(currentAmount => currentAmount + amount)
-            setBalanceState(currentValue => currentValue - amount)
+            setBalanceAmount(currentValue => currentValue - amount)
         }
 
     }
@@ -245,7 +309,7 @@ function MainContent() {
     const handleBabyChipClick = (amount: number) => {
         console.log(`Baby Chip Clicked - removed ${amount} from BetAmountState`)
         setBetAmount(currentAmount => currentAmount - amount)
-        setBalanceState(currentValue => currentValue + amount)
+        setBalanceAmount(currentValue => currentValue + amount)
 
 
     }
@@ -256,7 +320,7 @@ function MainContent() {
     }
 
     const handleResetBet = () => {
-        setBalanceState(currentBalance => currentBalance + BetAmount)
+        setBalanceAmount(currentBalance => currentBalance + BetAmount)
         setBetAmount(0)
     }
 
@@ -328,7 +392,6 @@ function MainContent() {
 
     }
 
-
     useEffect(() => {
         setUpGame()
         // revealPlayerCards()
@@ -342,13 +405,14 @@ function MainContent() {
                 setGameState("PLAYER BUST")
                 setHouseWins(currentAmount => currentAmount + 1)
 
-            } else if (PlayerHandSumState === 21 && PlayerHand.length == 2 && DealerHandSumState != 21) {
-                // The dealer must also not have blackjack
-                setPlayerBlackJackState(true)
-                setGameState("PLAYER BLACKJACK")
-                setPlayerWins(currentAmount => currentAmount + 1)
-
             }
+            // else if (PlayerHandSumState === 21 && PlayerHand.length == 2 && DealerHandSumState != 21) {
+            //     // The dealer must also not have blackjack
+            //     setPlayerBlackJackState(true)
+            //     setGameState("PLAYER BLACKJACK")
+            //     setPlayerWins(currentAmount => currentAmount + 1)
+            //
+            // }
 
         }, 0)
         // console.log("PlayerHandSumState", PlayerHandSumState)
@@ -438,6 +502,11 @@ function MainContent() {
                         console.log("Setting GameState: PUSH")
                         setGameState("PUSH")
 
+                    } else if (PlayerHandSumState === 21 && PlayerHand.length == 2 && DealerHandSumState != 21) {
+                        // The dealer must also not have blackjack
+                        setPlayerBlackJackState(true)
+                        setGameState("PLAYER BLACKJACK")
+                        setPlayerWins(currentAmount => currentAmount + 1)
 
                     } else if (DealerHandSumState > PlayerHandSumState) {
                         console.log("Setting GameState: HOUSE WINS")
@@ -454,10 +523,10 @@ function MainContent() {
                     }
                 }
 
-                if (DealerHandSumState === 21 && PlayerHand.some((card) => card.value === 1)) {
-                    setDealerBlackJackState(true)
+                // if (DealerHandSumState === 21 && PlayerHand.some((card) => card.value === 1)) {
+                //     setDealerBlackJackState(true)
+                // }
 
-                }
             }, dealerAnimationTime + 100)
 
         }
@@ -510,6 +579,7 @@ function MainContent() {
     )
 
     useEffect(() => {
+
         if (GameState == 'PLAYER BUST' || GameState == 'PLAYER BLACKJACK') {
             //Reveal dealers card if isn't turned over
             setDealerHand(currentHand =>
@@ -522,15 +592,20 @@ function MainContent() {
             revealDealerCard()
         }
 
-        BetAmount >= 20 ? setBetChange(Math.round(BetAmount / 20)) : setBetChange(1)
+        BetAmount >= 20 ? setBetAnimationChange(Math.round(BetAmount / 20)) : setBetAnimationChange(1)
         GameState == "PLAYER BLACKJACK" ? setWinAmount(BetAmount * 2.5) : setWinAmount(BetAmount * 2)
+        if (GameState == "PLAYER BLACKJACK") {
+            setWinMultiplier(2.5)
+        } else if (WIN.includes(GameState)) {
+            setWinMultiplier(2)
+        } else if (LOSE.includes(GameState)) {
+            setWinMultiplier(0)
+        } else if (GameState == "PUSH") {
+            setWinMultiplier(1)
+        }
 
         console.log("GlobalDeck.length", GlobalDeck.length)
     }, [GameState])
-
-    useEffect(() => {
-        console.log("BetAmount", BetAmount)
-    }, [BetAmount])
 
     // type GameOutComeType =
     //     "PLACING BET"
@@ -541,21 +616,24 @@ function MainContent() {
     //     | "HOUSE WINS"
     //     | "YOU WIN"
     //     | "PLAYER BLACKJACK"
+    const WIN: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST"]
+    const LOSE: GameOutComeType[] = ['HOUSE WINS', 'PLAYER BUST']
 
     useEffect(() => {
+        // USED FOR ANIMATING CHIPS
         // console.log("in userEffect [BetAmount, GameState]")
         // console.log("GameState", GameState)
         // console.log("BetAmount", BetAmount)
         // console.log("WinAmount", WinAmount)
         // console.log("BetChange", BetChange)
 
+
         if (BetAmount > 0) {
 
             if (LOSE.includes(GameState)) {
-
                 const timer = setTimeout(() => {
-                    if (BetAmount >= BetChange) {
-                        setBetAmount(BetAmount - BetChange)
+                    if (BetAmount >= BetAnimationChange) {
+                        setBetAmount(BetAmount - BetAnimationChange)
                     } else {
                         setBetAmount(0)
                     }
@@ -563,10 +641,9 @@ function MainContent() {
                 return () => clearTimeout(timer);
 
             } else if (WIN.includes(GameState)) {
-
                 const timer = setTimeout(() => {
-                    if (WinAmount - BetAmount >= BetChange) {
-                        setBetAmount(BetAmount + BetChange)
+                    if (WinAmount - BetAmount >= BetAnimationChange) {
+                        setBetAmount(BetAmount + BetAnimationChange)
                     } else {
                         setBetAmount(WinAmount)
                     }
@@ -577,6 +654,12 @@ function MainContent() {
         }
 
     }, [BetAmount, GameState]);
+
+    useEffect(() => {
+        if (BalanceAmount + BetAmount <= 0) {
+            setGameState("GAME OVER")
+        }
+    }, [BalanceAmount, BetAmount])
 
     const PlaceBets = () => {
         return <div className="flex flex-row space-x-2">
@@ -666,21 +749,123 @@ function MainContent() {
         </div>
     }
 
-    const OutCome = () => {
-        return <div className="flex-col items-center justify-center mx-auto space-y-2 py-4">
-            <div className="flex items-center justify-center text-white">{GameState}</div>
-            <div className="flex flex-row items-center justify-center space-x-2">
-                <button className="btn btn-sm items-center justify-center w-28
-                 animate-none"
-                        onClick={handClickPlayAgain}>Play Again?
-                </button>
-                <button className="btn btn-sm items-center justify-center w-28 animate-none btn-success text-white"
-                        onClick={handleClickCashOut}>Cash Out!
-                </button>
-            </div>
+    class OutCome extends React.Component {
+        render() {
+            return <div className="flex-col items-center justify-center mx-auto space-y-2 py-4">
+                <div className="flex items-center justify-center text-white">{GameState}</div>
+                <div className="flex flex-row items-center justify-center space-x-2">
+                    {/*bet amount here is after the money has been taken away i.e. player lost*/}
+                    {
+                        // Just won a hand
+                        BetAmount > 0 ? (
+                            <>
+                                <button className="btn btn-sm items-center justify-center w-28 animate-none"
+                                        onClick={handleClickKeepGoing}>Keep Going
+                                </button>
+                                <button
+                                    className="btn btn-sm items-center justify-center w-28 animate-none btn-success text-white"
+                                    onClick={handleClickCashOut}>Cash Out!
+                                </button>
+                            </>
 
-        </div>
+                        ) : (
+                            //Just lost a hand
+                            BalanceAmount > 0 ? (
+                                // Has money left to bet
+                                <>
+                                    <button className="btn btn-sm items-center justify-center w-28 animate-none"
+                                            onClick={handleClickKeepGoing}>Keep Going
+                                    </button>
+                                    <button
+                                        className="btn btn-sm items-center justify-center w-28 animate-none btn-success text-white"
+                                        onClick={handleClickCashOut}>Cash Out!
+                                    </button>
+                                </>
+                            ) : (
+                                // Has NO money left to bet
+                                <>
+                                    <button className="btn btn-sm items-center justify-center w-28 animate-none"
+                                            onClick={handleClickStartOver}>Start Over?
+                                    </button>
+                                    <button
+                                        className="btn btn-sm items-center justify-center w-28 animate-none"
+                                        onClick={() => onChange('START')}>Leaderboard
+                                    </button>
+                                </>
+                            )
+                        )
+                    }
+
+                </div>
+
+            </div>
+        }
     }
+
+
+    const RenderSaveUserNameForm: React.FC<UserNameProps> = ({onSave}) => {
+        const [UserName, setUserName] = useState<string>('');
+
+        const handleSubmit = async (event: React.FormEvent) => {
+            event.preventDefault();
+
+            if (!UserName) {
+                alert('You need a username to save your score');
+                return
+            }
+
+            const result = await onSave(UserName);
+            if (result.success) {
+                setUserName('')
+                onChange('START')
+            } else {
+                alert('Failed to save score')
+            }
+        };
+
+        return (
+            <form onSubmit={handleSubmit} className="flex flex-col w-70 space-y-2">
+                <div className="flex flex-row items-center justify-center text-center text-sm font-tech">Nice! You
+                    turned $10 to ${BalanceAmount}
+                </div>
+                <div className="flex flex-row space-x-2">
+                    <label className="">
+                        <input type="text"
+                               placeholder="Name"
+                               value={UserName}
+                               onChange={(e) => setUserName(e.target.value)}
+                               required
+                               className="flex flex-row h-8 text-black rounded-lg px-2 font-tech items-center"
+                        />
+                    </label>
+                    <button className="btn btn-sm mt-auto rounded-lg font-tech" type="submit">Save</button>
+                </div>
+
+            </form>
+        )
+    }
+
+    const saveScore = async (username: string): Promise<{ success: boolean }> => {
+        try {
+            const response = await fetch("http://bj-teacher-server-env-1.eba-n9at9mkt.ap-southeast-2.elasticbeanstalk.com/api/add-score",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username: username, game_log_data: JSON.stringify(GameLog)})
+                },
+            ).then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+
+            // if (!response.ok) throw new Error('Failed to save score');
+            return {success: true}
+        } catch (error) {
+            console.error('Failed to save score:', error);
+            return {success: false};
+        }
+    };
 
     function renderDisplayBar(GameState: GameOutComeType) {
         switch (GameState) {
@@ -688,6 +873,8 @@ function MainContent() {
                 return <PlaceBets/>
             case 'IN PLAY' :
                 return <ActionButtons/>
+            case 'SAVING GAME':
+                return <RenderSaveUserNameForm onSave={saveScore}/>
             default:
                 return <OutCome/>
         }
@@ -792,9 +979,11 @@ function MainContent() {
                             </button>
                     }
                 }
-            ))
+            )
+        )
 
     }
+
 
     // @ts-ignore
     return (
@@ -815,25 +1004,13 @@ function MainContent() {
                             fill="#FFDA77"/>
                     </svg>
                     <div
-                        className="flex flex-col h-full justify-center items-center font-bold text-18px">{BalanceState}</div>
+                        className="flex flex-col h-full justify-center items-center font-bold text-18px">{BalanceAmount}</div>
                 </div>
             </div>
 
-            <div className="flex flex-col items-center space-y-0">
-                <div className="flex flex-row text-black">
-                    {/*<div className="absolute top-16 right-16"> Count Log:*/}
-                    {/*    <div> Card &gt; Change &gt; Count </div>*/}
-                    {/*    {*/}
-                    {/*        CountLog.map((record, i) => i ? (*/}
-                    {/*                <div>*/}
-                    {/*                    <div key={i}> Saw a {record.value} &gt; {record.change} &gt; {record.countNow} </div>*/}
-                    {/*                </div>*/}
-                    {/*            ) : (<div></div>)*/}
-                    {/*        )*/}
-                    {/*    }</div>*/}
-                </div>
+            <div className="flex flex-col pt-4 space-y-0 overflow-auto">
                 <div className="flex flex-col justify-center space-y-4">
-                    <div className="flex flex-row justify-center items-center pt-56">
+                    <div className="flex flex-row justify-center items-center pt-44">
 
                         {
                             DealerHand.map((card, index) =>
@@ -852,14 +1029,16 @@ function MainContent() {
                         <div className="pl-6 pt-14 text-white">{DealerHandSumState}</div>
                         }
                     </div>
-                    <div className="flex flex-row">
-                        <div className="flex w-24 h-full bg-gradient-to-r from-transparent to-info-content/50"/>
+
+                    <div className="flex flex-row justify-center">
+                        <div className="flex w-24 h-24 bg-gradient-to-r from-transparent to-info-content/50"/>
                         <div
-                            className="flex w-64 h-24 justify-center items-center text-white bg-info-content/50">
+                            className="flex w-auto h-24 justify-center items-center text-white bg-info-content/50">
                             {renderDisplayBar(GameState)}
                         </div>
-                        <div className="flex w-24 h-full bg-gradient-to-l to-info-content/50 from-transparent"/>
+                        <div className="flex w-24 h-24 bg-gradient-to-l to-info-content/50 from-transparent"/>
                     </div>
+
                     <div className="flex flex-col items-center pt-0 space-y-4">
                         <div className="flex flex-row h-1">
                             {renderBabyChips(getBetBabyChips(BetAmount))}
@@ -870,11 +1049,12 @@ function MainContent() {
                     <div className="flex flex-row h-24 justify-center">
                         {GameState == 'PLACING BET' ? (
                             <div className="absolute flex flex-row items-center justify-center space-x-2">
-                                <button className={`flex btn btn-sm ${BetAmount == 0 ? 'btn-error text-white' : ''}`}
+                                <button className="flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90"
                                         onClick={handlePlaceBet}
+                                        disabled={BetAmount <= 0}
                                     // disabled={BetAmount == 0}
                                 >
-                                    Place Bet
+                                    {BetAmount <= 0 ? 'Select Amount':'Place Bet'}
                                 </button>
                                 <button className="btn btn-sm flex items-center justify-center size-8 px-2 m-0 border-0"
                                         onClick={handleResetBet}>
@@ -910,21 +1090,11 @@ function MainContent() {
 
                     </div>
                 </div>
-                <div className="flex flex-row text-black">
-                    <div>Card Count: ({GameState == "IN PLAY" ? Count : "?"}) - Deck
-                        Count: {DeckCount} ({Math.round((GlobalDeck.length / (DeckCount * 52)) * 100)}%)
-                    </div>
-                    {/*<div className="absolute top-16 right-16"> Count Log:*/}
-                    {/*    <div> Card &gt; Change &gt; Count </div>*/}
-                    {/*    {*/}
-                    {/*        CountLog.map((record, i) => i ? (*/}
-                    {/*                <div>*/}
-                    {/*                    <div key={i}> Saw a {record.value} &gt; {record.change} &gt; {record.countNow} </div>*/}
-                    {/*                </div>*/}
-                    {/*            ) : (<div></div>)*/}
-                    {/*        )*/}
-                    {/*    }</div>*/}
-                </div>
+                {/*<div className="flex flex-row text-black">*/}
+                {/*    <div>Card Count: ({GameState == "IN PLAY" ? Count : "?"}) - Deck*/}
+                {/*        Count: {DeckCount} ({Math.round((GlobalDeck.length / (DeckCount * 52)) * 100)}%)*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
         </>);
 };

@@ -10,9 +10,11 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-                money: ['Inter-bold', 'sans'],
+                tech: ['Share Tech Mono', 'monospace'], // Add this line
+                main: ['Share Tech Mono']
             },
             fontSize: {
+                '2px': '10px',
                 '10px': '10px',
                 '12px': '12px',
                 '22px': '22px',
@@ -23,6 +25,9 @@ export default {
             },
             width: {
                 '420px': '420px',
+            },
+            height: {
+                '62px': '220px',
             },
             spacing: {
                 '280px': '280px'

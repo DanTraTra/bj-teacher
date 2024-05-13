@@ -17,7 +17,8 @@ const suitIcons = {
     diamonds: '♦️'  // Unicode for diamonds
 };
 
-
+const blue_class = "flex justify-center space-x-1 text-blue-400 text-10px"
+const red_class = "flex justify-center space-x-1 text-red-400 text-10px"
 export const PlayingCard = ({value, suit, display, visible}: CardProps) => {
 
     const icon = suitIcons[suit]; // Get the icon based on suit
@@ -38,33 +39,33 @@ export const PlayingCard = ({value, suit, display, visible}: CardProps) => {
                 </div>
                 <div className="flip-card-back bg-white overflow-hidden rounded-lg shadow-lg">
                     <div className="flex justify-center flex-col text-xs">
-                        <div className="flex justify-center space-x-1 text-blue-400">
+                        <div className={blue_class}>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
                         </div>
-                        <div className="flex justify-center space-x-1 text-red-400">
+                        <div className={red_class}>
                             <div>{suitIcons['diamonds']}</div>
                             <div>{suitIcons['diamonds']}</div>
                             <div>{suitIcons['diamonds']}</div>
                             <div>{suitIcons['diamonds']}</div>
                         </div>
-                        <div className="flex justify-center space-x-1 text-blue-400">
+                        <div className={blue_class}>
                             <div>{suitIcons['clubs']}</div>
                             <div>{suitIcons['clubs']}</div>
                             <div>{suitIcons['clubs']}</div>
                             <div>{suitIcons['clubs']}</div>
                             <div>{suitIcons['clubs']}</div>
                         </div>
-                        <div className="flex justify-center space-x-1 text-red-400">
+                        <div className={red_class}>
                             <div>{suitIcons['hearts']}</div>
                             <div>{suitIcons['hearts']}</div>
                             <div>{suitIcons['hearts']}</div>
                             <div>{suitIcons['hearts']}</div>
                         </div>
-                        <div className="flex justify-center space-x-1 text-blue-400">
+                        <div className={blue_class}>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
                             <div>{suitIcons['spades']}</div>
