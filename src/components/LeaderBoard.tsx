@@ -27,7 +27,7 @@ function LeaderBoard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://bj-teacher-server-env-1.eba-n9at9mkt.ap-southeast-2.elasticbeanstalk.com/api/data",
+                const response = await fetch("https://bj-teacher-server-env-1.eba-n9at9mkt.ap-southeast-2.elasticbeanstalk.com/api/data",
                     {
                         method: 'GET',
                         headers: {'Content-Type': 'application/json'}
