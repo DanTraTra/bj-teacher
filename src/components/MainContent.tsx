@@ -847,7 +847,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
     const saveScore = async (username: string): Promise<{ success: boolean }> => {
         try {
-            const response = await fetch("https://bj-teacher-server-env-1.eba-n9at9mkt.ap-southeast-2.elasticbeanstalk.com/api/add-score",
+            const response = await fetch("https://api.daaaaan.com/api/add-score",
                 {
                     method: 'POST',
                     headers: {
