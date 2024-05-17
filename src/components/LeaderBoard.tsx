@@ -27,7 +27,7 @@ function LeaderBoard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("https://daaaaan.com/api/data",
+                const response = await fetch("https://api.daaaaan.com/api/data",
                     {
                         method: 'GET',
                         headers: {'Content-Type': 'application/json'}
