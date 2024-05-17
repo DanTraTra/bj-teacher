@@ -51,7 +51,7 @@ function App() {
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col items-center space-y-2 pt-40 pb-50">
+                return <div className="flex flex-col items-center space-y-2 pt-24 pb-50">
 
                     <div className="space-x-2 pb-6">
                         <button className="btn font-tech text-lg" onClick={handlePlay}>Play</button>
@@ -65,10 +65,10 @@ function App() {
             case 'PLAY':
                 return <>
                     <div
-                        className="absolute inset-0 flex flex-col pt-48 items-center h-screen w-screen overflow-hidden">
+                        className="absolute inset-0 flex flex-col pt-24 items-center h-screen w-screen overflow-hidden">
                         <MainContent onChange={changeScreen}/>
                     </div>
-                    <div className="flex pt-20 py-8">
+                    <div className="flex pt-8 py-8">
                         <SVGTwo className="w-full h-full"/>
                     </div>
                 </>
