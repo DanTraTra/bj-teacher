@@ -49,7 +49,7 @@ function LeaderBoard() {
                         player: d.username,
                         cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
                         hands: d.game_log_data.length,
-                        win: Math.round(d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length)
+                        win: parseFloat((d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length).toFixed(2)) * 100
 
                     }
                     updatedBoard.push(entry)
@@ -82,7 +82,7 @@ function LeaderBoard() {
                 console.log("Leaderboard", Leaderboard)
             }
 
-        },[Leaderboard]
+        }, [Leaderboard]
     )
 
     useEffect(() => {
@@ -103,11 +103,11 @@ function LeaderBoard() {
                                 <tr>
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tl-lg">Rank</th>
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Player</th>
-                                    <th className="px-4 py-2 text-center text-sm font-medium text-black">Cash Out
-                                        ($)
-                                    </th>
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Win %</th>
-                                    <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg">Hands
+                                    <th className="px-4 py-2 text-center text-sm font-medium text-black">Hands Played
+                                    </th>
+                                    <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg">Cash Out
+                                        ($)
                                     </th>
                                 </tr>
                                 </thead>
@@ -115,12 +115,13 @@ function LeaderBoard() {
                                 {Leaderboard.map((row, index) => (
                                     <tr key={index} className="border-b">
                                         <td
-                                            className="px-4 py-2 text-sm text-center text-gray-700">{row.rank}</td>
+                                            className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.rank}</td>
                                         <td
-                                            className="px-4 py-2 text-sm text-center text-gray-700">{row.player}</td>
-                                        <td className="px-4 py-2 text-sm text-center text-gray-700">{row.cashOut}</td>
-                                        <td className="px-4 py-2 text-sm text-center text-gray-700">{row.win}</td>
-                                        <td className="px-4 py-2 text-sm text-center text-gray-700">{row.hands}</td>
+                                            className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.player}</td>
+                                        <td className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.win}</td>
+                                        <td className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.hands}</td>
+                                        <td className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.cashOut}</td>
+
                                     </tr>
                                 ))}
                                 </tbody>
