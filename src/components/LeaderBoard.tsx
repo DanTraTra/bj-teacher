@@ -50,8 +50,7 @@ function LeaderBoard() {
                         player: d.username,
                         cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
                         hands: d.game_log_data.length,
-                        win: parseFloat((d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length).toFixed(2)) * 100
-
+                        win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length) * 100).toFixed(2))
                     }
                     updatedBoard.push(entry)
                 })

@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import supabase from '../services/supabaseClient';
 import './PlayingCard'
 import 'tailwindcss/tailwind.css'
 import {CardProps, PlayingCard} from "./PlayingCard"
@@ -996,20 +997,21 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
     const saveScore = async (username: string): Promise<{ success: boolean }> => {
         try {
-            const response = await fetch("https://api.daaaaan.com/api/add-score",
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({username: username, game_log_data: JSON.stringify(GameLog)})
-                },
-            ).then(response => response.json())
-                .then(data => console.log(data))
-                .catch(error => console.error('Error:', error));
+            const {data, error} = await supabase
+                .from('userscore')
+                .insert([
+                    {
+                        username: username,
+                        game_log_data: GameLog  // Ensure GameLog is defined and correct
+                    }
+                ]);
 
-            // if (!response.ok) throw new Error('Failed to save score');
-            return {success: true}
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            console.log('Data inserted:', data);
+            return {success: true};
         } catch (error) {
             console.error('Failed to save score:', error);
             return {success: false};
