@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Client} from 'pg';
 import {GameLog} from './MainContent'
+import supabase from '../services/supabaseClient'
 
-interface GameLogDataEntries {
+export interface GameLogDataEntries {
     id: number
     username: string;
     game_log_data: GameLog[];
@@ -25,19 +25,20 @@ function LeaderBoard() {
     const [Loading, setLoading] = useState(true);
 
     useEffect(() => {
+
         const fetchData = async () => {
             try {
-                const response = await fetch("https://api.daaaaan.com/api/data",
-                    {
-                        method: 'GET',
-                        headers: {'Content-Type': 'application/json'}
-                    });
 
-                if (!response.ok) {
-                    throw new Error(`HTTPS error! Status: ${response.status}`)
+                setLoading(false);
+
+                const { data, error} = await supabase
+                    .from('userscore') // Replace 'your_table_name' with the actual table name
+                    .select('*');
+
+                if (error) {
+                    throw new Error(`SupaBase error: ${error.message}`);
                 }
 
-                const data = await response.json();
                 console.log("data", data)
 
                 let entry: LeaderboardRow = {rank: 0, player: "", cashOut: 0, win: 0, hands: 0}
@@ -106,7 +107,8 @@ function LeaderBoard() {
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Win %</th>
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Hands Played
                                     </th>
-                                    <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg">Cash Out
+                                    <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg">Cash
+                                        Out
                                         ($)
                                     </th>
                                 </tr>
