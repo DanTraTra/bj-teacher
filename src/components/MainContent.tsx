@@ -76,7 +76,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
     // const [UserName, setUserName] = useState('');
 
     const [BalanceAmount, setBalanceAmount] = useState<number>(initialBalance);
-    const [DeckCount, setDeckCount] = useState(6)
+    const [DeckCount, setDeckCount] = useState(16)
 
     const [GameState, setGameState] = useState<GameOutComeType>("PLACING BET");
     const [GameCount, setGameCount] = useState(0);
@@ -406,16 +406,16 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         const random_player_card_1 = getRandomCard(false);
         // const random_player_card_1: CardProps = {
         //     suit: 'clubs',
-        //     value: 11,
-        //     display: 'A',
+        //     value: 5,
+        //     display: '5',
         //     visible: false
         // }
 
         const random_dealer_card_1 = getRandomCard(false);
         // const random_dealer_card_1: CardProps = {
         //     suit: 'clubs',
-        //     value: 11,
-        //     display: 'A',
+        //     value: 5,
+        //     display: '5',
         //     visible: false
         // }
 
@@ -430,8 +430,8 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         const random_dealer_card_2 = getRandomCard(false);
         // const random_dealer_card_2: CardProps = {
         //     suit: 'clubs',
-        //     value: 10,
-        //     display: 'K',
+        //     value: 3,
+        //     display: '3',
         //     visible: false
         // }
 
