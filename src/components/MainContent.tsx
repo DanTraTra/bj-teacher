@@ -106,7 +106,6 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         const [DealerHit, setDealerHit] = useState<number>(0); // DealerHit increments once the dealer begins to deal himself cards since setting to true from being already true won't cause the dealer to actually draw a card
         const [DealerTurnEnded, setDealerTurnEnded] = useState<boolean>(false);
 
-
         const [DealerBlackJackState, setDealerBlackJackState] = useState<boolean>(false);
         const [PlayerBlackJackState, setPlayerBlackJackState] = useState<boolean>(false);
 
@@ -203,12 +202,12 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             console.log("Adding card to Dealer Hand")
 
             setDealerHand(newDealerHand)
+            // const updatedHand = DealerHand.map(card => ({
+            //     ...card, visible: true
+            // }));
+
             setTimeout(() => {
-                setDealerHand(currentHand => {
-                    return currentHand.map(card => ({
-                        ...card, visible: true
-                    }));
-                })
+                revealDealerCard(newDealerHand.length - 1)
             }, animationTime)
         }
 
@@ -276,11 +275,12 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         }
 
         const [ExtraCardCount, setExtraCardCount] = useState(0)
-        const [isHitDisabled, setHitDisabled] = useState(false);
+        const [HitDisabled, setHitDisabled] = useState(false);
         const handleClickHit = () => {
             console.log("CLICKED HIT")
             setExtraCardCount(ExtraCardCount + 1)
             setHitDisabled(true)
+            setStandDisabled(true)
             setDoubleDownDisabled(true);
             setSplitDisabled(true);
             const random_card = getRandomCard(false)
@@ -301,7 +301,10 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 updateCount(random_card)
             }, animationTime)
             setTimeout(() => {
-                setHitDisabled(false)
+                if (PlayerHand[PlayerHandIndex].sum <= 21) {
+                    setHitDisabled(false)
+                    setStandDisabled(false)
+                }
             }, animationTime + 100)
         }
 
@@ -309,6 +312,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         const handleClickStand = () => {
             console.log("CLICKED STAND")
             setStandDisabled(true)
+            setHitDisabled(true)
             setDoubleDownDisabled(true)
             setSplitDisabled(true)
             if (PlayerHandIndex == PlayerHand.length - 1) {
@@ -368,7 +372,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 })
                 setPlayerHand(splitHand)
                 PlayerHand[PlayerHandIndex].betDisplay <= BalanceAmount - splitHand[PlayerHandIndex].betDisplay
-                && PlayerHand.length == 2
+                && PlayerHand[PlayerHandIndex].cards.length
                 && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display) ? (setSplitDisabled(false)) : (setSplitDisabled(true))
 
             }, animationTime + 100)
@@ -387,7 +391,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             const updatedBalance = BalanceAmount - PlayerHand[PlayerHandIndex].betDisplay
             setBalanceAmount(updatedBalance)
 
-            if (BalanceAmount > PlayerHand[PlayerHandIndex].betDisplay) {
+            if (BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
                 const updatedHand = [...PlayerHand];
                 updatedHand[PlayerHandIndex].betDisplay = updatedHand[PlayerHandIndex].betDisplay * 2;
                 updatedHand[PlayerHandIndex].doubleDown = true;
@@ -397,6 +401,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
         }
 
+        const [StartOverDisabled, setStartOverDisabled] = useState(false);
         const handleClickStartOver = () => {
             updateGameLog()
             const newDeck = initializeDeck(6)
@@ -408,8 +413,10 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             setCardShift([])
         }
 
+        const [KeepGoingDisabled, setKeepGoingDisabled] = useState(false);
         const handleClickKeepGoing = () => {
             // If there are multiple hands, combine into first hand
+            console.log("CLICKED KEEP GOING")
             const finalHand = [...PlayerHand]
             finalHand[0].betDisplay = finalHand.reduce((acc, hand) => {
                 return hand.betDisplay + acc
@@ -423,6 +430,14 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             console.log("GameLog", GameLog)
         }, [GameLog])
 
+        useEffect(() => {
+            console.log("BalanceAmount", BalanceAmount)
+            if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.maxBet * hand.winMultiplier + acc, 0) < 1) {
+                setBalanceAmount(0)
+            }
+        }, [BalanceAmount])
+
+        const [CashOutDisabled, setCashOutDisabled] = useState(false);
         const handleClickCashOut = () => {
             updateGameLog()
             setGameState("SAVING GAME")
@@ -469,12 +484,12 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
         }
 
-        const handlePlaceBet = () => {
+        const handleClickPlaceBet = () => {
             console.log("Pressed place bet")
             setGameState('IN PLAY')
         }
 
-        const handleResetBet = () => {
+        const handleClickResetBet = () => {
             setBalanceAmount(BalanceAmount + PlayerHand[PlayerHandIndex].betDisplay);
             const updatedPlayerHand = [...PlayerHand];
             updatedPlayerHand[PlayerHandIndex].betDisplay = 0;
@@ -514,46 +529,34 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         }
 
         const revealDealerCard = (indexToReveal: number) => {
-            setTimeout(() => {
-                setDealerHand(currentHand =>
-                    currentHand.map((card, index) => {
-                            if (index == indexToReveal) {
-                                return {...card, visible: true}
-                            } else {
-                                return {...card}
-                            }
-                        }
-                    )
-                )
-            }, 0);
 
-            // if (GameState == 'IN PLAY') {
-            //     setTimeout(() => {
-            //         setDealerHand(currentHand =>
-            //             currentHand.map((card, index) => {
-            //                 return {...card, visible: true}
-            //                     if (index == 0) {
-            //                         return {...card, visible: true}
-            //                     } else {
-            //                         return {...card}
-            //                     }
-            //                 }
-            //             )
-            //         )
-            //     }, 0);
-            // }
+            setDealerHand(prevDealerHand => {
+                const updatedHand = prevDealerHand.map((card, index) => {
+                        console.log("index", index)
+                        console.log("indexToReveal", indexToReveal)
+
+                        return index == indexToReveal ? {...card, visible: true} : {...card}
+                    }
+                )
+                console.log('updatedDealerHand', updatedHand)
+                return updatedHand
+            })
+
         }
 
-        // TODO: Make chips reset to zero after winning a hand
-        // TODO: Animate coins going to balance
-
         const setUpGame = () => {
+            // TODO: Make chips reset to zero after winning a hand
+            // TODO: Animate coins going to balance
+
             setGameState("PLACING BET");
             setPlayerStand(false);
             setDealerHit(0);
             setStandDisabled(false);
+            setHitDisabled(false);
             setCardShift([]);
             setExtraCardCount(0);
+            setDealerTurnEnded(false)
+            setPlayerBlackJackState(false)
 
             if (PlayerHand[PlayerHandIndex].betDisplay > BalanceAmount) {
                 setDoubleDownDisabled(true);
@@ -561,7 +564,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 setDoubleDownDisabled(false);
             }
 
-            if (PlayerHand.length == 2
+            if (PlayerHand[PlayerHandIndex].cards.length
                 && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)
                 && BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
                 setSplitDisabled(false)
@@ -581,24 +584,24 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             const random_dealer_card_1 = getRandomCard(false);
             // const random_dealer_card_1: CardProps = {
             //     suit: 'clubs',
-            //     value: 5,
-            //     display: '5',
+            //     value: 10,
+            //     display: 'K',
             //     visible: false
             // }
 
             const random_player_card_2 = getRandomCard(false);
             // const random_player_card_2: CardProps = {
             //     suit: 'clubs',
-            //     value: 10,
-            //     display: 'K',
+            //     value: 11,
+            //     display: 'A',
             //     visible: false
             // }
 
             const random_dealer_card_2 = getRandomCard(false);
             // const random_dealer_card_2: CardProps = {
             //     suit: 'clubs',
-            //     value: 3,
-            //     display: '3',
+            //     value: 11,
+            //     display: 'A',
             //     visible: false
             // }
 
@@ -635,53 +638,67 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         useEffect(() => {
             // revealPlayerCards()
             // Player bust with A even is it's less than 21
+
+            console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].sum]")
+            console.log(`PlayerHand[${PlayerHandIndex}].sum`, PlayerHand[PlayerHandIndex].sum)
+            console.log(`PlayerHand[${PlayerHandIndex}].cards.length`, PlayerHand[PlayerHandIndex].cards.length)
+            console.log("GameState", GameState)
             setTimeout(() => {
                 setPlayerBlackJackState(false)
-                if (PlayerHand[PlayerHandIndex].sum > 21) {
+                if (GameState == 'IN PLAY') {
 
-                    if (PlayerHandIndex == PlayerHand.length - 1) {
-                        setGameState("PLAYER BUST")
-                        setPlayerStand(true)
+                    if (PlayerHand[PlayerHandIndex].sum > 21 || (PlayerHand[PlayerHandIndex].sum == 21 && PlayerHand[PlayerHandIndex].cards.length == 2)) {
+                        //If player's current hand busts or hits blackjack
+                        if (PlayerHandIndex == PlayerHand.length - 1) {
+                            // Last Hand
+                            setKeepGoingDisabled(true)
+                            setCashOutDisabled(true)
+                            setStartOverDisabled(true)
+                            setPlayerStand(true)
+                            //
+                            // console.log("Setting Dealer Hit False")
+                            // setDealerHit(0);
+                            //
+                            // console.log("Setting DealerTurnEnded True")
+                            // setDealerTurnEnded(true);
 
-                        if (PlayerHand.length == 1) {
-                            console.log("Setting Dealer Hit False")
-                            setDealerHit(0);
 
-                            console.log("Setting DealerTurnEnded True")
-                            setDealerTurnEnded(true);
+                        } else if (PlayerHand.length > 1) {
+                            setPlayerHandIndex(PlayerHandIndex + 1)
+                            const updatedList = [...CardShift]
+                            updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
+                            setCardShift(updatedList)
                         }
 
-                    } else if (GameState == 'IN PLAY' && PlayerHand.length > 1) {
-                        setPlayerHandIndex(PlayerHandIndex + 1)
-                        const updatedList = [...CardShift]
-                        updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
-                        setCardShift(updatedList)
-                    }
-
-                } else if (PlayerHand[PlayerHandIndex].sum === 21 && PlayerHand[PlayerHandIndex].cards.length == 2 && DealerHandSumState != 21) {
-                    // The dealer must also not have blackjack
-                    setPlayerBlackJackState(true)
-                    // setPlayerWins(currentAmount => currentAmount + 1)
-
-                    // const updatedHands = [...PlayerHand]
-                    // updatedHands[PlayerHandIndex].winMultiplier = 1.5
-                    // setPlayerHand(updatedHands)
-
-                    if (PlayerHand.length == 1) {
-                        setGameState("PLAYER BLACKJACK")
-                        setPlayerWins(currentAmount => currentAmount + 1)
                     }
 
                 }
 
             }, animationTime)
 
-            console.log(`PlayerHand[${PlayerHandIndex}].sum`, PlayerHand[PlayerHandIndex].sum)
-        }, [PlayerHand[PlayerHandIndex].sum])
+        }, [PlayerHand[PlayerHandIndex].sum, GameState])
 
         useEffect(() => {
-            console.log("PlayerHand", PlayerHand[PlayerHandIndex])
-        }, [PlayerHand[PlayerHandIndex]])
+            // console.log("PlayerHand", PlayerHand)
+            // console.log("PlayerHand", PlayerHandIndex)
+        }, [PlayerHand])
+
+        useEffect(() => {
+            // console.log("PlayerHand", PlayerHand)
+            // console.log("PlayerHand", PlayerHandIndex)
+            if (PlayerStand) {
+                setDoubleDownDisabled(true)
+                setSplitDisabled(true)
+                setStandDisabled(true)
+                setHitDisabled(true)
+            } else {
+                setDoubleDownDisabled(false)
+                setSplitDisabled(false)
+                setStandDisabled(false)
+                setHitDisabled(false)
+            }
+
+        }, [PlayerStand])
 
         useEffect(() => {
 
@@ -690,38 +707,40 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             // console.log("setDealerHandSumState1", dealerHandSum)
             // setDealerHandSumState(dealerHandSum);
 
-            // If dealerHandSum > 21, go through all As and reduce to one 1 until the hand is <=21 or whan all As are 1
-            if (playerHandSums[PlayerHandIndex] > 21 && PlayerHand[PlayerHandIndex].cards.some(card => card.value == 11)) {
-                const hand_copy = [...PlayerHand[PlayerHandIndex].cards]
+            // If dealerHandSum > 21, go through all As and reduce to one 1 until the hand is <=21 or when all As are 1
+            PlayerHand.map(hand => {
+                if ((hand.sum > 21 && hand.cards.some(card => card.value == 11)) || (hand.sum <= 11 && hand.cards.some(card => card.value == 1))) {
+                    const hand_copy = [...hand.cards]
 
-                for (let [index, card] of hand_copy.entries()) {
-                    // console.log(`playerHandSum index ${index} -`, playerHandSums)
-                    if (card.display == 'A' && card.value == 11 && playerHandSums[PlayerHandIndex] > 21) {
-                        hand_copy[index] = {...card, value: 1}
-                        // console.log("card", card)
+                    for (let [index, card] of hand_copy.entries()) {
+                        // console.log(`playerHandSum index ${index} -`, playerHandSums)
+                        if (card.display == 'A' && card.value == 11 && playerHandSums[PlayerHandIndex] > 21) {
+                            hand_copy[index] = {...card, value: 1}
+                            // console.log("card", card)
+                        } else if (card.display == 'A' && card.value == 1 && playerHandSums[PlayerHandIndex] <= 21) {
+                            hand_copy[index] = {...card, value: 11}
+                        }
+                        playerHandSums[PlayerHandIndex] = hand_copy.reduce((acc, card) => acc + card.value, 0);
+
                     }
-                    playerHandSums[PlayerHandIndex] = hand_copy.reduce((acc, card) => acc + card.value, 0);
 
-                }
+                    // console.log("hand_copy", hand_copy)
 
-                // console.log("hand_copy", hand_copy)
-
-                if (PlayerHand[PlayerHandIndex].cards.every(card => card.visible)) {
-                    // setPlayerHand(currentHand => {
-                    //     return hand_copy
-                    // })
-                    setPlayerHand(currentHand => {
-                        const updatedHand = [...currentHand]
+                    if (hand.cards.every(card => card.visible)) {
+                        // setPlayerHand(currentHand => {
+                        //     return hand_copy
+                        // })
+                        const updatedHand = [...PlayerHand]
                         updatedHand[PlayerHandIndex].cards = hand_copy
-                        updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
                         console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
-                        return updatedHand
-                    })
+                        setPlayerHand(updatedHand)
 
-                    // setPlayerHandSumState(playerHandSum);
+                        // setPlayerHandSumState(playerHandSum);
 
+                    }
                 }
-            }
+            })
+
 
             setPlayerHand(currentHand => {
                 const updatedHand = [...currentHand]
@@ -762,41 +781,34 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                         if (PlayerHand.length == 1) {
                             setPlayerBlackJackState(true)
                         }
-                    } else if (DealerHandSumState > 21) {
-                        // If Dealer bust
-                        if (hand.sum > 21) {
-                            hand.winMultiplier = 1;
-                        } else {
-                            hand.winMultiplier = 2;
-                        }
+
+                    } else if (hand.sum > 21) {
+                        // If player bust bust
+                        hand.winMultiplier = 0;
                     } else {
-                        // If Dealer doesn't bust
-                        if (hand.sum > 21) {
-                            hand.winMultiplier = 0;
-                        } else if (hand.sum > DealerHandSumState) {
+                        // If player doesn't bust
+                        if (DealerHandSumState > 21) {
+                            // Dealer busts
                             hand.winMultiplier = 2;
-                        } else if (hand.sum < DealerHandSumState) {
-                            hand.winMultiplier = 0;
-                        } else if (hand.sum == DealerHandSumState) {
+                        } else if (DealerHandSumState < hand.sum) {
+                            // Dealer hand is less than the Player's
+                            hand.winMultiplier = 2;
+                        } else if (DealerHandSumState == hand.sum) {
+                            // Dealer hand is equal to the Player's
                             hand.winMultiplier = 1;
+                        } else if (DealerHandSumState > hand.sum) {
+                            hand.winMultiplier = 0;
                         }
                     }
-                    // } else if (hand.sum > 21 && DealerHandSumState <= 21) {
-                    //     hand.winMultiplier = 0;
-                    // } else if (DealerHandSumState > 21) {
-                    //     hand.winMultiplier = 2;
-                    // } else if (hand.sum > DealerHandSumState) {
-                    //     hand.winMultiplier = 2;
-                    // } else if (hand.sum < DealerHandSumState && DealerHandSumState <= 21) {
-                    //     hand.winMultiplier = 0;
-                    // } else if (hand.sum == DealerHandSumState) {
-                    //     hand.winMultiplier = 1;
-                    // }
 
                 })
 
                 setPlayerHand(updatedHand)
                 setTimeout(() => {
+                    setKeepGoingDisabled(false)
+                    setCashOutDisabled(false)
+                    setStartOverDisabled(false)
+
                     switch (PlayerHand[PlayerHandIndex].winMultiplier) {
                         case 2:
                             setGameState("YOU WIN")
@@ -813,7 +825,9 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                         default:
                             setGameState("IN PLAY")
                     }
-                }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime + 200) : (0))
+                }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime) : (0))
+
+                // }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime + 200) : (0))
 
             }
 
@@ -828,6 +842,9 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 console.log("DealerHand", DealerHand)
                 console.log("PlayerHand", PlayerHand)
 
+                if (PlayerStand) {
+                    revealDealerCard(1)
+                }
                 let dealerHandSum = DealerHand.reduce((acc, card) => acc + card.value, 0);
 
                 // console.log("setDealerHandSumState1", dealerHandSum)
@@ -866,7 +883,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
                 if (PlayerStand || GameState == 'PLAYER BUST' || (PlayerHand.length > 1 && LOSE.includes(GameState))) {
 
-                    if (dealerHandSum < 17 && !PlayerBlackJackState) {
+                    if (dealerHandSum < 17 && PlayerHand[PlayerHandIndex].sum <= 21 && !PlayerBlackJackState && !PlayerHand.every(hand => hand.winMultiplier == 0)) {
 
                         if (DealerHand.every((card) => card.visible)) {
                             setTimeout(() => {
@@ -903,7 +920,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
             if ((GameState == 'PLAYER BUST' || GameState == 'PLAYER BLACKJACK') && (PlayerHandIndex == PlayerHand.length - 1)) {
                 //Reveal dealers card if isn't turned over
-                revealDealerCard(1)
+                // revealDealerCard(1)
 
             } else if (GameState == 'IN PLAY') {
                 revealPlayerCards()
@@ -914,30 +931,14 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                     setDoubleDownDisabled(false)
                 }
 
-                if (PlayerHand.length == 2
+                if (PlayerHand[PlayerHandIndex].cards.length
                     && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)
-                    && BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
+                    && BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
                     setSplitDisabled(false)
                 } else {
                     setSplitDisabled(true)
                 }
             }
-
-            // const currentHand = [...PlayerHand]
-            // currentHand.map(hand => {
-            //     // GameState == "PLAYER BLACKJACK" ? setWinAmount(PlayerHand[PlayerHandIndex].bet * 2.5) : setWinAmount(PlayerHand[PlayerHandIndex].bet * 2)
-            //
-            //     if (GameState == "PLAYER BLACKJACK") {
-            //         hand.winMultiplier = 2.5
-            //     } else if (WIN.includes(GameState)) {
-            //         hand.winMultiplier = 2
-            //     } else if (LOSE.includes(GameState)) {
-            //         hand.winMultiplier = 0
-            //     } else if (GameState == "PUSH") {
-            //         hand.winMultiplier = 1
-            //     }
-            // })
-
 
             console.log("GlobalDeck.length", GlobalDeck.length)
         }, [GameState])
@@ -1024,49 +1025,6 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
             }
 
-            // if (LOSE.includes(GameState)) {
-            //     // Animate the bet chips reducing
-            //     if (PlayerHand[PlayerHandIndex].betDisplay > 0) {
-            //         const timer = setTimeout(() => {
-            //             if (PlayerHand[PlayerHandIndex].betDisplay >= betAnimationChange) {
-            //                 const updatedPlayerHand = [...PlayerHand]
-            //                 updatedPlayerHand[PlayerHandIndex].betDisplay = PlayerHand[PlayerHandIndex].betDisplay - betAnimationChange
-            //                 setPlayerHand(updatedPlayerHand)
-            //             } else {
-            //                 const updatedPlayerHand = [...PlayerHand]
-            //                 updatedPlayerHand[PlayerHandIndex].betDisplay = 0
-            //                 setPlayerHand(updatedPlayerHand)
-            //             }
-            //         }, 50);
-            //         return () => clearTimeout(timer);
-            //     }
-            //
-            // } else if (WIN.includes(GameState)) {
-            //     const winAmount = PlayerHand[PlayerHandIndex].maxBet * PlayerHand[PlayerHandIndex].winMultiplier
-            //     // Animate the bet chips incrementing
-            //     if (PlayerHand[PlayerHandIndex].betDisplay < PlayerHand[PlayerHandIndex].maxBet * PlayerHand[PlayerHandIndex].winMultiplier) {
-            //         const timer = setTimeout(() => {
-            //             if (winAmount - PlayerHand[PlayerHandIndex].betDisplay >= betAnimationChange) {
-            //                 // decrement bet display by the calculated difference for animation purposes
-            //                 const updatedPlayerHand = [...PlayerHand]
-            //                 updatedPlayerHand[PlayerHandIndex].betDisplay = PlayerHand[PlayerHandIndex].betDisplay + betAnimationChange
-            //                 setPlayerHand(updatedPlayerHand)
-            //
-            //             } else {
-            //                 // else, just set it to final win amount
-            //                 const updatedPlayerHand = [...PlayerHand]
-            //                 updatedPlayerHand[PlayerHandIndex].betDisplay = winAmount
-            //                 setPlayerHand(updatedPlayerHand)
-            //             }
-            //         }, 50);
-            //         return () => clearTimeout(timer);
-            //     }
-            //
-            // } else if (PlayerHandIndex > 0) {
-            //     setPlayerHandIndex(PlayerHandIndex - 1)
-            // }
-
-
         }, [PlayerHand[PlayerHandIndex].betDisplay, GameState, DealerTurnEnded, PlayerHandIndex]);
 
         useEffect(() => {
@@ -1119,9 +1077,9 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             setHitDisabled(false)
             setStandDisabled(false)
 
-            if (PlayerHand.length == 2
+            if (PlayerHand[PlayerHandIndex].cards.length
                 && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)
-                && BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
+                && BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
                 setSplitDisabled(false)
             } else {
                 setSplitDisabled(true)
@@ -1221,7 +1179,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 </div>
                 <div className="flex flex-col items-center space-y-2">
                     <button className={buttonClass + " btn-success"} onClick={handleClickHit}
-                            disabled={standDisabled}>
+                            disabled={HitDisabled}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                              className="w-6 h-6">
                             <path fillRule="evenodd"
@@ -1280,13 +1238,17 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                         {
                             // Just won a hand
                             PlayerHand[PlayerHandIndex].betDisplay > 0 ? (
+                                PlayerHand[PlayerHandIndex].betDisplay == PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0) &&
                                 <>
                                     <button className="btn btn-sm items-center justify-center w-28 animate-none"
-                                            onClick={handleClickKeepGoing}>Keep Going
+                                            onClick={handleClickKeepGoing}
+                                            disabled={KeepGoingDisabled}>Keep Going
+
                                     </button>
                                     <button
                                         className="btn btn-sm items-center justify-center w-28 animate-none btn-success text-white"
-                                        onClick={handleClickCashOut}>Cash Out!
+                                        onClick={handleClickCashOut}
+                                        disabled={CashOutDisabled}>Cash Out!
                                     </button>
                                 </>
 
@@ -1294,6 +1256,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                                 //Just lost a hand
                                 BalanceAmount > 0 ? (
                                     // Has money left to bet
+                                    PlayerHand[PlayerHandIndex].betDisplay == PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0) &&
                                     <>
                                         <button className="btn btn-sm items-center justify-center w-28 animate-none"
                                                 onClick={handleClickKeepGoing}>Keep Going
@@ -1565,10 +1528,6 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                         <div
                             className={`flex h-[10rem] ${GameState == 'PLACING BET' ? ("space-x-8 mx-auto") : ("w-full overflow-x-scroll")}`}
                             ref={splitCardsContainer}
-                            // onMouseDown={handleMouseDown}
-                            // onMouseMove={handleMouseMove}
-                            // onMouseUp={handleMouseUp}
-                            // onMouseLeave={handleMouseUp}
                             onTouchStart={handleTouchStart}
                             onTouchEnd={handleTouchEnd}
                         >
@@ -1603,7 +1562,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                                                             className="absolute flex flex-row items-center justify-center space-x-2">
                                                             <button
                                                                 className="flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90"
-                                                                onClick={handlePlaceBet}
+                                                                onClick={handleClickPlaceBet}
                                                                 disabled={hand.betDisplay <= 0}
                                                                 // disabled={BetAmount == 0}
                                                             >
@@ -1611,7 +1570,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                                                             </button>
                                                             <button
                                                                 className="btn btn-sm flex items-center justify-center h-8 px-3 m-0 border-0"
-                                                                onClick={handleResetBet}> Reset
+                                                                onClick={handleClickResetBet}> Reset
                                                                 {/*<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"*/}
                                                                 {/*     stroke-width="1.5" stroke="currentColor"*/}
                                                                 {/*     className="flex items-center justify-center h-full w-full">*/}
