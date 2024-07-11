@@ -28,6 +28,7 @@ import C25_ from "/src/assets/c25_.svg?react"
 import C50_ from "/src/assets/c50_.svg?react"
 // @ts-ignore
 import C100_ from "/src/assets/c100_.svg?react"
+import PerformanceGraph from "./PerformanceGraph";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 w-14 h-14 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -1474,6 +1475,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
             <>
                 <div className="absolute top-8 right-8">
+
                     <div
                         className="flex flex-row justify-center items-center space-x-2 bg-grey pl-1.5 pr-3 py-1 rounded-badge">
                         <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">

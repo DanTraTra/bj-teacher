@@ -4,7 +4,8 @@ export default {
     content: [
         "./index.html",
         "./src/**/*.{js,jsx,ts,tsx}",
-        "./components/**/*.{html,js,jsx,ts,tsx}"
+        "./components/**/*.{html,js,jsx,ts,tsx}",
+        "./node_modules/flowbite/**/*.js"
     ],
     theme: {
         extend: {
@@ -39,6 +40,6 @@ export default {
         themes: ["pastel"],
     },
 
-    plugins: [require("daisyui")],
+    plugins: [require("daisyui"), defaultTheme, require('flowbite/plugin')],
 }
 

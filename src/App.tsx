@@ -75,7 +75,7 @@ function App() {
                             <MainContent onChange={changeScreen}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
-                        <SVGTwo className="max-w-sm max-h-sm"/>
+                            <SVGTwo className="max-w-sm max-h-sm"/>
                         </div>
                     </div>
                 </>
