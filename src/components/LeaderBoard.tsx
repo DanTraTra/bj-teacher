@@ -4,6 +4,7 @@ import supabase from '../services/supabaseClient'
 import {Accordion} from 'flowbite';
 import type {AccordionOptions, AccordionItem, AccordionInterface} from 'flowbite';
 import PerformanceGraph from "./PerformanceGraph";
+import {AiFillCaretLeft, AiOutlineDown, AiOutlineUp, AiOutlineLineChart, AiOutlineLeft} from 'react-icons/ai'; // Import icons
 
 const accordionEl = document.querySelector('#accordion-example') as HTMLElement | null;
 
@@ -168,16 +169,20 @@ function LeaderBoard() {
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Player</th>
                                     <th className="px-4 py-2 text-center text-sm font-medium text-black">Win % (total)
                                     </th>
-                                    <th className="px-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg border-l border-accent-content/30">Cash
+                                    <th className="pl-4 py-2 text-center text-sm font-medium text-black rounded-tr-lg border-l border-accent-content/30">Cash
                                         Out
                                         ($)
                                     </th>
+                                    <th className="pr-4 py-2 text-center font-medium text-black rounded-tr-lg">
+                                        <AiOutlineLineChart/>
+                                    </th>
+
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {Leaderboard.map((row, index) => (
                                     <React.Fragment key={index}>
-                                        <tr key={index} className="border-b cursor-pointer"
+                                        <tr key={index} className="border-t cursor-pointer"
                                             style={{
                                                 backgroundColor: `${index === 0
                                                     ? "#e8e8e8"
@@ -193,22 +198,26 @@ function LeaderBoard() {
                                             <td
                                                 className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{row.player}</td>
                                             <td className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">{`${row.win}(${row.hands})`}</td>
-                                            <td className="px-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap border-l border-accent-content/30">{row.cashOut}</td>
-
+                                            <td className="pl-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap border-l border-accent-content/30">{row.cashOut}</td>
+                                            <td className="pr-4 py-2 text-sm text-center text-gray-700 whitespace-nowrap">
+                                                {ExpandedRowIndex === index ? <AiOutlineLeft/> : <AiOutlineDown/>}
+                                            </td>
                                         </tr>
                                         {ExpandedRowIndex === index && (
-                                            <tr className="border-b"
+                                            <tr className=""
                                                 style={{
-                                                backgroundColor: `${index === 0
-                                                    ? "#e8e8e8"
-                                                    : index === 1
-                                                        ? "#f2f2f2"
-                                                        : index === 2
-                                                            ? "#f7f7f7"
-                                                            : ""}`
-                                            }}>
-                                                <td colSpan={4} className="">
-                                                    <PerformanceGraph game_log_data={LeaderboardData[row.db_index].game_log_data}/>
+                                                    backgroundColor: `${index === 0
+                                                        ? "#e8e8e8"
+                                                        : index === 1
+                                                            ? "#f2f2f2"
+                                                            : index === 2
+                                                                ? "#f7f7f7"
+                                                                : ""}`
+                                                }}>
+                                                <td colSpan={5} className="">
+                                                    <PerformanceGraph
+                                                        game_log_data={LeaderboardData[row.db_index].game_log_data}
+                                                        dark_bg={false}/>
                                                 </td>
                                             </tr>
                                         )}

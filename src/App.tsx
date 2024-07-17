@@ -51,7 +51,7 @@ function App() {
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col items-center space-y-2 pt-24 pb-50">
+                return <div className="flex flex-col items-center space-y-2 pt-[25vh] pb-50">
 
                     <div className="space-x-2 pb-6">
                         <button className="btn font-tech text-lg" onClick={handlePlay}>Play</button>
@@ -68,7 +68,7 @@ function App() {
                     {/*    className="absolute inset-0 flex flex-1 justify-center pt-24 h-screen w-screen overflow-hidden">*/}
                     {/*    <MainContent onChange={changeScreen}/>*/}
                     {/*</div>*/}
-                    <div className="flex flex-1 justify-center pb-24">
+                    <div className="flex flex-1 justify-center">
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
@@ -88,7 +88,7 @@ function App() {
 
     return (
         <>
-            <div className="flex flex-col pt-40 pb-20 items-center h-screen overflow-y-auto bg-pastelBlue ">
+            <div className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto bg-pastelBlue ">
                 {/*<div className={showButton ? ("py-8") : ("py-8 fade-out")}>*/}
                 {/*    {showMessage ? (*/}
                 {/*        <div className="btn">Welcome</div>*/}
