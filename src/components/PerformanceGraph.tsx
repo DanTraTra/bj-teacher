@@ -53,7 +53,7 @@ const PerformanceGraph: React.FC<PerformanceGraphProps> = ({game_log_data, dark_
                         pointRadius: 4,
                         pointHoverRadius: 5,
                         tension: 0.3,
-                        // showLine: false, // Disable the line for the Max: $ dataset
+                        showLine: false, // Disable the line for the Max: $ dataset
 
                     },
                     {

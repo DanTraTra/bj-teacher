@@ -57,7 +57,7 @@ if (accordionEl) {
 
 
 export interface GameLogDataEntries {
-    id: number
+    id: number;
     username: string;
     game_log_data: GameLog[];
     database_index: number;

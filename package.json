@@ -30,6 +30,7 @@
     "react-konva": "^18.2.10",
     "react-reconciler": "^0.28.0",
     "react-spring": "^9.7.3",
+    "react-swipeable": "^7.0.1",
     "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
