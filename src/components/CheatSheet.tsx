@@ -17,70 +17,70 @@ const td_class = "p-0 flex justify-center items-center text-gray-700 whitespace-
 export const action2iconDict: Record<Action, JSX.Element> = {
     'HIT': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                fillRule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z"
-                clipRule="evenodd"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z"
+                    clipRule="evenodd"
+                />
+            </svg>
         </td>
     ),
     'STAND': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                fillRule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm3 10.5a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5h6Z"
-                clipRule="evenodd"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm3 10.5a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5h6Z"
+                    clipRule="evenodd"
+                />
+            </svg>
         </td>
     ),
     'SPLIT/HIT': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                fillRule="evenodd"
-                d="M15.97 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H7.5a.75.75 0 0 1 0-1.5h11.69l-3.22-3.22a.75.75 0 0 1 0-1.06Zm-7.94 9a.75.75 0 0 1 0 1.06l-3.22 3.22H16.5a.75.75 0 0 1 0 1.5H4.81l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 0Z"
-                clipRule="evenodd"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    fillRule="evenodd"
+                    d="M15.97 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H7.5a.75.75 0 0 1 0-1.5h11.69l-3.22-3.22a.75.75 0 0 1 0-1.06Zm-7.94 9a.75.75 0 0 1 0 1.06l-3.22 3.22H16.5a.75.75 0 0 1 0 1.5H4.81l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 0Z"
+                    clipRule="evenodd"
+                />
+            </svg>
         </td>
     ),
     'SPLIT/STAND': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                fillRule="evenodd"
-                d="M15.97 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H7.5a.75.75 0 0 1 0-1.5h11.69l-3.22-3.22a.75.75 0 0 1 0-1.06Zm-7.94 9a.75.75 0 0 1 0 1.06l-3.22 3.22H16.5a.75.75 0 0 1 0 1.5H4.81l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 0Z"
-                clipRule="evenodd"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    fillRule="evenodd"
+                    d="M15.97 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H7.5a.75.75 0 0 1 0-1.5h11.69l-3.22-3.22a.75.75 0 0 1 0-1.06Zm-7.94 9a.75.75 0 0 1 0 1.06l-3.22 3.22H16.5a.75.75 0 0 1 0 1.5H4.81l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 0Z"
+                    clipRule="evenodd"
+                />
+            </svg>
         </td>
     ),
     'DD/HIT': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                d="M16.5 6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3v-6A4.5 4.5 0 0 1 10.5 6h6Z"
-            />
-            <path
-                d="M18 7.5a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-7.5a3 3 0 0 1-3-3v-7.5a3 3 0 0 1 3-3H18Z"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    d="M16.5 6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3v-6A4.5 4.5 0 0 1 10.5 6h6Z"
+                />
+                <path
+                    d="M18 7.5a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-7.5a3 3 0 0 1-3-3v-7.5a3 3 0 0 1 3-3H18Z"
+                />
+            </svg>
         </td>
     ),
     'DD/STAND': (
         <td className={td_class}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
-            <path
-                d="M16.5 6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3v-6A4.5 4.5 0 0 1 10.5 6h6Z"
-            />
-            <path
-                d="M18 7.5a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-7.5a3 3 0 0 1-3-3v-7.5a3 3 0 0 1 3-3H18Z"
-            />
-        </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className={icon_size}>
+                <path
+                    d="M16.5 6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3v-6A4.5 4.5 0 0 1 10.5 6h6Z"
+                />
+                <path
+                    d="M18 7.5a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-7.5a3 3 0 0 1-3-3v-7.5a3 3 0 0 1 3-3H18Z"
+                />
+            </svg>
         </td>
     )
 };
@@ -108,7 +108,7 @@ export const getTableIndex = (playerCards: CardProps[], dealerCard: CardProps, D
         tableIndex: 0,
     }
 
-    index["dealerHandIndex"] = dealerCard.display === 'A' ? 0 : dealerCard.value - 1
+    index["dealerHandIndex"] = dealerCard.display === 'A' ? 0 : dealerCard.value - 2
 
     if (playerCards.length == 2) {
         if (playerCards[0].display === playerCards[1].display) {
@@ -186,9 +186,11 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     }
     const allPossibleDealerHands: CardProps[] = [];
 
-    for (let i = 2; i <= 11; i++) {
+    for (let i = 2; i <= 10; i++) {
         allPossibleDealerHands.push(initializeCard(i, 'spades', false));
     }
+    allPossibleDealerHands.push(initializeCard(1, 'spades', false));
+
 
     // console.log('card', initializeCard(11 > 10 ? 11 % 10 : 0, 'spades', false));
     //
@@ -312,7 +314,7 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     console.log("highlightIndex", highlightIndex)
     console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
 
-    const rowClass = "px-2 py-1 w-sm text-center text-sm font-sm font-tech bg-gray-100 border-l border-t border-accent-content/30 ";
+    const rowClass = "px-1 py-1 w-[33px] text-center text-sm font-sm font-tech bg-gray-100 border-l border-t border-accent-content/30 ";
     return (
         <div className="font-tech">
             <table className="table-auto table-xs font-tech w-[350px]">
