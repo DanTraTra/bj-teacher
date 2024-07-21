@@ -72,7 +72,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                     className="w-[350px] flex flex-row items-center justify-between bg-white px-4 py-2 rounded-t-lg mb-4 font-tech relative"
                     onClick={handleHeaderClick}>
                     <div/>
-                    <span className="text-lg">Black Jack Cheat Sheet</span>
+                    <span className="text-lg font-bold">Cheat Sheet</span>
                     {isExpanded ? <AiOutlineClose onClick={() => onClose()}/> :
                         <AiOutlineUp onClick={() => setIsExpanded(true)}/>}
                 </div>

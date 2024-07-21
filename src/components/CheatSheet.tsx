@@ -312,7 +312,7 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     console.log("highlightIndex", highlightIndex)
     console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
 
-    const rowClass = "px-2 py-1 w-sm text-center text-sm font-sm font-tech bg-gray-100 border-l border-t border-accent-content/30";
+    const rowClass = "px-2 py-1 w-sm text-center text-sm font-sm font-tech bg-gray-100 border-l border-t border-accent-content/30 ";
     return (
         <div className="font-tech">
             <table className="table-auto table-xs font-tech w-[350px]">
@@ -337,10 +337,10 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                 {allPossiblePlayerHands.map((hand, rowIndex) => (
 
                     <tr key={rowIndex} className={"cursor-pointer " + (rowIndex === 0 ? "" : "border-t")}>
-                        {rowIndex === 0 ? <td className="text-sm pl-1 text-center bg-white"
+                        {rowIndex === 0 ? <td className="text-sm pl-1 justify-center bg-white"
                                               rowSpan={allPossiblePlayerHands.length}
                                               style={{writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
-                            {table_number === 0 ? "Your hand total" : table_number === 1 ? "Your hand with pairs" : table_number === 2 ? "Your hand with an ace" : ""}
+                            <th className="text-sm p-0 h-full w-full flex items-center justify-center">{table_number === 0 ? "Your hand total" : table_number === 1 ? "Your hand with pairs" : table_number === 2 ? "Your hand with an ace" : ""}</th>
                         </td> : <></>}
                         <td className={`py - 1 px-1 text-sm flex justify-center items-center bg-white border-l ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300" : "text-gray-700"}`}>
                             {rowHeader[rowIndex]}
@@ -357,27 +357,27 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                                         bg_color = "#22935E"
                                         break;
                                     case "DD/HIT":
-                                        bg_color = `radial-gradient(circle, #FBBE00 40%, #22935E 40%)`;
+                                        bg_color = `radial-gradient(circle, #FBBE00 50%, #22935E 50%)`;
                                         bg_style = {
-                                            background: `radial-gradient(circle, #FBBE00 40%, #22935E 40%)`,
+                                            background: `radial-gradient(circle, #FBBE00 50%, #22935E 50%)`,
                                         } as React.CSSProperties
                                         break;
                                     case "DD/STAND":
-                                        bg_color = `radial-gradient(circle, #FBBE00 40%, #EE4C53 40%)`;
+                                        bg_color = `radial-gradient(circle, #FBBE00 50%, #EE4C53 50%)`;
                                         bg_style = {
-                                            background: `radial-gradient(circle, #FBBE00 40%, #EE4C53 40%)`,
+                                            background: `radial-gradient(circle, #FBBE00 50%, #EE4C53 50%)`,
                                         } as React.CSSProperties
                                         break;
                                     case "SPLIT/HIT":
-                                        bg_color = `radial-gradient(circle, #70ACC7 40%, #22935E 40%)`;
+                                        bg_color = `radial-gradient(circle, #70ACC7 50%, #22935E 50%)`;
                                         bg_style = {
-                                            background: `radial-gradient(circle, #70ACC7 40%, #22935E 40%)`,
+                                            background: `radial-gradient(circle, #70ACC7 50%, #22935E 50%)`,
                                         } as React.CSSProperties
                                         break;
                                     case "SPLIT/STAND":
-                                        bg_color = `radial-gradient(circle, #70ACC7 40%, #EE4C53 40%)`;
+                                        bg_color = `radial-gradient(circle, #70ACC7 50%, #EE4C53 50%)`;
                                         bg_style = {
-                                            background: `radial-gradient(circle, #70ACC7 40%, #EE4C53 40%)`,
+                                            background: `radial-gradient(circle, #70ACC7 50%, #EE4C53 50%)`,
                                         } as React.CSSProperties
                                         break;
 
