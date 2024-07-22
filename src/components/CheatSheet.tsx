@@ -339,11 +339,25 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                 {allPossiblePlayerHands.map((hand, rowIndex) => (
 
                     <tr key={rowIndex} className={"cursor-pointer " + (rowIndex === 0 ? "" : "border-t")}>
-                        {rowIndex === 0 ? <td className="text-sm pl-1 justify-center bg-white"
-                                              rowSpan={allPossiblePlayerHands.length}
-                                              style={{writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
-                            <th className="text-sm p-0 h-full w-full flex items-center justify-center">{table_number === 0 ? "Your hand total" : table_number === 1 ? "Your hand with pairs" : table_number === 2 ? "Your hand with an ace" : ""}</th>
-                        </td> : <></>}
+                        {rowIndex === 0 ?
+                            <td
+                                className="text-sm bg-white"
+                                style={{padding: '0', border: '0', verticalAlign: 'middle', width: '38px'}}
+                                rowSpan={allPossiblePlayerHands.length}
+                            >
+                                <div
+                                    className="text-sm px-2 flex items-center justify-center"
+                                    style={{
+                                        writingMode: 'vertical-rl',
+                                        whiteSpace: 'nowrap',
+                                        transform: 'rotate(180deg)',
+                                        transformOrigin: 'center center',
+                                    }}
+                                >{table_number === 0
+                                    ? "Hand Total" : table_number === 1
+                                        ? "Pair in Hand" : table_number === 2
+                                            ? "Ace in Hand" : ""}</div>
+                            </td> : <></>}
                         <td className={`py-1 px-1 text-sm font-semibold flex justify-center items-center border-l ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300 bg-white" : "text-gray-700 bg-white"}`}>
                             {rowHeader[rowIndex]}
                         </td>
