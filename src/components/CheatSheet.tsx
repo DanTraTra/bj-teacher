@@ -344,7 +344,7 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                                               style={{writingMode: 'vertical-rl', transform: 'rotate(180deg)'}}>
                             <th className="text-sm p-0 h-full w-full flex items-center justify-center">{table_number === 0 ? "Your hand total" : table_number === 1 ? "Your hand with pairs" : table_number === 2 ? "Your hand with an ace" : ""}</th>
                         </td> : <></>}
-                        <td className={`py-1 px-1 text-sm flex justify-center items-center border-l ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300 bg-white" : "text-gray-700 bg-white"}`}>
+                        <td className={`py-1 px-1 text-sm font-semibold flex justify-center items-center border-l ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300 bg-white" : "text-gray-700 bg-white"}`}>
                             {rowHeader[rowIndex]}
                         </td>
                         {allPossibleDealerHands.map((card, col_index) => {

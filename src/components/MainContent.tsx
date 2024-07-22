@@ -498,7 +498,8 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
 
     }
 
-    const handleClickPlaceBet = () => {
+    const handleClickPlaceBet = (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
+        event.preventDefault();
         console.log("Pressed place bet")
         setGameState('IN PLAY')
     }
@@ -1609,6 +1610,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                                                         <button
                                                             className="flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90"
                                                             onClick={handleClickPlaceBet}
+                                                            onTouchStart={handleClickPlaceBet}
                                                             disabled={hand.betDisplay <= 0}
                                                             // disabled={BetAmount == 0}
                                                         >

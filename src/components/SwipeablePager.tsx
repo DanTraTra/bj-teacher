@@ -65,11 +65,11 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                 className={`fixed inset-0 bg-black transition-opacity duration-500 ${isExpanded ? 'opacity-80' : 'opacity-0 pointer-events-none'}`}
             />
             <div
-                className={`fixed bottom-[60px] left-0 right-0 transition-transform duration-500 ease-in-out ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'} flex flex-col items-center`}
+                className={`fixed bottom-[45px] left-0 right-0 transition-transform duration-500 ease-in-out ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'} flex flex-col items-center`}
                 {...handlers}
             >
                 <div
-                    className="w-[350px] flex flex-row items-center justify-between bg-white px-4 py-2 rounded-t-lg mb-4 font-tech relative"
+                    className="w-[350px] flex flex-row items-center justify-between bg-white px-4 py-2 rounded-t-lg mb-2 font-tech relative"
                     onClick={handleHeaderClick}>
                     <div/>
                     <span className="text-lg font-bold">Cheat Sheet</span>
@@ -90,7 +90,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                 </div>
 
                 <div
-                    className="flex flex-row w-[350px] justify-center bg-white p-2 rounded-b-lg mt-4 space-x-2 overflow-x-auto">
+                    className="flex flex-row w-[350px] justify-center bg-white p-2 rounded-b-lg mt-2 space-x-2 overflow-x-auto">
                     {/*<div className="flex space-x-2">*/}
                     <div className="flex flex-row text-white btn btn-xs btn-error -space-x-1 pl-1">
                         <div>{action2iconDict['STAND']}</div>
