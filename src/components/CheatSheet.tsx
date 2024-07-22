@@ -341,12 +341,11 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                     <tr key={rowIndex} className={"cursor-pointer " + (rowIndex === 0 ? "" : "border-t")}>
                         {rowIndex === 0 ?
                             <td
-                                className="text-sm bg-white"
-                                style={{padding: '0', border: '0', verticalAlign: 'middle', width: '38px'}}
+                                className="text-sm bg-white px-2 border-0 w-[38px] justify-center"
                                 rowSpan={allPossiblePlayerHands.length}
                             >
                                 <div
-                                    className="text-sm px-2 flex items-center justify-center"
+                                    className="font-bold text-sm flex items-center justify-center"
                                     style={{
                                         writingMode: 'vertical-rl',
                                         whiteSpace: 'nowrap',
