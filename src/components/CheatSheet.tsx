@@ -108,7 +108,7 @@ export const getTableIndex = (playerCards: CardProps[], dealerCard: CardProps, D
         tableIndex: 0,
     }
 
-    index["dealerHandIndex"] = dealerCard.display === 'A' ? 0 : dealerCard.value - 2
+    index["dealerHandIndex"] = dealerCard.value - 2
 
     if (playerCards.length == 2) {
         if (playerCards[0].display === playerCards[1].display) {
@@ -140,6 +140,114 @@ export const getTableIndex = (playerCards: CardProps[], dealerCard: CardProps, D
     index["tableIndex"] = 0
     return index
 }
+
+export const cheatSheetDataLogic = (playerCards: CardProps[], dealerCard: CardProps, DD: boolean, split: boolean): Action => {
+    const playerHandSum = playerCards.reduce((acc, card) => acc + card.value, 0);
+
+    if (playerCards.length == 2) {
+        if (playerCards[0].display == playerCards[1].display) {
+            //    Doubles
+            switch (playerHandSum) {
+                case 4:
+                    return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
+                case 6:
+                    return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
+                case 8:
+                    return 'HIT';
+                case 10:
+                    return DD && dealerCard.value >= 2 && dealerCard.value <= 9 ? 'DD/HIT' : 'HIT';
+                case 12:
+                    return split && dealerCard.value == 1 ? 'HIT' :
+                        split && dealerCard.value >= 3 && dealerCard.value <= 3 ? 'SPLIT/HIT' :
+                            split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' :
+                                'HIT';
+                case 14:
+                    return split && dealerCard.value == 1 ? 'HIT' :
+                        split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
+                            split && dealerCard.value == 7 ? 'SPLIT/HIT'
+                                : 'HIT';
+                case 16:
+                    return split && dealerCard.value == 1 ? 'HIT' :
+                        split && dealerCard.value >= 2 && dealerCard.value <= 6 ? 'SPLIT/STAND'
+                            : 'SPLIT/HIT';
+
+                case 18:
+                    return split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
+                        split && dealerCard.value == 7 ? 'STAND' :
+                            split && dealerCard.value >= 8 && dealerCard.value <= 9 ? ('SPLIT/STAND') : 'STAND';
+                case 20:
+                    return 'STAND';
+                case 22:
+                    return split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' : 'SPLIT/HIT';
+                default:
+                    break;
+            }
+        } else if (playerCards[0].display == 'A' || playerCards[1].display == 'A') {
+            //    Ace in hand
+            switch (playerHandSum) {
+                case 13:
+                    return DD && dealerCard.value >= 5 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+                case 14:
+                    return DD && dealerCard.value >= 5 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+                case 15:
+                    return DD && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+                case 16:
+                    return DD && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+                case 17:
+                    return DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+                case 18:
+                    return dealerCard.value >= 2 && dealerCard.value <= 8 ? DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/STAND' : 'STAND' : 'HIT';
+                case 19:
+                    return 'STAND';
+                case 20:
+                    return 'STAND';
+                default:
+                    break;
+            }
+        }
+    }
+
+    switch (playerHandSum) {
+        case 3:
+            return 'HIT';
+        case 4:
+            return 'HIT';
+        case 5:
+            return 'HIT';
+        case 6:
+            return 'HIT';
+        case 7:
+            return 'HIT';
+        case 8:
+            return 'HIT';
+        case 9:
+            return DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
+        case 10:
+            return DD && dealerCard.value >= 2 && dealerCard.value <= 9 ? 'DD/HIT' : 'HIT';
+        case 11:
+            return DD ? 'DD/HIT' : 'HIT';
+        case 12:
+            return dealerCard.value >= 4 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
+        case 13:
+            return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
+        case 14:
+            return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
+        case 15:
+            return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
+        case 16:
+            return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
+        case 17:
+            return 'STAND';
+        case 18:
+            return 'STAND';
+        case 19:
+            return 'STAND';
+        default:
+            return 'STAND';
+    }
+    // Default return if no conditions are met
+    return 'STAND';
+};
 
 const CheatSheet: React.FC<CheatSheetProps> = ({
                                                    playerHand,
@@ -197,114 +305,6 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     // console.log("allPossiblePlayerHands", allPossiblePlayerHands);
     // console.log("allPossibleDealerHands", allPossibleDealerHands);
 
-    const cheatSheetDataLogic = (playerCards: CardProps[], dealerCard: CardProps, DD: boolean, split: boolean): Action => {
-        const playerHandSum = playerCards.reduce((acc, card) => acc + card.value, 0);
-
-        if (playerCards.length == 2) {
-            if (playerCards[0].display == playerCards[1].display) {
-                //    Doubles
-                switch (playerHandSum) {
-                    case 4:
-                        return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
-                    case 6:
-                        return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
-                    case 8:
-                        return 'HIT';
-                    case 10:
-                        return DD && dealerCard.value >= 2 && dealerCard.value <= 9 ? 'DD/HIT' : 'HIT';
-                    case 12:
-                        return split && dealerCard.value == 1 ? 'HIT' :
-                            split && dealerCard.value >= 3 && dealerCard.value <= 3 ? 'SPLIT/HIT' :
-                                split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' :
-                                    'HIT';
-                    case 14:
-                        return split && dealerCard.value == 1 ? 'HIT' :
-                            split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
-                                split && dealerCard.value == 7 ? 'SPLIT/HIT'
-                                    : 'HIT';
-                    case 16:
-                        return split && dealerCard.value == 1 ? 'HIT' :
-                            split && dealerCard.value >= 2 && dealerCard.value <= 6 ? 'SPLIT/STAND'
-                                : 'SPLIT/HIT';
-
-                    case 18:
-                        return split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
-                            split && dealerCard.value == 7 ? 'STAND' :
-                                split && dealerCard.value >= 8 && dealerCard.value <= 9 ? ('SPLIT/STAND') : 'STAND';
-                    case 20:
-                        return 'STAND';
-                    case 22:
-                        return split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' : 'SPLIT/HIT';
-                    default:
-                        break;
-                }
-            } else if (playerCards[0].display == 'A' || playerCards[1].display == 'A') {
-                //    Ace in hand
-                switch (playerHandSum) {
-                    case 13:
-                        return DD && dealerCard.value >= 5 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-                    case 14:
-                        return DD && dealerCard.value >= 5 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-                    case 15:
-                        return DD && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-                    case 16:
-                        return DD && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-                    case 17:
-                        return DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-                    case 18:
-                        return dealerCard.value >= 2 && dealerCard.value <= 8 ? DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/STAND' : 'STAND' : 'HIT';
-                    case 19:
-                        return 'STAND';
-                    case 20:
-                        return 'STAND';
-                    default:
-                        break;
-                }
-            }
-        }
-
-        switch (playerHandSum) {
-            case 3:
-                return 'HIT';
-            case 4:
-                return 'HIT';
-            case 5:
-                return 'HIT';
-            case 6:
-                return 'HIT';
-            case 7:
-                return 'HIT';
-            case 8:
-                return 'HIT';
-            case 9:
-                return DD && dealerCard.value >= 3 && dealerCard.value <= 6 ? 'DD/HIT' : 'HIT';
-            case 10:
-                return DD && dealerCard.value >= 2 && dealerCard.value <= 9 ? 'DD/HIT' : 'HIT';
-            case 11:
-                return DD ? 'DD/HIT' : 'HIT';
-            case 12:
-                return dealerCard.value >= 4 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
-            case 13:
-                return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
-            case 14:
-                return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
-            case 15:
-                return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
-            case 16:
-                return dealerCard.value >= 2 && dealerCard.value <= 6 ? 'STAND' : 'HIT';
-            case 17:
-                return 'STAND';
-            case 18:
-                return 'STAND';
-            case 19:
-                return 'STAND';
-            default:
-                return 'STAND';
-        }
-        // Default return if no conditions are met
-        return 'STAND';
-    };
-
     let highlightIndex: TableIndex = {playerHandIndex: 0, dealerHandIndex: 0, tableIndex: 0}
 
     if (playerHand && dealerHand) {
@@ -314,7 +314,35 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     console.log("highlightIndex", highlightIndex)
     console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
 
-    const rowClass = "px-1 py-1 w-[33px] text-center text-sm font-sm font-tech bg-gray-100 border-l border-t border-accent-content/30 ";
+    const isTableCellIntersection = (rowIndex: number, col_index: number, table_number: number) => {
+        return (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) &&
+                (rowIndex == highlightIndex["playerHandIndex"] && col_index <= highlightIndex["dealerHandIndex"]))
+            && table_number == highlightIndex["tableIndex"])
+    }
+    const isTableIsleIntersection = (rowIndex: number, col_index: number, table_number: number) => {
+        return (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) ||
+                (rowIndex == highlightIndex["playerHandIndex"] && col_index <= highlightIndex["dealerHandIndex"]))
+            && table_number == highlightIndex["tableIndex"])
+    }
+    const isTableColIntersection = (rowIndex: number, col_index: number, table_number: number) => {
+        return (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]))
+            && table_number == highlightIndex["tableIndex"])
+    }
+    const isTableRowIntersection = (rowIndex: number, col_index: number, table_number: number) => {
+        return (((rowIndex == highlightIndex["playerHandIndex"] && col_index <= highlightIndex["dealerHandIndex"]))
+            && table_number == highlightIndex["tableIndex"])
+    }
+
+    const action2color: Record<Action, string> = {
+        "HIT": "#22935E",
+        "DD/HIT": `radial-gradient(circle, #FBBE00 45%, #22935E 45%)`,
+        "DD/STAND": `radial-gradient(circle, #FBBE00 45%, #EE4C53 45%)`,
+        "SPLIT/STAND": `radial-gradient(circle, #70ACC7 45%, #EE4C53 45%)`,
+        "SPLIT/HIT": `radial-gradient(circle, #70ACC7 45%, #22935E 45%)`,
+        "STAND": "#EE4C53"
+    }
+
+    const colClass = "px-1 py-1 w-[33px] text-center text-sm font-sm font-tech bg-gray-100 border-t border-[#71787f] ";
     return (
         <div className="font-tech">
             <table className="table-auto table-xs font-tech w-[350px]">
@@ -331,14 +359,14 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                     <th className="pb-0 bg-transparent"/>
                     {allPossibleDealerHands.map((card, index) => (
                         <th key={index}
-                            className={`${rowClass} ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? index == highlightIndex["dealerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300" : "text-gray-700"}`}>{card.display}</th>
+                            className={`${colClass} ${index != 0 && ""} ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? index == highlightIndex["dealerHandIndex"] ? "text-white bg-gray-400 border-l border-r" : "text-gray-300" : "text-gray-700"}`}>{card.display}</th>
                     ))}
                 </tr>
                 </thead>
                 <tbody className="bg-white">
                 {allPossiblePlayerHands.map((hand, rowIndex) => (
 
-                    <tr key={rowIndex} className={"cursor-pointer " + (rowIndex === 0 ? "" : "border-t")}>
+                    <tr key={rowIndex} className={`cursor-pointer ${(rowIndex === 0 ? "" : "")}`}>
                         {rowIndex === 0 ?
                             <td
                                 className="text-sm bg-white px-2 border-0 w-[38px] justify-center"
@@ -357,75 +385,31 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                                         ? "Pair in Hand" : table_number === 2
                                             ? "Ace in Hand" : ""}</div>
                             </td> : <></>}
-                        <td className={`py-1 px-1 text-sm font-semibold flex justify-center items-center border-l ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400" : "text-gray-300 bg-white" : "text-gray-700 bg-white"}`}>
-                            {rowHeader[rowIndex]}
+                        <td className={`p-1 text-sm font-semibold justify-center items-center border-l ${rowIndex != 0 && ""} border-[#71787F] ${playerHand && dealerHand && table_number == highlightIndex["tableIndex"] ? rowIndex == highlightIndex["playerHandIndex"] ? "text-white bg-gray-400 border-t border-b border-[#71787F]" : "text-gray-300 bg-white" : "text-gray-700 bg-white"}`}>
+                            <div className="flex justify-center items-center">{rowHeader[rowIndex]}</div>
                         </td>
                         {allPossibleDealerHands.map((card, col_index) => {
                                 const actionIcon: Action = cheatSheetDataLogic(hand, card, dd_available, split_available)
                                 const action: Action = cheatSheetDataLogic(hand, card, true, true)
-                                let bg_color: string;
-                                let dd_bg_class: string;
                                 let bg_style: React.CSSProperties = {};
-
-                                switch (action) {
-                                    case "HIT":
-                                        bg_color = "#22935E"
-                                        break;
-                                    case "DD/HIT":
-                                        bg_color = `radial-gradient(circle, #FBBE00 50%, #22935E 50%)`;
-                                        bg_style = {
-                                            background: `radial-gradient(circle, #FBBE00 50%, #22935E 50%)`,
-                                        } as React.CSSProperties
-                                        break;
-                                    case "DD/STAND":
-                                        bg_color = `radial-gradient(circle, #FBBE00 50%, #EE4C53 50%)`;
-                                        bg_style = {
-                                            background: `radial-gradient(circle, #FBBE00 50%, #EE4C53 50%)`,
-                                        } as React.CSSProperties
-                                        break;
-                                    case "SPLIT/HIT":
-                                        bg_color = `radial-gradient(circle, #70ACC7 50%, #22935E 50%)`;
-                                        bg_style = {
-                                            background: `radial-gradient(circle, #70ACC7 50%, #22935E 50%)`,
-                                        } as React.CSSProperties
-                                        break;
-                                    case "SPLIT/STAND":
-                                        bg_color = `radial-gradient(circle, #70ACC7 50%, #EE4C53 50%)`;
-                                        bg_style = {
-                                            background: `radial-gradient(circle, #70ACC7 50%, #EE4C53 50%)`,
-                                        } as React.CSSProperties
-                                        break;
-
-                                    case "STAND":
-                                        bg_color = "#EE4C53";
-                                        break
-                                }
                                 const bg_style_dim = {...bg_style};
                                 bg_style_dim.opacity = 50
 
                                 return <td key={col_index}
                                            className={
-                                               `text-xs text-gray-700 border-l p-1`
+                                               `text-sm text-gray-700 p-1 justify-center items-center ${playerHand && dealerHand && isTableColIntersection(rowIndex, col_index, table_number) && "border-r border-l border-[#71787F]"} ${playerHand && dealerHand && isTableRowIntersection(rowIndex, col_index, table_number) && "border-b border-t border-[#71787F]"}`
                                            } style={{
-                                    background: bg_color,
+                                    background: action2color[action],
                                     opacity: dealerHand && playerHand
-                                        ? (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) ||
-                                                (rowIndex == highlightIndex["playerHandIndex"] && col_index <= highlightIndex["dealerHandIndex"]))
-                                            && table_number == highlightIndex["tableIndex"])
-                                            ? "100%"
-                                            : "50%"
+                                        ? isTableIsleIntersection(rowIndex, col_index, table_number)
+                                            ? isTableCellIntersection(rowIndex, col_index, table_number)
+                                                ? "100%" : "60%"
+                                            : "30%"
                                         : "100%",
-                                    border: dealerHand && playerHand
-                                        ? (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) &&
-                                                (rowIndex == highlightIndex["playerHandIndex"] && col_index <= highlightIndex["dealerHandIndex"]))
-                                            && table_number == highlightIndex["tableIndex"])
-                                            ? "2px solid black"
-                                            : ""
-                                        : "",
 
                                 }}>
 
-                                    <div className={"p-0"}>
+                                    <div className="p-0 border-accent-content/90">
                                         {dealerHand && playerHand && (rowIndex == highlightIndex["playerHandIndex"] &&
                                             col_index == highlightIndex["dealerHandIndex"] &&
                                             table_number == highlightIndex["tableIndex"] && action2iconDict[action])}

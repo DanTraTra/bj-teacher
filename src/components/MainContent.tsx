@@ -33,12 +33,17 @@ import CheatSheet from "./CheatSheet";
 import SwipeablePager from "./SwipeablePager";
 import {
     AiFillCalculator,
-    AiOutlineCalculator,
+    AiOutlineCalculator, AiOutlineCheck,
     AiOutlineMenu,
     AiOutlineMore,
     AiOutlineQuestionCircle
 } from "react-icons/ai";
 import {BiDotsVerticalRounded} from "react-icons/bi";
+import {FaDumbbell} from "react-icons/fa6";
+import {FaCheck} from "react-icons/fa6";
+import {PiMathOperationsFill} from "react-icons/pi";
+import {IoStatsChart} from "react-icons/io5";
+import MenuTopRight from "./MenuTopRight";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -156,6 +161,22 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
     const [CountLog, setCountLog] = useState([{value: '', change: 0, countNow: 0}]);
 
     const [tableIsOpen, setTableIsOpen] = useState(false);
+
+    const [MenuOpen, setMenuOpen] = useState<boolean>(false);
+    const componentRef = useRef<HTMLDivElement>(null);
+
+    const handleCloseMenu = (event: MouseEvent) => {
+        if (componentRef.current && !componentRef.current.contains(event.target as Node)) {
+            setMenuOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleCloseMenu);
+        return () => {
+            document.removeEventListener('mousedown', handleCloseMenu);
+        };
+    }, []);
 
     const initializeFakeDeck = (deck_count: number): CardProps[] => {
         const suits: Suit[] = ["hearts", "diamonds", "spades", "clubs"];
@@ -1501,12 +1522,11 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         )
 
     }
-
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <>
-            <div className="absolute top-8 right-4">
-                <div className="flex flex-row space-x-3">
+            <div ref={componentRef} className="absolute top-8 right-4 items-end">
+                <div className="flex flex-row justify-end space-x-3">
                     <div
                         className="flex flex-row justify-center items-center space-x-2 bg-grey pl-2.5 pr-4 py-1 rounded-badge">
                         <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1524,10 +1544,12 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                             className="flex flex-col h-full justify-center items-center font-bold text-18px">{BalanceAmount}</div>
                     </div>
                     <BiDotsVerticalRounded className="fill-gray-800 size-8"
-                                           onClick={() => setTableIsOpen(!tableIsOpen)}/>
-                    {/*<button className="btn bg-transparent border-transparent p-2 size-12">*/}
-                    {/*    <BiDotsVerticalRounded className="fill-gray-800 size-6"/>*/}
-                    {/*</button>*/}
+                                           onClick={() => setMenuOpen(currentState => !currentState)}
+                    />
+                </div>
+                <div>
+                    {/*TODO let the buttons in the menu affect the maincontent */}
+                    {MenuOpen && <MenuTopRight/>}
                 </div>
             </div>
 

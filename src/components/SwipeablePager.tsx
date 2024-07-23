@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useSwipeable} from 'react-swipeable';
 import 'tailwindcss/tailwind.css';
-import CheatSheet, {action2iconDict, CheatSheetProps, getTableIndex} from "./CheatSheet";
+import CheatSheet, {action2iconDict, cheatSheetDataLogic, CheatSheetProps, getTableIndex} from "./CheatSheet";
 import {AiOutlineClose, AiOutlineUp} from "react-icons/ai";
 import {CardProps} from "./PlayingCard";
 import {initializeCard, PlayerHandProps} from "./MainContent";
@@ -69,15 +69,23 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                 {...handlers}
             >
                 <div
-                    className="w-[350px] flex flex-row items-center justify-between bg-white px-4 py-2 rounded-t-lg mb-2 font-tech relative"
+                    className="w-[350px] flex flex-row items-center justify-between bg-white px-4 pt-2 pb-1 rounded-t-lg font-tech relative"
                     onClick={handleHeaderClick}>
                     <div/>
                     <span className="text-lg font-bold">Cheat Sheet</span>
                     {isExpanded ? <AiOutlineClose onClick={() => onClose()}/> :
                         <AiOutlineUp onClick={() => setIsExpanded(true)}/>}
                 </div>
+                {dealerHand && playerHand &&
                 <div
-                    className="relative w-[350px] overflow-hidden flex justify-center items-center">
+                    className="w-[350px] flex flex-row items-center justify-center bg-white px-4 pt-1 pb-2 mb-2 font-tech relative"
+                >
+                    <span
+                        className="text-sm">{`${playerHand.reduce((acc, card) => card.value + acc, 0)} plays ${dealerHand.display == 'A' || dealerHand.display == '8' ? "an" : "a"} ${dealerHand.display == "A" ? "Ace" : dealerHand.display == "J" ? "Jack" : dealerHand.display == "K" ? "King" : dealerHand.display == "Q" ? "Queen" : dealerHand.display } - you should ${playerHand && dealerHand && (cheatSheetDataLogic(playerHand, dealerHand, dd_available, split_available).split('/').join(' then '))}`}</span>
+                </div>
+                }
+                <div
+                    className="relative w-[350px] overflow-hidden flex justify-center items-center mt-0">
                     <div className="w-full h-full flex transition-transform items-center duration-500 space-x-4"
                          style={{transform: `translateX(calc(-1 * (${currentPage * 104.5}%)))`}}>
                         {Array.from({length: 3}, (_, index) => (
