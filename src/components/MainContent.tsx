@@ -42,8 +42,10 @@ import {BiDotsVerticalRounded} from "react-icons/bi";
 import {FaDumbbell} from "react-icons/fa6";
 import {FaCheck} from "react-icons/fa6";
 import {PiMathOperationsFill} from "react-icons/pi";
-import {IoStatsChart} from "react-icons/io5";
+import {IoArrowBack, IoStatsChart} from "react-icons/io5";
 import MenuTopRight from "./MenuTopRight";
+import * as Console from "console";
+import {IoIosCloseCircleOutline} from "react-icons/io";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -163,6 +165,11 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
     const [tableIsOpen, setTableIsOpen] = useState(false);
 
     const [MenuOpen, setMenuOpen] = useState<boolean>(false);
+    const [GameStatsOpen, setGameStatsOpen] = useState<boolean>(true);
+    const [CheatSheetVisible, setCheatSheetVisible] = useState<boolean>(true);
+    const [TrainingMode, setTrainingMode] = useState<boolean>(true);
+    const [CardCountingMode, setCardCountingMode] = useState<boolean>(true);
+
     const componentRef = useRef<HTMLDivElement>(null);
 
     const handleCloseMenu = (event: MouseEvent) => {
@@ -477,6 +484,15 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         }
     }, [BalanceAmount])
 
+
+    const handleClickCashOutEarly = () => {
+        console.log("PressedCashOutEarly")
+
+        if (GameState == "PLACING BET") {
+            handleClickCashOut()
+            setMenuOpen(false)
+        }
+    }
     const [CashOutDisabled, setCashOutDisabled] = useState(false);
     const handleClickCashOut = () => {
         updateGameLog()
@@ -1358,28 +1374,41 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         };
 
         return (
-            <form onSubmit={handleSubmit} className="flex flex-col w-70 space-y-2 py-2 text-white">
-                <div className="flex flex-row items-center justify-center text-center text-sm font-tech">{
-                    BalanceAmount > 20 ? (`Nice!`) : (`Yikes...`)} You turned $20 into ${BalanceAmount}
-                </div>
-                <PerformanceGraph game_log_data={GameLog} dark_bg={true}/>
-                <div className="flex flex-row items-center justify-center text-center text-sm font-tech">
-                    Join the Leaderboard!
-                </div>
-                <div className="flex flex-row justify-center space-x-2">
-                    <label className="">
-                        <input type="text"
-                               placeholder="Name"
-                               value={UserName}
-                               onChange={(e) => setUserName(e.target.value)}
-                               required
-                               className="flex flex-row h-8 text-black rounded-lg px-2 font-tech items-center"
-                        />
-                    </label>
-                    <button className="btn btn-sm mt-auto rounded-lg font-tech" type="submit">Save</button>
-                </div>
+            <div className="flex flex-col pt-5 px-0 bg-info-content/80 rounded-lg pb-5">
+                <form onSubmit={handleSubmit} className="flex flex-col w-70 space-y-6 py-2 text-white">
+                    <div className="space-y-2">
+                        <div className="flex flex-row items-center justify-center text-center text-lg font-tech">
+                            Join the Leaderboard!
+                        </div>
 
-            </form>
+                        <div className="flex flex-row w-full items-center space-x-2 border-gray-100 px-6">
+                            <label className="w-full">
+                                <input type="text"
+                                       placeholder="Name"
+                                       value={UserName}
+                                       onChange={(e) => setUserName(e.target.value)}
+                                       required
+                                       className="flex flex-row w-full h-8 text-black rounded-lg px-3 font-tech items-center"
+                                />
+                            </label>
+                            <button className="btn btn-sm mt-auto rounded-lg font-tech" type="submit">Save</button>
+
+                        </div>
+                    </div>
+
+                    <PerformanceGraph game_log_data={GameLog} dark_bg={true}/>
+
+                    <div className="flex flex-row items-center justify-center text-center text-xs font-tech">{
+                        BalanceAmount > 20 ? (`Nice!`) : (`Yikes...`)} You turned $20 into ${BalanceAmount}
+                    </div>
+                </form>
+                <div className="flex justify-end pr-6 text-white font-tech space-x-1 items-center">
+                    <div className="flex justify-end text-white font-tech space-x-1 items-center" onClick={() => setGameState("PLACING BET")}>
+                        <IoArrowBack fill="white" size="18"/>
+                        <span>Back</span>
+                    </div>
+                </div>
+            </div>
         )
     }
 
@@ -1525,7 +1554,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <>
-            <div ref={componentRef} className="absolute top-8 right-4 items-end">
+            <div ref={componentRef} className="absolute top-8 right-4 items-end z-50">
                 <div className="flex flex-row justify-end space-x-3">
                     <div
                         className="flex flex-row justify-center items-center space-x-2 bg-grey pl-2.5 pr-4 py-1 rounded-badge">
@@ -1549,7 +1578,13 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 </div>
                 <div>
                     {/*TODO let the buttons in the menu affect the maincontent */}
-                    {MenuOpen && <MenuTopRight/>}
+                    {MenuOpen && <MenuTopRight isChecked={[TrainingMode, CheatSheetVisible, CardCountingMode]}
+                                               onClickGame_Stats={() => setGameStatsOpen(true)}
+                                               onClickTraining_Mode={() => setTrainingMode(currentState => !currentState)}
+                                               onClickCheat_Sheet={() => setCheatSheetVisible(currentState => !currentState)}
+                                               onClickCard_Counting={() => setCardCountingMode(currentState => !currentState)}
+                                               onClickCash_Out={() => handleClickCashOutEarly()}
+                    />}
                 </div>
             </div>
 
@@ -1578,17 +1613,18 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-[480px] overflow-hidden">
                             <div
-                                className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r to-info-content/70 from-transparent"/>
-                            <div className="absolute inset-y-0 left-24 right-24 w-auto bg-info-content/70"/>
+                                className={`absolute inset-y-0 left-0 w-24 ${GameState != "SAVING GAME" && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>
                             <div
-                                className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l to-info-content/70 from-transparent"/>
+                                className={`absolute inset-y-0 left-24 right-24 w-auto ${GameState != "SAVING GAME" && "bg-info-content/80"}`}/>
+                            <div
+                                className={`absolute inset-y-0 right-0 w-24 ${GameState != "SAVING GAME" && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>
                             <div
                                 className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
                                 // ref={scrollContainerRef}
                             >
-                                <div className="flex px-auto z-20">{
-                                    renderDisplayBar(GameState)
-                                }</div>
+                                <div className="flex px-auto z-20">
+                                    {renderDisplayBar(GameState)}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1690,15 +1726,15 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
                 {/*</div>*/}
             </div>
 
-            {
-                <div className="absolute z-20">
-                    <div className="flex flex-row">
-                        <SwipeablePager split_available={!splitDisabled} dd_available={!doubleDownDisabled}
-                                        playerHand={PlayerHand[PlayerHandIndex].cards.every(card => card.visible) ? PlayerHand[PlayerHandIndex].cards : null}
-                                        dealerHand={(DealerHand && DealerHand[0] ? DealerHand[0] : null)}
-                                        onClose={() => setTableIsOpen(false)}/>
-                    </div>
-                </div>}
+            {CheatSheetVisible &&
+            <div className="absolute z-20">
+                <div className="flex flex-row">
+                    <SwipeablePager split_available={!splitDisabled} dd_available={!doubleDownDisabled}
+                                    playerHand={PlayerHand[PlayerHandIndex].cards.every(card => card.visible) ? PlayerHand[PlayerHandIndex].cards : null}
+                                    dealerHand={(DealerHand && DealerHand[0] ? DealerHand[0] : null)}
+                                    onClose={() => setTableIsOpen(false)}/>
+                </div>
+            </div>}
 
         </>);
 };

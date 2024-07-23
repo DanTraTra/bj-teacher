@@ -85,7 +85,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                 </div>
                 }
                 <div
-                    className="relative w-[350px] overflow-hidden flex justify-center items-center mt-0">
+                    className="relative w-[350px] overflow-hidden flex justify-center items-center mt-2">
                     <div className="w-full h-full flex transition-transform items-center duration-500 space-x-4"
                          style={{transform: `translateX(calc(-1 * (${currentPage * 104.5}%)))`}}>
                         {Array.from({length: 3}, (_, index) => (
