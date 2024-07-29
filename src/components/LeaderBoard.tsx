@@ -153,7 +153,7 @@ function LeaderBoard() {
 
     return (
         <div className="flex flex-col items-center mb-18">
-            <h1 className="font-tech text-lg pt-20 underline decoration-solid decoration-2">BJ Leader Board</h1>
+            <h1 className="font-tech text-lg pt-20 px-4 border-b border-black border-b-[2px]">BJ Leader Board</h1>
             <h3 className="font-tech text-sm pt-5">How far can you get with $20?</h3>
             <div className="flex flex-col font-tech pt-2">
                 {Loading ? (

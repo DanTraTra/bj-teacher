@@ -11,7 +11,7 @@ import {Simulate} from "react-dom/test-utils";
 import doubleClick = Simulate.doubleClick;
 
 
-type Action = 'HIT' | 'STAND' | 'SPLIT/HIT' | 'SPLIT/STAND' | 'DD/HIT' | 'DD/STAND';
+export type Action = 'HIT' | 'STAND' | 'SPLIT/HIT' | 'SPLIT/STAND' | 'DD/HIT' | 'DD/STAND';
 const icon_size = 'size-4 ';
 const td_class = "p-0 flex justify-center items-center text-gray-700 whitespace-nowrap";
 export const action2iconDict: Record<Action, JSX.Element> = {
@@ -309,10 +309,10 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
 
     if (playerHand && dealerHand) {
         highlightIndex = getTableIndex(playerHand, dealerHand, dd_available, split_available)
-        console.log("tableIndex", getTableIndex(playerHand, dealerHand, dd_available, split_available))
+        // console.log("tableIndex", getTableIndex(playerHand, dealerHand, dd_available, split_available))
     }
-    console.log("highlightIndex", highlightIndex)
-    console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
+    // console.log("highlightIndex", highlightIndex)
+    // console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
 
     const isTableCellIntersection = (rowIndex: number, col_index: number, table_number: number) => {
         return (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) &&

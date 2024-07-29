@@ -69,24 +69,24 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                         <tr key={index}>
                             <td className="p-0">
                                 <button
-                                    className={`btn btn-md flex flex-row w-full pl-3 pr-4 space-x-2 ${index == buttonLabels.length - 2 ? "rounded-none rounded-b-lg" : "rounded-none"}`}
+                                    className={`btn btn-md flex flex-row w-full pl-3 pr-4 ${index == buttonLabels.length - 2 ? "rounded-none rounded-b-lg" : "rounded-none"}`}
                                     onClick={() => {
                                         // toggleCheck(index)
                                         buttonHandlers[index + 1]()
                                     }}>
-                                    <div className="flex flex-row w-full justify-between items-center">
-                                        <div className="flex flex-row justify-between items-center space-x-2">
+                                    <td className="flex flex-row w-full justify-between space-x-2 items-center">
+                                        <td className="flex flex-row justify-between items-center space-x-2">
                                             <td>
                                                 {ButtonIconList[index]}
                                             </td>
                                             <td className="flex items-center my-auto">
                                                 {buttonLabels[index + 1]}
                                             </td>
-                                        </div>
+                                        </td>
                                         <td>
                                             {isChecked[index] && <FaCheck size="16" fill="gray-800"/>}
                                         </td>
-                                    </div>
+                                    </td>
                                 </button>
                             </td>
                         </tr>
