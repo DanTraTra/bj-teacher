@@ -265,7 +265,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             Outcome: "IN PLAY",
         }
     ]
-    const randomOn = true
+    const randomOn = false
     //
     // useEffect(() => {
     //     const runTest = async () => {
@@ -423,7 +423,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             setHitButtonPressed(false)
         }, 82 * 5)
 
-        if (!TrainingMode || CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT") {
+        if (!TrainingMode || (CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT")) {
             setExtraCardCount(ExtraCardCount + 1)
             setHitDisabled(true)
             setStandDisabled(true)
@@ -465,7 +465,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         setTimeout(() => {
             setStandButtonPressed(false)
         }, 82 * 5)
-        if (!TrainingMode || CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND") {
+        if (!TrainingMode || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
             setStandDisabled(true)
             setHitDisabled(true)
             setDoubleDownDisabled(true)
@@ -506,7 +506,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
         }, 82 * 5)
         console.log("CLICKED SPLIT")
 
-        if (!TrainingMode || CorrectAction == "SPLIT/HIT" || CorrectAction == "SPLIT/STAND") {
+        if (!TrainingMode || (CorrectAction == "SPLIT/HIT" || CorrectAction == "SPLIT/STAND")) {
             setSplitDisabled(true)
 
             const splitHand = [...PlayerHand]
@@ -550,7 +550,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             setDDButtonPressed(false)
         }, 82 * 5)
 
-        if (!TrainingMode || CorrectAction == "DD/STAND" || CorrectAction == "DD/HIT") {
+        if (!TrainingMode || (CorrectAction == "DD/STAND" || CorrectAction == "DD/HIT")) {
             setDoubleDownDisabled(true)
             // const currentBetAmount = [...BetAmount]
             // currentBetAmount[PlayerHandIndex] = currentBetAmount[PlayerHandIndex] * 2
@@ -1429,7 +1429,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-success ${CorrectAction != "HIT" && HitButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-success ${!["HIT", "SPLIT/HIT", "DD/HIT"].includes(CorrectAction!) && HitButtonPressed ? 'animate-shake' : ''}`}
                     onClick={handleClickHit}
                     disabled={HitDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1443,7 +1443,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-error ${CorrectAction != "STAND" && StandButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-error ${!["STAND", "SPLIT/STAND", "DD/STAND"].includes(CorrectAction!) && StandButtonPressed ? 'animate-shake' : ''}`}
                     onClick={handleClickStand}
                     disabled={standDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
