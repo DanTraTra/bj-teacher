@@ -265,7 +265,7 @@ const MainContent: React.FC<MainContentProps> = ({onChange}) => {
             Outcome: "IN PLAY",
         }
     ]
-    const randomOn = false
+    const randomOn = true
     //
     // useEffect(() => {
     //     const runTest = async () => {
