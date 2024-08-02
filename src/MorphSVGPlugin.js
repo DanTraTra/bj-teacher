@@ -38,7 +38,7 @@ var _gsScope = "undefined" != typeof module && module.exports && "undefined" != 
         G = String.fromCharCode(103, 114, 101, 101, 110, 115, 111, 99, 107, 46, 99, 111, 109), 
         I = String.fromCharCode(47, 114, 101, 113, 117, 105, 114, 101, 115, 45, 109, 101, 109, 98, 101, 114, 115, 104, 105, 112, 47), 
         F = true, Y = function(e) {
-        _gsScope.console && console.log(e)
+        _gsScope.console && //console.log(e)
     }, b = function(e, t, r, n, o, i, a, h, s) {
         if (e !== h || t !== s) {
             r = Math.abs(r),

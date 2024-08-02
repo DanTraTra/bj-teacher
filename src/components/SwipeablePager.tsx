@@ -71,7 +71,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             //     dealerHandIndex: 0,
             //     tableIndex: 0
             // }
-            // console.log("index", index)
+            // //console.log("index", index)
             setCurrentPage(tableIndex)
         }, [tableIndex])
 

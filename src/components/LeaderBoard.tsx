@@ -6,55 +6,6 @@ import type {AccordionOptions, AccordionItem, AccordionInterface} from 'flowbite
 import PerformanceGraph from "./PerformanceGraph";
 import {AiFillCaretLeft, AiOutlineDown, AiOutlineUp, AiOutlineLineChart, AiOutlineLeft} from 'react-icons/ai'; // Import icons
 
-const accordionEl = document.querySelector('#accordion-example') as HTMLElement | null;
-
-if (accordionEl) {
-    const accordionItems: AccordionItem[] = [
-        {
-            id: 'accordion-example-heading-1',
-            triggerEl: document.querySelector('#accordion-example-heading-1 button') as HTMLElement,
-            targetEl: document.querySelector('#accordion-example-body-1') as HTMLElement,
-            active: true,
-        },
-        {
-            id: 'accordion-example-heading-2',
-            triggerEl: document.querySelector('#accordion-example-heading-2 button') as HTMLElement,
-            targetEl: document.querySelector('#accordion-example-body-2') as HTMLElement,
-            active: false,
-        },
-    ];
-
-    // Filter out items where triggerEl or targetEl is null
-    const validAccordionItems: AccordionItem[] = accordionItems.filter(
-        (item) => item.triggerEl !== null && item.targetEl !== null
-    ) as AccordionItem[];
-
-    const options: AccordionOptions = {
-        alwaysOpen: true,
-        activeClasses: 'text-gray-500 dark:text-gray-400',
-        inactiveClasses: 'text-gray-500 dark:text-gray-400',
-        onOpen: (item) => {
-            console.log('accordion item has been shown');
-            console.log(item);
-        },
-        onClose: (item) => {
-            console.log('accordion item has been hidden');
-            console.log(item);
-        },
-        onToggle: (item) => {
-            console.log('accordion item has been toggled');
-            console.log(item);
-        },
-    };
-
-    const accordion: AccordionInterface = new Accordion(accordionEl, validAccordionItems, options);
-
-    // Optionally, manipulate the accordion (e.g., open, close)
-    accordion.open('accordion-example-heading-2');
-} else {
-    console.error('Accordion element not found');
-}
-
 
 export interface GameLogDataEntries {
     id: number;
@@ -100,7 +51,7 @@ function LeaderBoard() {
                     throw new Error(`SupaBase error: ${error.message}`);
                 }
 
-                console.log("data", data)
+                //console.log("data", data)
                 setLeaderboardData(data)
 
                 let entry: LeaderboardRow = {rank: 0, player: "", cashOut: 0, win: 0, hands: 0, db_index: 0}
@@ -136,13 +87,13 @@ function LeaderBoard() {
         fetchData();
 
         if (Leaderboard.length) {
-            console.log("Leaderboard", Leaderboard)
+            //console.log("Leaderboard", Leaderboard)
         }
     }, [])
 
     useEffect(() => {
             if (Leaderboard.length) {
-                console.log("Leaderboard", Leaderboard)
+                //console.log("Leaderboard", Leaderboard)
             }
 
         }, [Leaderboard]

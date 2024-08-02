@@ -18,9 +18,9 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
         const {isChecked, ...onClickProps} = props;
         let buttonLabels = Object.keys(onClickProps);
         buttonLabels = buttonLabels.map(label => label.replace('onClick', '').replace("_", " "))
-        console.log("buttonLabels", buttonLabels)
+        //console.log("buttonLabels", buttonLabels)
         const buttonHandlers = Object.values(onClickProps);
-        console.log("buttonHandlers", buttonHandlers)
+        //console.log("buttonHandlers", buttonHandlers)
 
         const iconSize = "18"
         const icon_fill = "gray-800"
@@ -45,7 +45,7 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                 <table className="font-tech">
                     <tbody>
                     <tr>
-                        <td className="p-0">
+                        <div className="p-0">
                             <button
                                 onClick={buttonHandlers[0]}
                                 className="btn btn-md w-52 flex flex-row w-full pl-3 pr-4 space-x-2 rounded-t-lg rounded-b-[0]">
@@ -63,18 +63,18 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                                     </td>
                                 </div>
                             </button>
-                        </td>
+                        </div>
                     </tr>
                     {buttonLabels.slice(1).map((text, index) =>
                         <tr key={index}>
-                            <td className="p-0">
+                            <div className="p-0">
                                 <button
-                                    className={`btn btn-md flex flex-row w-full pl-3 pr-4 ${index == buttonLabels.length - 2 ? "rounded-none rounded-b-lg" : "rounded-none"}`}
+                                    className={`btn btn-md flex flex-row w-52 pl-3 pr-4 ${index == buttonLabels.length - 2 ? "rounded-none rounded-b-lg" : "rounded-none"}`}
                                     onClick={() => {
                                         // toggleCheck(index)
                                         buttonHandlers[index + 1]()
                                     }}>
-                                    <td className="flex flex-row w-full justify-between space-x-2 items-center">
+                                    <tr className="flex flex-row w-full justify-between space-x-2 items-center">
                                         <td className="flex flex-row justify-between items-center space-x-2">
                                             <td>
                                                 {ButtonIconList[index]}
@@ -86,9 +86,9 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                                         <td>
                                             {isChecked[index] && <FaCheck size="16" fill="gray-800"/>}
                                         </td>
-                                    </td>
+                                    </tr>
                                 </button>
-                            </td>
+                            </div>
                         </tr>
                     )}
                     </tbody>

@@ -30,7 +30,7 @@ function App() {
     }, [])
 
     useEffect(() => {
-        console.log("ScreenState", ScreenState)
+        //console.log("ScreenState", ScreenState)
     }, [ScreenState])
 
     const handlePlay = () => {
@@ -44,7 +44,7 @@ function App() {
     }
 
     function renderScreen() {
-        console.log("ScreenState", ScreenState)
+        //console.log("ScreenState", ScreenState)
         const changeScreen = (screen: Screens) => {
             setScreenState(screen)
         }
@@ -72,7 +72,7 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent onChange={changeScreen}/>
+                            <MainContent changeScreenTo={changeScreen}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
                             <SVGTwo className="max-w-sm max-h-sm"/>
