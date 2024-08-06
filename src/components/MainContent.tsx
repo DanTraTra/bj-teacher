@@ -41,13 +41,15 @@ import {
 import {BiDotsVerticalRounded} from "react-icons/bi";
 import {FaDumbbell} from "react-icons/fa6";
 import {FaCheck} from "react-icons/fa6";
-import {PiMathOperationsFill} from "react-icons/pi";
-import {IoArrowBack, IoStatsChart} from "react-icons/io5";
-import MenuTopRight from "./MenuTopRight";
+import {PiMathOperationsFill, PiNotepadBold} from "react-icons/pi";
+import {IoArrowBack, IoExit, IoInfiniteSharp, IoStatsChart} from "react-icons/io5";
+import MenuTopRight, {MenuTopRightProps} from "./MenuTopRight";
 import * as Console from "console";
-import {IoIosCloseCircleOutline} from "react-icons/io";
+import {IoIosCloseCircleOutline, IoMdInfinite} from "react-icons/io";
 import {checkGameState, pressButtonAndCheckBalanceState, pressButtonAndCheckGameState} from "../tests/gameLogicTests";
 import OutCome from "./OutCome";
+import {MdExitToApp} from "react-icons/md";
+import {BsFire} from "react-icons/bs";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -61,6 +63,7 @@ interface UserNameProps {
 
 interface MainContentProps {
     changeScreenTo: (screen: Screens) => void;
+    trainingMode: boolean;
 }
 
 export type GameOutComeType =
@@ -120,7 +123,7 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
 }
 
 
-const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
+const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode}) => {
 
     const initialBalance = 20
 
@@ -128,6 +131,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     const testHasRun = useRef(false); // Ref to track if the test has run
 
     const [BalanceAmount, setBalanceAmount] = useState<number>(initialBalance);
+    const [StreakAmount, setStreakAmount] = useState<number>(0);
+    const [BeginStreak, setBeginStreak] = useState<boolean>(true);
+
+
     const BalanceAmountRef = useRef(BalanceAmount)
     useEffect(() => {
         BalanceAmountRef.current = BalanceAmount
@@ -164,11 +171,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }]);
     const PlayerHandRef = useRef(PlayerHand)
     useEffect(() => {
-        setTotalMaxBet(PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0))
-        setTotalBetDisplay(PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0))
+        const updatedTotalMaxBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0)
+        setTotalMaxBet(updatedTotalMaxBet)
+        const updatedTotalBetDisplay = PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0)
+        setTotalBetDisplay(updatedTotalBetDisplay)
+        // console.log("setTotalMaxBet", updatedTotalMaxBet)
+        // console.log("BalanceAmount", BalanceAmount)
+        // console.log("setTotalBalance", updatedTotalMaxBet + BalanceAmount)
+        // console.log("setTotalBetDisplay", updatedTotalBetDisplay)
 
         PlayerHandRef.current = PlayerHand
-        //console.log("--inside useEffect Playerhand :", PlayerHand)
+        ////console.log("--inside useEffect Playerhand :", PlayerHand)
     }, [PlayerHand])
 
     const [PlayerHandIndex, setPlayerHandIndex] = useState<number>(0);
@@ -195,9 +208,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     const [MenuOpen, setMenuOpen] = useState<boolean>(false);
 
     const [GameStatsOpen, setGameStatsOpen] = useState<boolean>(true);
-    const [CheatSheetVisible, setCheatSheetVisible] = useState<boolean>(true);
-    const [TrainingMode, setTrainingMode] = useState<boolean>(false);
+    const [CheatSheetVisible, setCheatSheetVisible] = useState<boolean>(trainingMode);
+    const [CheatSheetPeak, setCheatSheetPeak] = useState<boolean>(false);
+    const [TrainingMode, setTrainingMode] = useState<boolean>(trainingMode);
     const [CardCountingMode, setCardCountingMode] = useState<boolean>(false);
+
+    const [GoToTrainingMode, setGoToTrainingMode] = useState<boolean>(false);
 
     //Training states
     const [CorrectAction, setCorrectAction] = useState<Action | null>(null);
@@ -218,6 +234,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
 
     useEffect(() => {
+        setTrainingMode(trainingMode)
+        console.log(trainingMode)
+        // if (TrainingMode) {
+        //     setPlayerHand(currentHands=>{
+        //         const updatedHands = [...currentHands]
+        //         updatedHands.map(hands=> {
+        //             return {...hands, betDisplay: 1}
+        //         })
+        //         return updatedHands
+        //     })
+        // }
+
         document.addEventListener('mousedown', handleCloseMenu);
 
         return () => {
@@ -228,6 +256,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     const allTestCases: TestDeck[] = [
         {
+            PlayerHand: [1, 5],
+            DealerHand: [4, 10],
+            Deck: null,
+            Outcome: "PLAYER BUST",
+        }
+        , {
+            PlayerHand: [7, 7],
+            DealerHand: [3, 10],
+            Deck: null,
+            Outcome: "PLAYER BUST",
+        }
+        , {
             PlayerHand: [1, 10],
             DealerHand: [1, 10],
             Deck: null,
@@ -269,42 +309,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             Deck: null,
             Outcome: "IN PLAY",
         }
+        , {
+            PlayerHand: [6, 6],
+            DealerHand: [4, 1],
+            Deck: [1, 1, 1, 1],
+            Outcome: "IN PLAY",
+        }
     ]
-    const randomOn = true
-    //
-    // useEffect(() => {
-    //     const runTest = async () => {
-    //         //console.log("-----------------RUNNING TESTS------------------")
-    //         try {
-    //             setBalanceAmount(10000)
-    //             for (const [index, test] of TestCases.slice(0, TestCases.length - 1).entries()) {
-    //                 //console.log("Test", test)
-    //                 const mockEvent = {
-    //                     preventDefault: () => {
-    //                     }
-    //                 } as React.MouseEvent<HTMLButtonElement>;
-    //
-    //                 await handleClickChip(1)
-    //                 await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 milliseconds
-    //                 await pressButtonAndCheckGameState(() => handleClickPlaceBet(mockEvent), "IN PLAY", () => GameStateRef.current);
-    //                 await new Promise(resolve => setTimeout(resolve, dealerAnimationTime + 1000)); // Wait for 300 milliseconds
-    //                 await checkGameState(test.Outcome, () => GameStateRef.current);
-    //                 await new Promise(resolve => setTimeout(resolve, dealerAnimationTime + 1000)); // Wait for 1 milliseconds
-    //                 await pressButtonAndCheckGameState(() => handleClickKeepGoing(), "PLACING BET", () => GameStateRef.current);
-    //                 await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 milliseconds
-    //
-    //             }
-    //
-    //         } catch (error) {
-    //             console.error("Test failed:", error);
-    //         }
-    //     };
-    //
-    //     if (!testHasRun.current) {
-    //         // runTest();
-    //         testHasRun.current = true; // Mark the test as run
-    //     }
-    // }, []);
+    const randomOn = true // TODO
 
     type TestDeck = { PlayerHand: number[], DealerHand: number[], Deck: number[] | null, Outcome: GameOutComeType }
 
@@ -324,7 +336,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             }
         }
 
-        // //console.log("TestDeck: ",deck)
+        // ////console.log("TestDeck: ",deck)
 
         return deck
     }
@@ -351,8 +363,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         deckRef.current = currentDeck;
         setGlobalDeck(currentDeck);
 
-        //console.log("remaining deck", currentDeck);
-        //console.log("got card", card);
+        ////console.log("remaining deck", currentDeck);
+        ////console.log("got card", card);
 
         return card;
     };
@@ -360,14 +372,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     const addRandomCardToDealerHand = () => {
         const newCard = getCardFromDeck(false, randomOn);
         const newDealerHand = [...DealerHand, newCard];
-        console.log("addRandomCardToDealerHand")
+        //console.log("addRandomCardToDealerHand")
         setDealerHand(newDealerHand)
         // const updatedHand = DealerHand.map(card => ({
         //     ...card, visible: true
         // }));
 
         setTimeout(() => {
-            console.log("addRandomCardToDealerHand")
+            //console.log("addRandomCardToDealerHand")
             revealDealerCard(newDealerHand.length - 1)
         }, animationTime)
     }
@@ -379,9 +391,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             // acount +1 because", card.value)
         } else if (card.value >= 10 || card.value === 1) {
             change = -1;
-            // //console.log("count -1 because", card.value)
+            // ////console.log("count -1 because", card.value)
         } else {
-            // //console.log("count unchanged because", card.value)
+            // ////console.log("count unchanged because", card.value)
         }
         setCount(currentCount => {
 
@@ -411,7 +423,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             EndingBalance: (BalanceAmount + TotalMaxBet),
             DateTime: new Date()
         }
-
+        console.log(thisGameLog)
         setGameLog(currentLog => {
             return [...currentLog, thisGameLog]
         })
@@ -419,27 +431,23 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     const [ExtraCardCount, setExtraCardCount] = useState(0)
     const [HitDisabled, setHitDisabled] = useState(false);
-    const handleClickHit = () => {
-        //console.log("CLICKED HIT")
+    const handleClickHit = (doubleDownHit: boolean) => {
+        ////console.log("CLICKED HIT")
         setHitButtonPressed(true)
         setTimeout(() => {
             setHitButtonPressed(false)
         }, 82 * 5)
 
-        if (!TrainingMode || (CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT")) {
+        if (!TrainingMode || doubleDownHit || (CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT")) {
             setExtraCardCount(ExtraCardCount + 1)
             setHitDisabled(true)
             setStandDisabled(true)
             setDoubleDownDisabled(true);
             setSplitDisabled(true);
-            const random_card = getCardFromDeck(false, randomOn)
-            // const random_card: CardProps = {
-            //     suit: 'clubs',
-            //     value: 11,
-            //     display: 'A',
-            //     visible: false
-            // }
+            BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
+            // Add random card to player hand
+            const random_card = getCardFromDeck(false, randomOn)
             // setPlayerHand(currentHand => [...currentHand, random_card]);
             const updatedHitHand = [...PlayerHand]
             updatedHitHand[PlayerHandIndex].cards = [...updatedHitHand[PlayerHandIndex].cards, random_card]
@@ -457,47 +465,41 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     setStandDisabled(false)
                 }
             }, animationTime + 300)
+        } else {
+            setStreakAmount(0)
+            setBeginStreak(false)
+            setCheatSheetPeak(true)
         }
 
     }
 
     const [standDisabled, setStandDisabled] = useState(false);
-    const handleClickStand = () => {
+    const handleClickStand = (doubleDownStand: boolean) => {
         setStandButtonPressed(true)
-        //console.log("CLICKED STAND")
+        ////console.log("CLICKED STAND")
         setTimeout(() => {
             setStandButtonPressed(false)
         }, 82 * 5)
-        if (!TrainingMode || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
+        if (!TrainingMode || doubleDownStand || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
             setStandDisabled(true)
             setHitDisabled(true)
             setDoubleDownDisabled(true)
             setSplitDisabled(true)
+            BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
+
             if (PlayerHandIndex == PlayerHand.length - 1) {
                 setPlayerStand(true)
-            }
-
-
-            //Dealer gets "card dealt" animation toggles off and then the game outcome gets revealed while the player stand continues until next game
-            // setDealerHit(true);
-
-            //    Animation logic:
-            //    1. handClickStand just flips the second card
-            //    2. useEffect [DealerHand] -> checks all cards are visible -> sums and sets a DealerHit flag for the next card to be dealt or for the outcome to be decided
-            //    2a. useEffect [DealerHit] -> adds another card to DealersHand
-
-            // Flip the dealers hidden card
-            if (PlayerHand.length > 1 && PlayerHandIndex != PlayerHand.length - 1) {
+                revealDealerCard(1)
+            } else if (PlayerHand.length > 1) {
                 setPlayerHandIndex(PlayerHandIndex + 1)
                 const updatedList = [...CardShift]
                 updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
                 setCardShift(updatedList)
-            } else {
-                const dealHandCopy = [...DealerHand]
-                dealHandCopy[1] = {...dealHandCopy[1], visible: true}
-                console.log("handleClickStand")
-                setDealerHand(dealHandCopy)
             }
+        } else {
+            setStreakAmount(0)
+            setBeginStreak(false)
+            setCheatSheetPeak(true)
         }
 
     }
@@ -508,13 +510,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         setTimeout(() => {
             setSplitButtonPressed(false)
         }, 82 * 5)
-        //console.log("CLICKED SPLIT")
+        ////console.log("CLICKED SPLIT")
 
         if (!TrainingMode || (CorrectAction == "SPLIT/HIT" || CorrectAction == "SPLIT/STAND")) {
             setSplitDisabled(true)
+            setStandDisabled(true)
+            setHitDisabled(true)
+            setDoubleDownDisabled(true)
+            BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
             const splitHand = [...PlayerHand]
-            //console.log("currentHand", splitHand)
+            ////console.log("currentHand", splitHand)
 
             const latterCard: CardProps = splitHand[PlayerHandIndex].cards.pop() || getCardFromDeck(true, randomOn)
             splitHand[PlayerHandIndex].cards = [splitHand[PlayerHandIndex].cards[0], getCardFromDeck(false, randomOn)]
@@ -528,7 +534,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                 doubleDown: false,
             })
 
-            //console.log("post-split", splitHand)
+            ////console.log("post-split", splitHand)
 
             setPlayerHand(splitHand)
             setBalanceAmount(BalanceAmount - splitHand[PlayerHandIndex].betDisplay)
@@ -538,34 +544,44 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     return {...card, visible: true}
                 })
                 setPlayerHand(splitHand)
+
                 PlayerHand[PlayerHandIndex].betDisplay <= BalanceAmount - splitHand[PlayerHandIndex].betDisplay
                 && PlayerHand[PlayerHandIndex].cards.length
                 && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display) ? (setSplitDisabled(false)) : (setSplitDisabled(true))
 
+                setStandDisabled(false)
+                setHitDisabled(false)
+                setDoubleDownDisabled(false)
             }, animationTime + 100)
+        } else {
+            setStreakAmount(0)
+            setBeginStreak(false)
+            setCheatSheetPeak(true)
         }
     }
 
     const [doubleDownDisabled, setDoubleDownDisabled] = useState(false);
     const handleClickDoubleDown = () => {
         setDDButtonPressed(true)
-        //console.log("CLICKED DOUBLE DOWN")
+        ////console.log("CLICKED DOUBLE DOWN")
         setTimeout(() => {
             setDDButtonPressed(false)
         }, 82 * 5)
 
         if (!TrainingMode || (CorrectAction == "DD/STAND" || CorrectAction == "DD/HIT")) {
-            setDoubleDownDisabled(true)
-            setHitDisabled(true)
-            setStandDisabled(true)
-            setDoubleDownDisabled(true);
             // const currentBetAmount = [...BetAmount]
             // currentBetAmount[PlayerHandIndex] = currentBetAmount[PlayerHandIndex] * 2
             // setBetAmount(currentBetAmount)
-            //console.log('BalanceAmount', BalanceAmount)
-            //console.log('PlayerHand[PlayerHandIndex].bet', PlayerHand[PlayerHandIndex].betDisplay)
+            ////console.log('BalanceAmount', BalanceAmount)
+            ////console.log('PlayerHand[PlayerHandIndex].bet', PlayerHand[PlayerHandIndex].betDisplay)
 
             if (BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
+                setDoubleDownDisabled(true)
+                setHitDisabled(true)
+                setStandDisabled(true)
+                setDoubleDownDisabled(true);
+                BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
+
                 const updatedBalanceDD = BalanceAmount - PlayerHand[PlayerHandIndex].betDisplay
                 setBalanceAmount(updatedBalanceDD)
                 const updatedDoubleDownHand = [...PlayerHand];
@@ -573,12 +589,16 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                 updatedDoubleDownHand[PlayerHandIndex].betDisplay = updatedDoubleDownHand[PlayerHandIndex].betDisplay * 2;
                 updatedDoubleDownHand[PlayerHandIndex].doubleDown = true;
                 setPlayerHand(updatedDoubleDownHand);
-                handleClickHit()
+                handleClickHit(true)
                 setTimeout(() => {
-                    handleClickStand()
+                    handleClickStand(true)
                 }, dealerAnimationTime)
             }
 
+        } else {
+            setStreakAmount(0)
+            setBeginStreak(false)
+            setCheatSheetPeak(true)
         }
     }
 
@@ -587,28 +607,34 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         // updateGameLog()
         setUpGame()
         setBalanceAmount(initialBalance)
+        setGameLog([])
+        const newDeck = initializeDeck(6)
+        setGlobalDeck(newDeck)
+        setGameCount(0)
+        setTotalMaxBet(0)
+        setTotalBetDisplay(0)
     }
 
     const [KeepGoingDisabled, setKeepGoingDisabled] = useState(false);
     const handleClickKeepGoing = () => {
         // If there are multiple hands, combine into first hand
-        //console.log("CLICKED KEEP GOING")
-        const finalHand = [...PlayerHand]
-        finalHand[0].betDisplay = finalHand.reduce((acc, hand) => {
-            return hand.betDisplay + acc
-        }, 0)
+        ////console.log("CLICKED KEEP GOING")
+        // const finalHand = [...PlayerHand]
+        // finalHand[0].betDisplay = finalHand.reduce((acc, hand) => {
+        //     return hand.betDisplay + acc
+        // }, 0)
         // updateGameLog()
         // setUpGame()
         setGameCount(prevState => prevState + 1)
     }
 
     useEffect(() => {
-        //console.log("GameLog changing to:", GameLog)
+        ////console.log("GameLog changing to:", GameLog)
     }, [GameLog])
 
     useEffect(() => {
-        //console.log("BalanceAmount", BalanceAmount)
-        //console.log("BetAmount + BetDisplay", BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0))
+        ////console.log("BalanceAmount", BalanceAmount)
+        ////console.log("BetAmount + BetDisplay", BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0))
         if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0) < 1 && GameState == "IN PLAY") {
             setBalanceAmount(0) // When balance is less than 1
             // updateGameLog()
@@ -617,17 +643,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }, [BalanceAmount])
 
 
-    const handleClickCashOutEarly = () => {
-        //console.log("CLICKED CashOutEarly")
+    const handleClickCashOutEarly = (toTraining: boolean) => {
+        ////console.log("CLICKED CashOutEarly")
 
         if (GameState == "PLACING BET") {
             handleClickCashOut()
+            toTraining ? setGoToTrainingMode(true) : setGoToTrainingMode(false)
             setMenuOpen(false)
         }
     }
     const [CashOutDisabled, setCashOutDisabled] = useState(false);
     const handleClickCashOut = () => {
-        //console.log("CLICKED CashOut")
+        ////console.log("CLICKED CashOut")
         // setBalanceAmount(currentBalance => currentBalance + PlayerHand.reduce((acc, currentHand) => {
         //     return acc + (currentHand.betDisplay)
         // }, 0))
@@ -637,7 +664,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }
 
     const handleClickBack = () => {
-        //console.log("CLICKED BACK")
+        ////console.log("CLICKED BACK")
         if (GameState == "SAVING GAME") {
             setGameCount(GameCount + 1) //pressed back
             setPlayerStand(false)
@@ -654,12 +681,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         const updatedChipClickDeckCards = allTestCases[index].Deck ? initializeSpecificHand(allTestCases[index].Deck!) : initializeDeck(DeckCount);
         updatedChipClickDeckCards.push(...GlobalDeck)
 
-        console.log("handleClickTestCase")
+        //console.log("handleClickTestCase")
         setDealerHand(updatedChipClickDealerHand);
         setPlayerHand(updatedChipClickPlayerHand);
         setGlobalDeck(updatedChipClickDeckCards)
 
-        //console.log("deck", updatedChipClickDeckCards)
+        ////console.log("deck", updatedChipClickDeckCards)
         const mockEvent = {
             preventDefault: () => {
             }
@@ -685,7 +712,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }, [deckUpdated]);
 
     const handleClickChip = (amount: number) => {
-        //console.log(`Chip Clicked - added ${amount} to BetAmountState`)
+        ////console.log(`Chip Clicked - added ${amount} to BetAmountState`)
         if (amount <= BalanceAmount) {
 
             const updatedChipClickPlayerHand = [...PlayerHand]
@@ -702,7 +729,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }
 
     const handleBabyChipClick = (amount: number) => {
-        //console.log(`Baby Chip Clicked - removed ${amount} from BetAmountState`)
+        ////console.log(`Baby Chip Clicked - removed ${amount} from BetAmountState`)
 
         const updatedBabyChipClickPlayerHand = [...PlayerHand]
         updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay - amount
@@ -714,7 +741,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     const handleClickPlaceBet = async (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        //console.log("Pressed place bet")
+        ////console.log("Pressed place bet")
         setGameState('IN PLAY')
     }
 
@@ -751,14 +778,16 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     const revealPlayerCards = () => {
         if (GameState == 'IN PLAY') {
             setTimeout(() => {
+                console.log("reveal Card")
                 const updatedRevealHand = [...PlayerHand]
-                //console.log("updatedHand before", updatedRevealHand)
+                ////console.log("updatedHand before", updatedRevealHand)
 
                 updatedRevealHand[PlayerHandIndex].cards = updatedRevealHand[PlayerHandIndex].cards.map(card => {
+                    // return TrainingMode ? {...card, visible: true, betDisplay: 1} : {...card, visible: true}
                     return {...card, visible: true}
                 })
 
-                //console.log("updatedHand after", updatedRevealHand)
+                ////console.log("updatedHand after", updatedRevealHand)
                 setPlayerHand(updatedRevealHand)
 
             }, 0);
@@ -766,16 +795,16 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }
 
     const revealDealerCard = (indexToReveal: number) => {
-        console.log("revealDealerCard")
+        //console.log("revealDealerCard")
         setDealerHand(prevDealerHand => {
             const updatedHand = prevDealerHand.map((card, index) => {
-                    //console.log("index", index)
-                    //console.log("indexToReveal", indexToReveal)
+                    ////console.log("index", index)
+                    ////console.log("indexToReveal", indexToReveal)
 
                     return index == indexToReveal ? {...card, visible: true} : {...card}
                 }
             )
-            //console.log('updatedDealerHand', updatedHand)
+            ////console.log('updatedDealerHand', updatedHand)
             return updatedHand
         })
 
@@ -786,8 +815,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         // AUTO CALLED WHEN GAMECOUNT CHANGES DON'T CALL
         // TODO: Make chips reset to zero after winning a hand
         // TODO: Animate coins going to balance
-        //console.log("Setting Up Game")
-        setGameState("PLACING BET");
+        ////console.log("Setting Up Game")
+
+
+        if (TrainingMode) {
+            setGameState("IN PLAY");
+        } else {
+            setGameState("PLACING BET");
+        }
         setPlayerStand(false);
         setDealerHit(0);
         setStandDisabled(false);
@@ -796,14 +831,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         setExtraCardCount(0);
         setDealerTurnEnded(false)
         setPlayerBlackJackState(false)
-        const newDeck = initializeDeck(6)
-        setGlobalDeck(newDeck)
-        setGameCount(0)
-        setGameLog([])
         setStandButtonPressed(false)
         setSplitButtonPressed(false)
         setDDButtonPressed(false)
         setHitButtonPressed(false)
+        setBeginStreak(true)
+        setGoToTrainingMode(false)
 
         if (PlayerHand[PlayerHandIndex].betDisplay > BalanceAmount) {
             setDoubleDownDisabled(true);
@@ -826,10 +859,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         const random_player_card_2 = getCardFromDeck(false, randomOn)
         const random_dealer_card_2 = getCardFromDeck(false, randomOn)
 
-        //console.log("random_player_card_1", random_player_card_1);
-        //console.log("random_dealer_card_1", random_dealer_card_1);
-        //console.log("random_player_card_2", random_player_card_2);
-        //console.log("random_dealer_card_2", random_dealer_card_2);
+        ////console.log("random_player_card_1", random_player_card_1);
+        ////console.log("random_dealer_card_1", random_dealer_card_1);
+        ////console.log("random_player_card_2", random_player_card_2);
+        ////console.log("random_dealer_card_2", random_dealer_card_2);
 
         // Create an addToDeck function
         const firstHand: PlayerHandProps = {
@@ -852,7 +885,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         updateCount(random_player_card_2)
 
         setDealerHandSumState(random_dealer_card_1.value)
-        console.log("setUpGame")
+        //console.log("setUpGame")
         setDealerHand([random_dealer_card_1, random_dealer_card_2])
         updateCount(random_dealer_card_1)
 
@@ -860,22 +893,38 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     useEffect(() => {
         setUpGame()
-        //console.log("----------- Game count changing to:", GameCount)
+        ////console.log("----------- Game count changing to:", GameCount)
     }, [GameCount])
+
+    useEffect(() => {
+        if (TrainingMode) {
+            setBalanceAmount(Infinity)
+            setStreakAmount(0)
+            handleClickStartOver()
+        } else {
+            handleClickStartOver()
+        }
+
+        setUpGame()
+        if (!randomOn) {
+            handleClickTestCase(0)
+        }
+    }, [TrainingMode])
 
     useEffect(() => {
         // revealPlayerCards()
         // Player bust with A even is it's less than 21
 
-        //console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].sum, GameState]")
-        //console.log(`PlayerHand[${PlayerHandIndex}].sum`, PlayerHand[PlayerHandIndex].sum)
-        //console.log(`PlayerHand[${PlayerHandIndex}].cards.length`, PlayerHand[PlayerHandIndex].cards.length)
-        //console.log("GameState", GameState)
+        ////console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].sum, GameState]")
+        ////console.log(`PlayerHand[${PlayerHandIndex}].sum`, PlayerHand[PlayerHandIndex].sum)
+        ////console.log(`PlayerHand[${PlayerHandIndex}].cards.length`, PlayerHand[PlayerHandIndex].cards.length)
+        ////console.log("GameState", GameState)
         setTimeout(() => {
             if (GameState == 'IN PLAY') {
                 const action = cheatSheetDataLogic(PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+                console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+                console.log("CorrectAction", action)
                 setCorrectAction(action)
-                //console.log(action)
                 if (PlayerHand[PlayerHandIndex].sum > 21 || (PlayerHand[PlayerHandIndex].sum == 21 && PlayerHand[PlayerHandIndex].cards.length == 2)) {
                     //If player's current hand busts or hits blackjack
                     if (PlayerHandIndex == PlayerHand.length - 1) {
@@ -884,10 +933,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                         setCashOutDisabled(true)
                         setStartOverDisabled(true)
                         //
-                        // //console.log("Setting Dealer Hit False")
+                        // ////console.log("Setting Dealer Hit False")
                         // setDealerHit(0);
 
-                        //console.log("Setting PlayerStand && DealerTurnEnded True")
                         setPlayerStand(true)
                         setDealerTurnEnded(true);
 
@@ -908,13 +956,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }, [PlayerHand[PlayerHandIndex].sum, GameState])
 
     useEffect(() => {
-        //console.log("PlayerHand being updated to:", PlayerHand)
-        //console.log("PlayerHandIndex being updated to:", PlayerHandIndex)
+        ////console.log("PlayerHand being updated to:", PlayerHand)
+        ////console.log("PlayerHandIndex being updated to:", PlayerHandIndex)
     }, [PlayerHand])
 
     useEffect(() => {
-        // //console.log("PlayerHand", PlayerHand)
-        // //console.log("PlayerHand", PlayerHandIndex)
+        // ////console.log("PlayerHand", PlayerHand)
+        // ////console.log("PlayerHand", PlayerHandIndex)
         if (PlayerStand) {
             setDoubleDownDisabled(true)
             setSplitDisabled(true)
@@ -930,31 +978,33 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }, [PlayerStand])
 
     useEffect(() => {
-        //console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
+        ////console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
         let playerHandSums = PlayerHand.map(hand => hand.cards.reduce((acc, card) => acc + card.value, 0));
-        //console.log("playerHandSum", playerHandSums)
-        //console.log("PlayerHand", PlayerHand)
-        // //console.log("setDealerHandSumState1", dealerHandSum)
+        ////console.log("playerHandSum", playerHandSums)
+        ////console.log("PlayerHand", PlayerHand)
+        // ////console.log("setDealerHandSumState1", dealerHandSum)
         // setDealerHandSumState(dealerHandSum);
+
+
         // If dealerHandSum > 21, go through all As and reduce to one 1 until the hand is <=21 or when all As are 1
         PlayerHand.map(hand => {
             if ((playerHandSums[PlayerHandIndex] > 21 && hand.cards.some(card => card.value == 11)) || (playerHandSums[PlayerHandIndex] <= 11 && hand.cards.some(card => card.value == 1))) {
                 const hand_copy = [...hand.cards]
-                //console.log("in conditional", ((hand.sum > 21 && hand.cards.some(card => card.value == 11)) || (hand.sum <= 11 && hand.cards.some(card => card.value == 1))))
+                ////console.log("in conditional", ((hand.sum > 21 && hand.cards.some(card => card.value == 11)) || (hand.sum <= 11 && hand.cards.some(card => card.value == 1))))
                 for (let [index, card] of hand_copy.entries()) {
-                    // //console.log(`playerHandSum index ${index} -`, playerHandSums)
+                    // ////console.log(`playerHandSum index ${index} -`, playerHandSums)
                     if (card.display === 'A' && card.value === 11 && playerHandSums[PlayerHandIndex] > 21) {
                         hand_copy[index].value = 1
-                        //console.log("changing A from 11 to 1")
+                        ////console.log("changing A from 11 to 1")
                     } else if (card.display === 'A' && card.value === 1 && playerHandSums[PlayerHandIndex] <= 21) {
                         hand_copy[index].value = 11
-                        //console.log("changing A from 1 to 11")
+                        ////console.log("changing A from 1 to 11")
                     }
                     playerHandSums[PlayerHandIndex] = hand_copy.reduce((acc, card) => acc + card.value, 0);
 
                 }
 
-                // //console.log("hand_copy", hand_copy)
+                // ////console.log("hand_copy", hand_copy)
 
                 if (hand.cards.every(card => card.visible)) {
                     // setPlayerHand(currentHand => {
@@ -962,14 +1012,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     // })
                     // const updatedHand = [...PlayerHand]
                     // updatedHand[PlayerHandIndex].cards = hand_copy
-                    // //console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
+                    // ////console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
                     // setPlayerHand(updatedHand)
 
                     setPlayerHand(currentHand => {
                         const updatedHand = [...currentHand]
                         updatedHand[PlayerHandIndex].cards = hand_copy
                         updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
-                        // //console.log("setPlayerHand1", playerHandSums[PlayerHandIndex])
+                        // ////console.log("setPlayerHand1", playerHandSums[PlayerHandIndex])
                         return updatedHand
                     })
 
@@ -982,7 +1032,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         setPlayerHand(currentHand => {
             const updatedHand = [...currentHand]
             updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
-            // //console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
+            // ////console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
             return updatedHand
         })
 
@@ -991,10 +1041,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
 
     useEffect(() => {
-        //console.log("-------inside useEffect dep [DealerTurnEnded]")
-        //console.log("PlayerStand - DD", PlayerStand)
-        //console.log("DealerHit - DD", DealerTurnEnded)
-        //console.log("DealerHandSumState", DealerHandSumState)
+        ////console.log("-------inside useEffect dep [DealerTurnEnded]")
+        ////console.log("PlayerStand - DD", PlayerStand)
+        ////console.log("DealerHit - DD", DealerTurnEnded)
+        ////console.log("DealerHandSumState", DealerHandSumState)
         setPlayerBlackJackState(false)
         if (PlayerStand && DealerTurnEnded) {
             const updatedPlayerHandWinMultiplier = [...PlayerHand]
@@ -1055,127 +1105,136 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                 }
             }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime) : (0))
 
-            if (PlayerHandIndex == PlayerHand.length - 1) {
-                updateGameLog()
-            }
+            // if (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) {
+            //     console.log("Updating Game Log")
+            //     setTimeout(() => {
+            //         updateGameLog()
+            //     }, 0)
+            // }
 
         }
 
     }, [DealerTurnEnded, PlayerHandIndex])
 
     useEffect(() => {
-        //console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
-        // //console.log("DealerHand.length", DealerHand.length)
-        // //console.log("DealerHand.every((card) => card.visible)", DealerHand.every((card) => card.visible))
-        // //console.log("DealerHandSumState - PD", DealerHandSumState)
-        //console.log("PlayerStand - PD", PlayerStand)
-        // //console.log("DealerHand", DealerHand)
-        // //console.log("PlayerHand", PlayerHand)
+        if (DealerTurnEnded && (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) && GameState != "GAME OVER") {
+            console.log("Updating Game Log")
+            setTimeout(() => {
+                updateGameLog()
+            }, 0)
+        }
+    }, [DealerTurnEnded, GameState])
+
+    useEffect(() => {
+        ////console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
+        // ////console.log("DealerHand.length", DealerHand.length)
+        // ////console.log("DealerHand.every((card) => card.visible)", DealerHand.every((card) => card.visible))
+        // ////console.log("DealerHandSumState - PD", DealerHandSumState)
+        ////console.log("PlayerStand - PD", PlayerStand)
+        // ////console.log("DealerHand", DealerHand)
+        // ////console.log("PlayerHand", PlayerHand)
         if (GameState == "SAVING GAME") {
             return
         }
 
-        if (PlayerStand && ["PLAYER BUST", "HOUSE WINS", "PLAYER BLACKJACK", "PUSH"].includes(GameState)) {
+        if (PlayerStand && HANDOVER.includes(GameState)) {
             revealDealerCard(1) //When the player loses
         }
         let dealerHandSum = DealerHand.reduce((acc, card) => acc + card.value, 0);
 
-        // //console.log("setDealerHandSumState1", dealerHandSum)
+        // ////console.log("setDealerHandSumState1", dealerHandSum)
         // setDealerHandSumState(dealerHandSum);
 
         // If dealerHandSum > 21, go through all As and reduce to one 1 until the hand is <=21 or whan all As are 1
-        if (dealerHandSum > 21 && DealerHand.some(card => card.value == 11)) {
+        if ((dealerHandSum > 21 && DealerHand.some(card => card.value == 11)) || (dealerHandSum <= 11 && DealerHand.some(card => card.value == 1))) {
             const hand_copy = [...DealerHand]
-
+            ////console.log("in conditional", ((hand.sum > 21 && hand.cards.some(card => card.value == 11)) || (hand.sum <= 11 && hand.cards.some(card => card.value == 1))))
             for (let [index, card] of hand_copy.entries()) {
-                //console.log(`dealerHandSum index ${index} -`, dealerHandSum)
-                if (card.display == 'A' && card.value == 11 && dealerHandSum > 21) {
-                    hand_copy[index] = {...card, value: 1}
-                    //console.log("card", card)
+                // ////console.log(`playerHandSum index ${index} -`, playerHandSums)
+                if (card.display === 'A' && card.value === 11 && dealerHandSum > 21) {
+                    hand_copy[index].value = 1
+                    ////console.log("changing A from 11 to 1")
+                } else if (card.display === 'A' && card.value === 1 && dealerHandSum <= 21) {
+                    hand_copy[index].value = 11
+                    ////console.log("changing A from 1 to 11")
                 }
                 dealerHandSum = hand_copy.reduce((acc, card) => acc + card.value, 0);
 
             }
 
-            // //console.log("hand_copy", hand_copy)
-            if (DealerHand.every(card => card.visible)) {
-                console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
-                setDealerHand(currentHand => {
-                    return hand_copy
-                })
+            // ////console.log("hand_copy", hand_copy)
 
-                //console.log("setDealerHandSumState2", dealerHandSum)
-                setDealerHandSumState(dealerHandSum);
+            if (DealerHand.every(card => card.visible)) {
+                setDealerHandSumState(dealerHandSum)
 
             }
         }
 
-        //console.log("setDealerHandSumState1", dealerHandSum)
+        ////console.log("setDealerHandSumState1", dealerHandSum)
         setDealerHandSumState(dealerHandSum);
-        // //console.log("setDealerHandSumState2", dealerHandSum)
+        // ////console.log("setDealerHandSumState2", dealerHandSum)
         // setDealerHandSumState(dealerHandSum);
 
         if (PlayerStand || GameState == 'PLAYER BUST' || (PlayerHand.length > 1 && LOSE.includes(GameState))) {
 
             if (dealerHandSum < 17 && PlayerHand[PlayerHandIndex].sum <= 21 && !PlayerBlackJackState && !PlayerHand.every(hand => hand.winMultiplier == 0)) {
 
-                console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
+                // Keep adding cards to dealerHand
+                //console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
                 if (DealerHand.every((card) => card.visible)) {
                     setTimeout(() => {
-                        //console.log("Getting another card - DD")
+                        ////console.log("Getting another card - DD")
                         addRandomCardToDealerHand() // when the player stands or when the dealers hand is below 17
                         // addFakeRandomCardToDealerHand()
                     }, dealerAnimationTime)
 
-                    // //console.log("Setting DealerTurnEnded False")
+                    // ////console.log("Setting DealerTurnEnded False")
                     setDealerTurnEnded(false);
 
                 }
 
             } else {
 
-                // //console.log("Setting Dealer Hit False")
+                // ////console.log("Setting Dealer Hit False")
                 setDealerHit(0);
-
-                // //console.log("Setting DealerTurnEnded True")
                 setDealerTurnEnded(true);
             }
 
         } else {
-            // //console.log("Setting Dealer Hit False")
+            // ////console.log("Setting Dealer Hit False")
             setDealerHit(0);
-            // //console.log("Setting DealerTurnEnded False")
+            // ////console.log("Setting DealerTurnEnded False")
             setDealerTurnEnded(false);
 
         }
     }, [PlayerStand, GameState, DealerHand.every((card) => card.visible)])
 
     useEffect(() => {
-        //console.log("-------inside useEffect dep [GameState]")
+        console.log("-------inside useEffect dep [GameState]", GameState)
         if ((GameState == 'PLAYER BUST' || GameState == 'PLAYER BLACKJACK') && (PlayerHandIndex == PlayerHand.length - 1)) {
             //Reveal dealers card if isn't turned over
-            console.log("-------inside useEffect dep [GameState]")
+            //console.log("-------inside useEffect dep [GameState]")
             revealDealerCard(1)
 
         } else if (GameState == 'IN PLAY') {
             revealPlayerCards()
-            console.log("-------inside useEffect dep [GameState]")
+            //console.log("-------inside useEffect dep [GameState]")
             revealDealerCard(0)
             if (BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
                 setDoubleDownDisabled(true)
+                setSplitDisabled(true)
             } else {
                 setDoubleDownDisabled(false)
+                if (PlayerHand[PlayerHandIndex].cards.length
+                    && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)) {
+                    setSplitDisabled(false)
+                } else {
+                    setSplitDisabled(true)
+                }
             }
 
-            if (PlayerHand[PlayerHandIndex].cards.length
-                && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)
-                && BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
-                setSplitDisabled(false)
-            } else {
-                setSplitDisabled(true)
-            }
         } else if (GameState == 'SAVING GAME') {
-            // //console.log("Resetting the bet display and totalling into balance")
+            // ////console.log("Resetting the bet display and totalling into balance")
             setBalanceAmount(BalanceAmount + PlayerHand.reduce((acc, currentHand) => {
                 return acc + (currentHand.betDisplay)
             }, 0))
@@ -1184,8 +1243,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             updatedCashOutPlayerHand[PlayerHandIndex].betDisplay = 0;
             setPlayerHand(updatedCashOutPlayerHand)
         }
-        //console.log("GlobalDeck", GlobalDeck)
-        //console.log("GlobalDeck.length", GlobalDeck.length)
+        ////console.log("GlobalDeck", GlobalDeck)
+        ////console.log("GlobalDeck.length", GlobalDeck.length)
     }, [GameState])
 
     // type GameOutComeType =
@@ -1199,21 +1258,24 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     //     | "PLAYER BLACKJACK"
     const WIN: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST"]
     const LOSE: GameOutComeType[] = ['HOUSE WINS', 'PLAYER BUST']
+    const HANDOVER: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST", 'HOUSE WINS', 'PLAYER BUST', "GAME OVER", "PUSH",]
 
     useEffect(() => {
         // USED FOR ANIMATING CHIPS
-        //console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].betDisplay, GameState, DealerTurnEnded, PlayerHandIndex]")
-        // //console.log("in userEffect [BetAmount, GameState]")
-        // //console.log("GameState", GameState)
-        // //console.log("BetAmount", BetAmount)
-        // //console.log("WinAmount", WinAmount)
-        // //console.log("BetChange", BetChange)
+        ////console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].betDisplay, GameState, DealerTurnEnded, PlayerHandIndex]")
+        // ////console.log("in userEffect [BetAmount, GameState]")
+        // ////console.log("GameState", GameState)
+        // ////console.log("BetAmount", BetAmount)
+        // ////console.log("WinAmount", WinAmount)
+        // ////console.log("BetChange", BetChange)
 
+        //TODO: Streak Counter, set balance amount when player turns of training mode
         //TODO: fix when user busts in the last hand after splitting - probably need to implement hand checking before flipping dealer cards in case all hands are busts
-        //console.log("GameState", GameState)
-        //console.log("DealerTurnEnded", DealerTurnEnded)
-        if (GameState != 'IN PLAY' && GameState != 'PLACING BET' && GameState != 'SAVING GAME' && DealerTurnEnded) {
-            // //console.log("BetAmount", PlayerHand[PlayerHandIndex].maxBet)
+        //
+        ////console.log("GameState", GameState)
+        ////console.log("DealerTurnEnded", DealerTurnEnded)
+        if (HANDOVER.includes(GameState) && DealerTurnEnded) {
+            // ////console.log("BetAmount", PlayerHand[PlayerHandIndex].maxBet)
             setTimeout(() => {
                 let winAmount = PlayerHand[PlayerHandIndex].maxBet * PlayerHand[PlayerHandIndex].winMultiplier
                 if (PlayerHandIndex == 0) {
@@ -1222,13 +1284,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     updatedPlayerHandBetDisplay.map((hand, index) => index == 0 ? (hand) : (hand.betDisplay = 0))
                     setPlayerHand(updatedPlayerHandBetDisplay)
                 }
-                // //console.log("PlayerHand", PlayerHand)
-                // //console.log("winAmount", winAmount)
-                // //console.log("PlayerHandIndex", PlayerHandIndex)
+                // ////console.log("PlayerHand", PlayerHand)
+                // ////console.log("winAmount", winAmount)
+                // ////console.log("PlayerHandIndex", PlayerHandIndex)
 
                 const betAnimationChange = PlayerHand[PlayerHandIndex].maxBet >= 10 ? Math.round(PlayerHand[PlayerHandIndex].maxBet / 10) : (1)
-                // //console.log("WinAmount", WinAmount)
-                // //console.log("betAnimationChange", betAnimationChange)
+                // ////console.log("WinAmount", WinAmount)
+                // ////console.log("betAnimationChange", betAnimationChange)
                 let betAmountChangeTime = 50
 
                 if (PlayerHand[PlayerHandIndex].betDisplay != winAmount) {
@@ -1254,7 +1316,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
                 } else if (PlayerHandIndex > 0) {
                     const pauseTime = Math.abs((winAmount - PlayerHand[PlayerHandIndex].maxBet) / betAmountChangeTime) * 50 + 700
-                    //console.log("Time given for each hand", pauseTime)
+                    ////console.log("Time given for each hand", pauseTime)
                     const timer = setTimeout(() => {
                         setPlayerHandIndex(PlayerHandIndex - 1)
                     }, pauseTime)
@@ -1274,12 +1336,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     }, [PlayerHand[PlayerHandIndex].betDisplay, GameState, DealerTurnEnded, PlayerHandIndex]);
 
     useEffect(() => {
-        if (PlayerHandIndex == 0 && DealerTurnEnded && (BalanceAmount + TotalMaxBet)) {
-            // if (PlayerHand.length > GameLog.length) {
-            //     updateGameLog()
-            // }
-            // updateGameLog()
-
+        if (PlayerHandIndex == 0 && DealerTurnEnded && (BalanceAmount + TotalMaxBet == 0)) {
             setGameState("GAME OVER")
         }
 
@@ -1296,7 +1353,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     const scrollToCurrentHand = (scrollAmount: number) => {
 
-        //console.log("scrollAmount", scrollAmount)
+        ////console.log("scrollAmount", scrollAmount)
         if (splitCardsContainer.current) {
             splitCardsContainer.current.scrollTo({
                 left: scrollAmount, // Adjust this value to scroll to a specific position
@@ -1306,22 +1363,22 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     };
 
     useEffect(() => {
-        //console.log("CardShiftState", CardShift)
+        ////console.log("CardShiftState", CardShift)
     }, [CardShift])
 
     useEffect(() => {
-        //console.log("PlayerHandIndex", PlayerHandIndex)
+        ////console.log("PlayerHandIndex", PlayerHandIndex)
         if (GameState == 'IN PLAY') {
-            //console.log("Scrolling from calcs PlayerHandIndex", PlayerHandIndex)
+            ////console.log("Scrolling from calcs PlayerHandIndex", PlayerHandIndex)
             scrollToCurrentHand((PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
             const updatedList = [...CardShift]
             updatedList[PlayerHandIndex] = (PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24)
             updatedList[0] = 0;
             setCardShift(updatedList)
-            //console.log("Updating stored CardShift", (PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
+            ////console.log("Updating stored CardShift", (PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
 
         } else {
-            //console.log("Scrolling from stored CardShift", CardShift, CardShift[PlayerHandIndex])
+            ////console.log("Scrolling from stored CardShift", CardShift, CardShift[PlayerHandIndex])
             scrollToCurrentHand(CardShift[PlayerHandIndex])
         }
         revealPlayerCards()
@@ -1348,12 +1405,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     const handleTouchStart = () => {
         setIsDragging(true);
-        //console.log("setIsDragging", true)
+        ////console.log("setIsDragging", true)
     }
 
     const handleTouchEnd = () => {
         setIsDragging(false);
-        //console.log("setIsDragging", false)
+        ////console.log("setIsDragging", false)
         if (splitCardsContainer.current) {
             scrollToCurrentHand((PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
         }
@@ -1363,7 +1420,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
     const snapBackTimeout = useRef<NodeJS.Timeout | null>(null);
     const handleWheel = (e: WheelEvent) => {
 
-        // //console.log("e.deltaX", e.deltaX)
+        // ////console.log("e.deltaX", e.deltaX)
         if (splitCardsContainer.current) {
             splitCardsContainer.current.scrollLeft += e.deltaX;
         }
@@ -1373,7 +1430,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         }
         snapBackTimeout.current = setTimeout(() => {
             if (splitCardsContainer.current) {
-                //console.log("Wheel scroll PI, Extracardcount", PlayerHandIndex, ExtraCardCount)
+                ////console.log("Wheel scroll PI, Extracardcount", PlayerHandIndex, ExtraCardCount)
                 scrollToCurrentHand((PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
             }
         }, 150)
@@ -1388,6 +1445,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             };
         }
     }, [handleWheel]);
+
+
+    useEffect(() => {
+        if (CheatSheetPeak) {
+            setTimeout(() => {
+                setCheatSheetPeak(false)
+            }, dealerAnimationTime)
+        }
+    }, [CheatSheetPeak])
 
     const PlaceBets = () => {
         return (
@@ -1439,7 +1505,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         return <div className="flex flex-row space-x-4 text-white">
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && DDButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && TrainingMode && DDButtonPressed ? 'animate-shake' : ''}`}
                     onClick={handleClickDoubleDown}
                     disabled={doubleDownDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1454,8 +1520,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-success ${!["HIT", "SPLIT/HIT", "DD/HIT"].includes(CorrectAction!) && HitButtonPressed ? 'animate-shake' : ''}`}
-                    onClick={handleClickHit}
+                    className={`${buttonClass} btn-success ${!["HIT", "SPLIT/HIT", "DD/HIT"].includes(CorrectAction!) && TrainingMode && HitButtonPressed ? 'animate-shake' : ''}`}
+                    onClick={() => handleClickHit(false)}
                     disabled={HitDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                          className="w-6 h-6">
@@ -1468,8 +1534,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-error ${!["STAND", "SPLIT/STAND", "DD/STAND"].includes(CorrectAction!) && StandButtonPressed ? 'animate-shake' : ''}`}
-                    onClick={handleClickStand}
+                    className={`${buttonClass} btn-error ${!["STAND", "SPLIT/STAND", "DD/STAND"].includes(CorrectAction!) && TrainingMode && StandButtonPressed ? 'animate-shake' : ''}`}
+                    onClick={() => handleClickStand(false)}
                     disabled={standDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                          className="w-6 h-6">
@@ -1482,7 +1548,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-neutral ${!["SPLIT/HIT", "SPLIT/STAND"].includes(CorrectAction!) && SplitButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-neutral ${!["SPLIT/HIT", "SPLIT/STAND"].includes(CorrectAction!) && TrainingMode && SplitButtonPressed ? 'animate-shake' : ''}`}
                     onClick={handleClickSplit}
                     disabled={splitDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1531,39 +1597,58 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         };
 
         return (
-            <div className="flex flex-col pt-5 px-0 bg-info-content/80 rounded-lg pb-5">
-                <form onSubmit={handleSubmit} className="flex flex-col w-70 space-y-6 py-2 text-white">
-                    <div className="space-y-2">
-                        <div className="flex flex-row items-center justify-center text-center text-lg font-tech">
-                            Join the Leaderboard!
+            <div className="pt-36 pb-32">
+                <div
+                    className="absolute top-0 left-1/2 transform -translate-x-1/2 flex flex-row text-[#142635] items-center justify-center text-center text-xs font-tech">
+                    {BalanceAmount > 20 ? (`Nice!`) : (`Yikes...`)} <br/> You turned $20 into ${BalanceAmount}
+                </div>
+
+                <div className="flex flex-col pt-5 px-0 bg-info-content/80 rounded-lg pb-5">
+                    <form onSubmit={handleSubmit} className="flex flex-col w-70 space-y-6 py-2 text-white">
+                        <div className="space-y-2">
+                            <div
+                                className="flex flex-row items-center justify-center text-center text-xl font-tech pb-1">
+                                Join the Leaderboard!
+                            </div>
+
+                            <div className="flex flex-row w-full items-center space-x-2 border-gray-100 px-6">
+                                <label className="w-full">
+                                    <input type="text"
+                                           placeholder="Name"
+                                           value={UserName}
+                                           onChange={(e) => setUserName(e.target.value)}
+                                           required
+                                           className="flex flex-row w-full h-8 text-black rounded-lg px-3 font-tech items-center"
+                                    />
+                                </label>
+                                <button className="btn btn-sm mt-auto rounded-lg font-tech" type="submit">Save</button>
+
+                            </div>
                         </div>
 
-                        <div className="flex flex-row w-full items-center space-x-2 border-gray-100 px-6">
-                            <label className="w-full">
-                                <input type="text"
-                                       placeholder="Name"
-                                       value={UserName}
-                                       onChange={(e) => setUserName(e.target.value)}
-                                       required
-                                       className="flex flex-row w-full h-8 text-black rounded-lg px-3 font-tech items-center"
-                                />
-                            </label>
-                            <button className="btn btn-sm mt-auto rounded-lg font-tech" type="submit">Save</button>
+                        <PerformanceGraph game_log_data={GameLog} dark_bg={true}/>
 
+                    </form>
+                    <div className="flex flex-row w-full justify-between px-6 text-white font-tech items-center">
+                        {
+                            GoToTrainingMode ?
+                                <div className="flex justify-end text-white font-tech space-x-1 items-center"
+                                     onClick={() => setTrainingMode(true)}>
+                                    <MdExitToApp fill="white" size="18"/>
+                                    <span>Start Training</span>
+                                </div>
+                                :
+                                <div className="flex justify-end text-white font-tech space-x-1 items-center"
+                                     onClick={() => changeScreenTo("START")}>
+                                    <MdExitToApp fill="white" size="18"/>
+                                    <span>Exit</span>
+                                </div>
+                        }
+                        <div className="flex justify-end text-white font-tech space-x-1 items-center"
+                             onClick={handleClickBack}>
+                            <IoArrowBack fill="white" size="18"/>
+                            <span>Back</span>
                         </div>
-                    </div>
-
-                    <PerformanceGraph game_log_data={GameLog} dark_bg={true}/>
-
-                    <div className="flex flex-row items-center justify-center text-center text-xs font-tech">{
-                        BalanceAmount > 20 ? (`Nice!`) : (`Yikes...`)} You turned $20 into ${BalanceAmount}
-                    </div>
-                </form>
-                <div className="flex justify-end pr-6 text-white font-tech space-x-1 items-center">
-                    <div className="flex justify-end text-white font-tech space-x-1 items-center"
-                         onClick={handleClickBack}>
-                        <IoArrowBack fill="white" size="18"/>
-                        <span>Back</span>
                     </div>
                 </div>
             </div>
@@ -1585,7 +1670,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                 throw new Error(error.message);
             }
 
-            //console.log('Data inserted:', data);
+            ////console.log('Data inserted:', data);
             return {success: true};
         } catch (error) {
             console.error('Failed to save score:', error);
@@ -1602,7 +1687,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
             case 'SAVING GAME':
                 return <RenderSaveUserNameForm onSave={saveScore}/>
             default:
-                return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex} GameState={GameState}
+                return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex}
+                                TrainingMode={TrainingMode} GameState={GameState}
                                 BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
                                 CashOutDisabled={CashOutDisabled} GameLog={GameLog}
                                 handleClickKeepGoing={handleClickKeepGoing} handleClickCashOut={handleClickCashOut}
@@ -1626,7 +1712,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
         }
         return baby_chips
     }
-
 
     const renderBabyChips = (baby_chips: BabyChipAmount) => {
 
@@ -1714,65 +1799,126 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
 
     }
 
+    const trainMenuButtons = [
+        {
+            label: "Game Stats",
+            icon: <IoStatsChart size={18} fill="gray-800"/>,
+            onClick: () => setGameStatsOpen(true),
+            isChecked: false,
+        },
+        {
+            label: "Training Mode",
+            icon: <FaDumbbell size={18} fill="gray-800"/>,
+            onClick: () => {
+                setTrainingMode(currentState => !currentState)
+                setMenuOpen(false)
+            },
+            isChecked: TrainingMode,
+        },
+        {
+            label: "Cheat Sheet",
+            icon: <PiNotepadBold size={18} fill="gray-800"/>,
+            onClick: () => setCheatSheetVisible(currentState => !currentState),
+            isChecked: CheatSheetVisible,
+        },
+        {
+            label: "Card Counting",
+            icon: <PiMathOperationsFill size={18} fill="gray-800"/>,
+            onClick: () => setCardCountingMode(currentState => !currentState),
+            isChecked: CardCountingMode,
+        },
+        {
+            label: "Exit",
+            icon: <MdExitToApp size={18} fill="gray-800"/>,
+            onClick: () => changeScreenTo("START"),
+            isChecked: false,
+        },
+    ];
+
+    const playMenuButtons = [
+        {
+            label: "Game Stats",
+            icon: <IoStatsChart size={18} fill="gray-800"/>,
+            onClick: () => setGameStatsOpen(true),
+            isChecked: false,
+        },
+        {
+            label: "Training Mode",
+            icon: <FaDumbbell size={18} fill="gray-800"/>,
+            onClick: () => handleClickCashOutEarly(true),
+            isChecked: TrainingMode,
+        },
+        {
+            label: "Cash Out",
+            icon: <MdExitToApp size={18} fill="gray-800"/>,
+            onClick: () => handleClickCashOutEarly(false),
+            isChecked: false,
+        },
+    ];
+
+    const playMenuButtonsWrongGameState = [
+        {
+            label: "Game Stats",
+            icon: <IoStatsChart size={18} fill="gray-800"/>,
+            onClick: () => setGameStatsOpen(true),
+            isChecked: false,
+        },
+        {
+            label: "Training Mode",
+            icon: <FaDumbbell size={18} fill="gray-800"/>,
+            onClick: () => handleClickCashOutEarly(true),
+            isChecked: TrainingMode,
+        },
+        {
+            label: "Finish this round first!",
+            icon: <MdExitToApp size={18} fill="gray-800"/>,
+            onClick: () => handleClickCashOutEarly(false),
+            isChecked: false,
+        },
+    ];
+
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <>
             <div ref={menuRef} className="absolute top-8 right-4 items-end z-20">
                 <div className="flex flex-row justify-end space-x-3">
-                    <div
-                        className="flex flex-row justify-center items-center space-x-2 bg-grey pl-2.5 pr-4 py-1 rounded-badge">
-                        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M31.5203 19.8728C33.6592 11.3011 28.4444 2.61853 19.8728 0.479663C11.3011 -1.6592 2.61853 3.5556 0.479663 12.1272C-1.6592 20.6989 3.5556 29.3815 12.1272 31.5203C20.6989 33.6592 29.3815 28.4444 31.5203 19.8728Z"
-                                fill="#FDC95A"/>
-                            <path
-                                d="M28.6295 19.1523C30.3698 12.1775 26.1266 5.11254 19.1518 3.37215C12.1771 1.63176 5.11208 5.87503 3.37169 12.8498C1.6313 19.8245 5.87457 26.8895 12.8493 28.6299C19.824 30.3703 26.8891 26.127 28.6295 19.1523Z"
-                                fill="#E9AD41"/>
-                            <path
-                                d="M21.0505 8.53891C20.5561 7.87569 19.9792 7.30427 19.2403 6.91393C18.755 6.65758 18.2462 6.49634 17.7176 6.4056C17.6995 6.10793 17.6814 5.81028 17.6634 5.51262C17.6572 5.41131 17.6511 5.31004 17.645 5.20875C17.6229 4.8457 17.4912 4.49543 17.2229 4.23981C16.986 4.01412 16.6009 3.84664 16.2687 3.86484C15.9122 3.88441 15.5414 4.00961 15.2997 4.28687C15.0733 4.54669 14.9033 4.8868 14.9248 5.24114C14.9525 5.69864 14.9803 6.15613 15.0081 6.61363C14.4468 6.79799 13.8946 7.06067 13.4155 7.4033C13.1101 7.62167 12.8114 7.86007 12.546 8.12665C12.2848 8.38895 12.0639 8.68743 11.8545 8.9918C11.7075 9.20531 11.5815 9.43332 11.4818 9.67264C11.3399 10.0133 11.2065 10.3567 11.1436 10.7214C11.0138 11.474 11.0336 12.2398 11.2612 12.9739C11.5196 13.8077 11.988 14.6425 12.6308 15.2401C13.2583 15.8234 14.0657 16.1974 14.9065 16.3442C15.6432 16.4728 16.3868 16.4836 17.1303 16.5341C17.229 16.5408 17.3273 16.5512 17.4257 16.5608C17.6537 16.5952 17.8788 16.6447 18.0979 16.7164C18.1866 16.7583 18.2728 16.8047 18.3562 16.8561C18.4631 16.9475 18.5622 17.0469 18.6556 17.1522C18.7825 17.3262 18.8945 17.5097 18.9901 17.7026C19.0503 17.868 19.0975 18.0373 19.1319 18.21C19.1467 18.3831 19.1486 18.5565 19.1377 18.7298C19.1052 18.9215 19.0582 19.1099 18.9967 19.2943C18.9015 19.5092 18.7883 19.715 18.6586 19.9109C18.4761 20.1408 18.2723 20.3518 18.0501 20.5437C17.8425 20.6964 17.6235 20.8319 17.3924 20.9459C17.1381 21.0412 16.876 21.1119 16.6088 21.1609C16.2753 21.1962 15.9399 21.1994 15.6056 21.1718C15.2921 21.1238 14.9842 21.0482 14.6847 20.9437C14.4576 20.8437 14.2396 20.7257 14.0328 20.5886C13.8853 20.4685 13.7479 20.3372 13.621 20.1953C13.5302 20.0659 13.4497 19.9302 13.3786 19.7891C13.3637 19.7479 13.3491 19.7067 13.3357 19.6649C13.2252 19.3209 13 19.013 12.6786 18.8372C12.3919 18.6803 11.976 18.6163 11.6601 18.7199C11.3208 18.8312 10.9946 19.0471 10.8323 19.377C10.6792 19.6881 10.606 20.0561 10.715 20.3955C10.9887 21.2478 11.4971 22.0465 12.2072 22.6011C12.561 22.8774 12.928 23.1305 13.3382 23.3146C13.7493 23.4991 14.1789 23.6579 14.6201 23.7537C14.946 23.8244 15.2802 23.8709 15.6171 23.8938C15.6407 24.2822 15.6643 24.6707 15.6878 25.0592C15.694 25.1605 15.7001 25.2618 15.7062 25.3631C15.7283 25.7262 15.86 26.0764 16.1283 26.3321C16.3652 26.5578 16.7503 26.7253 17.0825 26.707C17.439 26.6875 17.8098 26.5623 18.0515 26.285C18.278 26.0252 18.448 25.6851 18.4265 25.3307C18.3894 24.7205 18.3524 24.1103 18.3154 23.5C18.7258 23.3379 19.1164 23.1268 19.4739 22.8606C20.1897 22.3276 20.8025 21.6983 21.2339 20.9089C21.6333 20.1779 21.8565 19.3486 21.8665 18.5151C21.8768 17.6674 21.6316 16.8123 21.2064 16.0818C20.9812 15.6948 20.6914 15.3281 20.3741 15.0134C20.2457 14.886 20.1029 14.7815 19.9571 14.675C19.8116 14.5688 19.669 14.465 19.5094 14.3811C18.403 13.7995 17.1569 13.8391 15.946 13.7497C15.8743 13.7444 15.8029 13.7365 15.7314 13.7297C15.4655 13.691 15.203 13.6336 14.9482 13.5481C14.8358 13.4954 14.7268 13.4359 14.6218 13.3696C14.5205 13.2847 14.4251 13.1933 14.3359 13.0957C14.1918 12.8961 14.066 12.6831 13.9588 12.4614C13.8864 12.2686 13.8293 12.0709 13.7897 11.8688C13.776 11.7077 13.7736 11.5462 13.7834 11.3849C13.8118 11.2205 13.852 11.0587 13.9041 10.9003C13.9877 10.7134 14.0865 10.534 14.1991 10.3629C14.3663 10.1529 14.5526 9.95938 14.7551 9.78297C15.0051 9.59848 15.2719 9.43869 15.5522 9.3048C15.8305 9.19762 16.1177 9.11623 16.4111 9.0628C16.653 9.03905 16.8962 9.03569 17.1387 9.05355C17.3364 9.08665 17.5309 9.13504 17.721 9.19861C17.8964 9.27747 18.0652 9.36945 18.2262 9.47451C18.4092 9.62179 18.5782 9.78477 18.7328 9.96159C18.8219 10.1148 18.94 10.2377 19.089 10.3283C19.2228 10.4446 19.3783 10.5214 19.5554 10.5587C19.879 10.6395 20.3023 10.5925 20.5848 10.4051C20.8783 10.2105 21.1315 9.92362 21.2041 9.56849C21.2723 9.23527 21.2626 8.82342 21.0505 8.53891Z"
-                                fill="#FFDA77"/>
-                        </svg>
+
+                    {TrainingMode ? <div
+                            className="flex flex-row justify-center items-center space-x-1.5 bg-grey pl-2.5 pr-4 py-1 rounded-badge">
+                            <BsFire size={22} color={StreakAmount ? "red" : ""}/>
+                            <div
+                                className="flex flex-col h-full justify-center items-center font-bold text-18px">{StreakAmount}</div>
+                        </div>
+                        :
                         <div
-                            className="flex flex-col h-full justify-center items-center font-bold text-18px">{BalanceAmount}</div>
-                    </div>
+                            className="flex flex-row justify-center items-center space-x-1.5 bg-grey pl-2.5 pr-4 py-1 rounded-badge">
+                            <svg width="22" height="22" viewBox="0 0 32 32" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M31.5203 19.8728C33.6592 11.3011 28.4444 2.61853 19.8728 0.479663C11.3011 -1.6592 2.61853 3.5556 0.479663 12.1272C-1.6592 20.6989 3.5556 29.3815 12.1272 31.5203C20.6989 33.6592 29.3815 28.4444 31.5203 19.8728Z"
+                                    fill="#FDC95A"/>
+                                <path
+                                    d="M28.6295 19.1523C30.3698 12.1775 26.1266 5.11254 19.1518 3.37215C12.1771 1.63176 5.11208 5.87503 3.37169 12.8498C1.6313 19.8245 5.87457 26.8895 12.8493 28.6299C19.824 30.3703 26.8891 26.127 28.6295 19.1523Z"
+                                    fill="#E9AD41"/>
+                                <path
+                                    d="M21.0505 8.53891C20.5561 7.87569 19.9792 7.30427 19.2403 6.91393C18.755 6.65758 18.2462 6.49634 17.7176 6.4056C17.6995 6.10793 17.6814 5.81028 17.6634 5.51262C17.6572 5.41131 17.6511 5.31004 17.645 5.20875C17.6229 4.8457 17.4912 4.49543 17.2229 4.23981C16.986 4.01412 16.6009 3.84664 16.2687 3.86484C15.9122 3.88441 15.5414 4.00961 15.2997 4.28687C15.0733 4.54669 14.9033 4.8868 14.9248 5.24114C14.9525 5.69864 14.9803 6.15613 15.0081 6.61363C14.4468 6.79799 13.8946 7.06067 13.4155 7.4033C13.1101 7.62167 12.8114 7.86007 12.546 8.12665C12.2848 8.38895 12.0639 8.68743 11.8545 8.9918C11.7075 9.20531 11.5815 9.43332 11.4818 9.67264C11.3399 10.0133 11.2065 10.3567 11.1436 10.7214C11.0138 11.474 11.0336 12.2398 11.2612 12.9739C11.5196 13.8077 11.988 14.6425 12.6308 15.2401C13.2583 15.8234 14.0657 16.1974 14.9065 16.3442C15.6432 16.4728 16.3868 16.4836 17.1303 16.5341C17.229 16.5408 17.3273 16.5512 17.4257 16.5608C17.6537 16.5952 17.8788 16.6447 18.0979 16.7164C18.1866 16.7583 18.2728 16.8047 18.3562 16.8561C18.4631 16.9475 18.5622 17.0469 18.6556 17.1522C18.7825 17.3262 18.8945 17.5097 18.9901 17.7026C19.0503 17.868 19.0975 18.0373 19.1319 18.21C19.1467 18.3831 19.1486 18.5565 19.1377 18.7298C19.1052 18.9215 19.0582 19.1099 18.9967 19.2943C18.9015 19.5092 18.7883 19.715 18.6586 19.9109C18.4761 20.1408 18.2723 20.3518 18.0501 20.5437C17.8425 20.6964 17.6235 20.8319 17.3924 20.9459C17.1381 21.0412 16.876 21.1119 16.6088 21.1609C16.2753 21.1962 15.9399 21.1994 15.6056 21.1718C15.2921 21.1238 14.9842 21.0482 14.6847 20.9437C14.4576 20.8437 14.2396 20.7257 14.0328 20.5886C13.8853 20.4685 13.7479 20.3372 13.621 20.1953C13.5302 20.0659 13.4497 19.9302 13.3786 19.7891C13.3637 19.7479 13.3491 19.7067 13.3357 19.6649C13.2252 19.3209 13 19.013 12.6786 18.8372C12.3919 18.6803 11.976 18.6163 11.6601 18.7199C11.3208 18.8312 10.9946 19.0471 10.8323 19.377C10.6792 19.6881 10.606 20.0561 10.715 20.3955C10.9887 21.2478 11.4971 22.0465 12.2072 22.6011C12.561 22.8774 12.928 23.1305 13.3382 23.3146C13.7493 23.4991 14.1789 23.6579 14.6201 23.7537C14.946 23.8244 15.2802 23.8709 15.6171 23.8938C15.6407 24.2822 15.6643 24.6707 15.6878 25.0592C15.694 25.1605 15.7001 25.2618 15.7062 25.3631C15.7283 25.7262 15.86 26.0764 16.1283 26.3321C16.3652 26.5578 16.7503 26.7253 17.0825 26.707C17.439 26.6875 17.8098 26.5623 18.0515 26.285C18.278 26.0252 18.448 25.6851 18.4265 25.3307C18.3894 24.7205 18.3524 24.1103 18.3154 23.5C18.7258 23.3379 19.1164 23.1268 19.4739 22.8606C20.1897 22.3276 20.8025 21.6983 21.2339 20.9089C21.6333 20.1779 21.8565 19.3486 21.8665 18.5151C21.8768 17.6674 21.6316 16.8123 21.2064 16.0818C20.9812 15.6948 20.6914 15.3281 20.3741 15.0134C20.2457 14.886 20.1029 14.7815 19.9571 14.675C19.8116 14.5688 19.669 14.465 19.5094 14.3811C18.403 13.7995 17.1569 13.8391 15.946 13.7497C15.8743 13.7444 15.8029 13.7365 15.7314 13.7297C15.4655 13.691 15.203 13.6336 14.9482 13.5481C14.8358 13.4954 14.7268 13.4359 14.6218 13.3696C14.5205 13.2847 14.4251 13.1933 14.3359 13.0957C14.1918 12.8961 14.066 12.6831 13.9588 12.4614C13.8864 12.2686 13.8293 12.0709 13.7897 11.8688C13.776 11.7077 13.7736 11.5462 13.7834 11.3849C13.8118 11.2205 13.852 11.0587 13.9041 10.9003C13.9877 10.7134 14.0865 10.534 14.1991 10.3629C14.3663 10.1529 14.5526 9.95938 14.7551 9.78297C15.0051 9.59848 15.2719 9.43869 15.5522 9.3048C15.8305 9.19762 16.1177 9.11623 16.4111 9.0628C16.653 9.03905 16.8962 9.03569 17.1387 9.05355C17.3364 9.08665 17.5309 9.13504 17.721 9.19861C17.8964 9.27747 18.0652 9.36945 18.2262 9.47451C18.4092 9.62179 18.5782 9.78477 18.7328 9.96159C18.8219 10.1148 18.94 10.2377 19.089 10.3283C19.2228 10.4446 19.3783 10.5214 19.5554 10.5587C19.879 10.6395 20.3023 10.5925 20.5848 10.4051C20.8783 10.2105 21.1315 9.92362 21.2041 9.56849C21.2723 9.23527 21.2626 8.82342 21.0505 8.53891Z"
+                                    fill="#FFDA77"/>
+                            </svg>
+                            <div
+                                className="flex flex-col h-full justify-center items-center font-bold text-18px">{TrainingMode ?
+                                <IoInfiniteSharp size={24}/> : BalanceAmount}</div>
+                        </div>}
                     <BiDotsVerticalRounded className="fill-gray-800 size-8"
                                            onClick={() => setMenuOpen(currentState => !currentState)}
                     />
                 </div>
                 <div>
-                    {MenuOpen && <MenuTopRight isChecked={[TrainingMode, CheatSheetVisible, CardCountingMode]}
-                                               onClickGame_Stats={() => setGameStatsOpen(true)}
-                                               onClickTraining_Mode={() => setTrainingMode(currentState => !currentState)}
-                                               onClickCheat_Sheet={() => setCheatSheetVisible(currentState => !currentState)}
-                                               onClickCard_Counting={() => setCardCountingMode(currentState => !currentState)}
-                                               onClickCash_Out={() => handleClickCashOutEarly()}
-                    />}
+                    {MenuOpen && <MenuTopRight buttons={TrainingMode ? trainMenuButtons : playMenuButtons}/>}
                 </div>
             </div>
 
             <div className="flex flex-col pt-4 space-y-0 overflow-y-auto w-full">
                 <div className="flex flex-col pt-44 justify-center space-y-4 w-full">
-                    {/*{GameState != 'SAVING GAME' &&*/}
-                    {/*<div className="flex flex-row justify-center items-center pt-44">*/}
-
-                    {/*    {*/}
-                    {/*        DealerHand.map((card, index) =>*/}
-                    {/*            (*/}
-                    {/*                <PlayingCard*/}
-                    {/*                    key={`${card.suit}-${card.value}-${index}`}*/}
-                    {/*                    value={card.value}*/}
-                    {/*                    display={card.display}*/}
-                    {/*                    suit={card.suit}*/}
-                    {/*                    visible={card.visible}*/}
-                    {/*                />*/}
-                    {/*            )*/}
-                    {/*        )*/}
-                    {/*    }*/}
-                    {/*    {!(GameState == 'IN PLAY' || GameState == 'PLACING BET') &&*/}
-                    {/*    <div className="pl-6 pt-14 text-white">{DealerHandSumState}</div>*/}
-                    {/*    }*/}
-                    {/*</div>}*/}
-
                     {GameState != 'SAVING GAME' &&
                     <div
                         className={`flex h-[6rem] space-x-8 mx-auto`}
@@ -1823,17 +1969,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     <div className="flex items-center justify-center">
                         <div className="relative w-full max-w-[480px] overflow-hidden">
                             <div
-                                className={`absolute inset-y-0 left-0 w-24 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>
+                                className={`absolute inset-y-0 left-0 w-24 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>
                             <div
-                                className={`absolute inset-y-0 left-24 right-24 w-auto ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0)) && "bg-info-content/80"}`}/>
+                                className={`absolute inset-y-0 left-24 right-24 w-auto ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/80"}`}/>
                             <div
-                                className={`absolute inset-y-0 right-0 w-24 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>
+                                className={`absolute inset-y-0 right-0 w-24 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>
 
                             <div
                                 className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
                                 // ref={scrollContainerRef}
                             >
-                                <div className="flex px-auto z-20">
+                                <div className="flex px-auto z-10">
                                     {renderDisplayBar(GameState)}
                                 </div>
                             </div>
@@ -1864,7 +2010,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                                         // style={{transform: `translateX(-${GameState == 'PLACING BET' ? (0) : (CardShift)}px)`}}
                                     >
                                         <div className="flex flex-col space-y-4">
-                                            {((BalanceAmount + TotalBetDisplay) != 0 || !["GAME OVER", "HOUSE WINS", "PLAYER BUST", ].includes(GameState)) &&
+                                            {((BalanceAmount + TotalBetDisplay) != 0 || !["GAME OVER", "HOUSE WINS", "PLAYER BUST",].includes(GameState)) && !TrainingMode &&
                                             <div className="flex flex-col items-center pt-0 space-y-4">
                                                 <div className="flex flex-row h-1">
                                                     {renderBabyChips(getBetBabyChips(hand.betDisplay))}
@@ -1944,6 +2090,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo}) => {
                     <SwipeablePager split_available={!splitDisabled} dd_available={!doubleDownDisabled}
                                     playerHand={PlayerHand[PlayerHandIndex].cards.every(card => card.visible) ? PlayerHand[PlayerHandIndex].cards : null}
                                     dealerHand={(DealerHand && DealerHand[0] ? DealerHand[0] : null)}
+                                    peaking={CheatSheetPeak}
                                     onClose={() => setCheatSheetOpen(false)}/>
                 </div>
             </div>}

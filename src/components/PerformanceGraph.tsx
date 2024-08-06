@@ -33,10 +33,10 @@ const PerformanceGraph: React.FC<PerformanceGraphProps> = ({game_log_data, dark_
         const peakValue = Math.max(...values);
         const maxArray = [...values].map(value => value === peakValue ? value : null)
 
-        //console.log("game_log_data", game_log_data)
-        //console.log("handLabels", handLabels)
-        //console.log("values", values)
-        //console.log("maxArray", maxArray)
+        ////console.log("game_log_data", game_log_data)
+        ////console.log("handLabels", handLabels)
+        ////console.log("values", values)
+        ////console.log("maxArray", maxArray)
 
         const data =
             {

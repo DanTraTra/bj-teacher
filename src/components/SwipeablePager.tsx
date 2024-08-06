@@ -4,7 +4,7 @@ import 'tailwindcss/tailwind.css';
 import CheatSheet, {action2iconDict, cheatSheetDataLogic, CheatSheetProps, getTableIndex} from "./CheatSheet";
 import {AiOutlineClose, AiOutlineUp} from "react-icons/ai";
 import {CardProps} from "./PlayingCard";
-import {initializeCard, PlayerHandProps} from "./MainContent";
+import {animationTime, initializeCard, PlayerHandProps} from "./MainContent";
 import {Simulate} from "react-dom/test-utils";
 import doubleClick = Simulate.doubleClick;
 import {BiChevronUp} from "react-icons/bi";
@@ -16,6 +16,7 @@ export interface SwipeablePagerProps {
     dealerHand: CardProps | null;
     split_available: boolean;
     dd_available: boolean;
+    peaking: boolean;
     onClose: () => void;
 }
 
@@ -24,6 +25,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                                                            dealerHand,
                                                            split_available,
                                                            dd_available,
+                                                           peaking,
                                                            onClose
                                                        }) => {
         let {
@@ -35,9 +37,11 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             dealerHandIndex: 0,
             tableIndex: 0
         }
+        // console.log("peaking", peaking)
         const cheatSheetBGRef = useRef<HTMLDivElement>(null);
 
         const [currentPage, setCurrentPage] = useState(tableIndex);
+        // const [isPeaking, setIsPeaking] = useState(peaking)
         const [isExpanded, setIsExpanded] = useState(false)
         const handlers = useSwipeable({
             onSwipedUp: () => setIsExpanded(true),
@@ -56,6 +60,33 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             }
         };
 
+        const action2Button: Record<string, React.ReactElement> = {
+            'STAND': <div className="flex flex-row text-white btn btn-xs btn-error -space-x-1 pl-1">
+                <div>{action2iconDict['STAND']}</div>
+                <span>Stand</span>
+            </div>,
+            'HIT': <div className="flex flex-row text-white btn btn-xs btn-success -space-x-1 pl-1">
+                <div>{action2iconDict['HIT']}</div>
+                <span>Hit</span>
+            </div>,
+            'DD/STAND': <div className="flex flex-row text-white btn btn-xs btn-warning -space-x-1 pl-1">
+                <div>{action2iconDict['DD/STAND']}</div>
+                <span>Double Down</span>
+            </div>,
+            'SPLIT/HIT': <div className="flex flex-row text-white btn btn-xs btn-neutral -space-x-1 pl-1">
+                <div>{action2iconDict['SPLIT/HIT']}</div>
+                <span>Split</span>
+            </div>,
+            'DD': <div className="flex flex-row text-white btn btn-xs btn-warning -space-x-1 pl-1">
+                <div>{action2iconDict['DD/STAND']}</div>
+                <span>Double Down</span>
+            </div>,
+            'SPLIT': <div className="flex flex-row text-white btn btn-xs btn-neutral -space-x-1 pl-1">
+                <div>{action2iconDict['SPLIT/HIT']}</div>
+                <span>Split</span>
+            </div>
+        }
+
         useEffect(() => {
             document.addEventListener('mousedown', handleCheatSheet);
 
@@ -71,35 +102,40 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             //     dealerHandIndex: 0,
             //     tableIndex: 0
             // }
-            // //console.log("index", index)
+            // ////console.log("index", index)
             setCurrentPage(tableIndex)
         }, [tableIndex])
+
 
         return (
             <>
                 <div ref={cheatSheetBGRef}
-                    className={`fixed inset-0 bg-black transition-opacity duration-500 ${isExpanded ? 'opacity-80' : 'opacity-0 pointer-events-none'}`}
+                     className={`fixed inset-0 bg-black transition-opacity duration-500 ${isExpanded ? 'opacity-80' : peaking ? 'opacity-80' : 'opacity-0 pointer-events-none'}`}
                 />
                 <div
                     className={`fixed bottom-[40px] left-0 right-0 transition-transform duration-500 ease-in-out ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'} flex flex-col items-center`}
                     {...handlers}
                 >
-                    <div
-                        className="w-[350px] flex flex-row items-center justify-between bg-white px-4 pt-2 pb-1 rounded-t-lg font-tech relative"
-                        onClick={handleHeaderClick}>
-                        <div/>
-                        <span className="text-lg font-bold">Cheat Sheet</span>
-                        {isExpanded ? <AiOutlineClose onClick={() => onClose()}/> :
-                            <AiOutlineUp onClick={() => setIsExpanded(true)}/>}
-                    </div>
-                    {dealerHand && playerHand &&
-                    <div
-                        className="w-[350px] flex flex-row items-center justify-center bg-white px-4 pt-1 pb-2 mb-2 font-tech relative"
-                    >
+                    <div className={` transition-transform duration-500 ease-in-out ${peaking ? 'transform -translate-y-[10vh]' : ''}`}>
+                        <div
+                            className="w-[350px] flex flex-row items-center justify-between bg-white px-4 pt-2 pb-1 rounded-t-lg font-tech relative"
+                            onClick={handleHeaderClick}>
+                            <div/>
+                            <span className="text-lg font-bold">Cheat Sheet</span>
+                            {isExpanded ? <AiOutlineClose onClick={() => onClose()}/> :
+                                <AiOutlineUp onClick={() => setIsExpanded(true)}/>}
+                        </div>
+                        {dealerHand && playerHand &&
+                        <div
+                            className={`w-[350px] flex flex-row items-center justify-center bg-white px-4 py-2 mb-2 font-tech relative`}
+                        >
                     <span
-                        className="text-sm">{`${playerHand.reduce((acc, card) => card.value + acc, 0)} plays ${dealerHand.display == 'A' || dealerHand.display == '8' ? "an" : "a"} ${dealerHand.display == "A" ? "Ace" : dealerHand.display == "J" ? "Jack" : dealerHand.display == "K" ? "King" : dealerHand.display == "Q" ? "Queen" : dealerHand.display} - you should ${playerHand && dealerHand && (cheatSheetDataLogic(playerHand, dealerHand, dd_available, split_available).split('/').join(' then '))}`}</span>
+                        className="text-sm">{`${playerHand.reduce((acc, card) => card.value + acc, 0)} plays ${dealerHand.display == 'A' || dealerHand.display == '8' ? "an" : "a"} ${dealerHand.display == "A" ? "Ace" : dealerHand.display == "J" ? "Jack" : dealerHand.display == "K" ? "King" : dealerHand.display == "Q" ? "Queen" : dealerHand.display} you should:`}</span>
+                            <div
+                                className="flex flex-row space-x-2 px-2">{action2Button[cheatSheetDataLogic(playerHand, dealerHand, dd_available, split_available).split('/')[0]]}</div>
+                        </div>
+                        }
                     </div>
-                    }
                     <div
                         className="relative w-[350px] overflow-hidden flex justify-center items-center mt-2">
                         <div className="w-full h-full flex transition-transform items-center duration-500 space-x-4"
@@ -115,7 +151,6 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
 
                     <div
                         className="flex flex-row w-[350px] justify-center bg-white p-2 rounded-b-lg mt-2 space-x-2 overflow-x-auto">
-                        {/*<div className="flex space-x-2">*/}
                         <div className="flex flex-row text-white btn btn-xs btn-error -space-x-1 pl-1">
                             <div>{action2iconDict['STAND']}</div>
                             <span>Stand</span>
@@ -124,8 +159,6 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             <div>{action2iconDict['HIT']}</div>
                             <span>Hit</span>
                         </div>
-                        {/*</div>*/}
-                        {/*<div className="flex space-x-2">*/}
                         <div className="flex flex-row text-white btn btn-xs btn-warning -space-x-1 pl-1">
                             <div>{action2iconDict['DD/STAND']}</div>
                             <span>Double Down</span>
@@ -134,7 +167,6 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             <div>{action2iconDict['SPLIT/HIT']}</div>
                             <span>Split</span>
                         </div>
-                        {/*</div>*/}
                     </div>
 
                     <div className="flex justify-center mt-4">

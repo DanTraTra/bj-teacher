@@ -8,10 +8,13 @@ import React, {useEffect, useRef, useState} from "react";
 import {useSpring, animated} from 'react-spring';
 import MainContent from "./components/MainContent";
 import LeaderBoard from "./components/LeaderBoard";
+import {FaDumbbell} from "react-icons/fa6";
+import ScrollableButtonContainer from "./components/ScrollableButtons";
 
 export type Screens =
     "START"
     | "PLAY"
+    | "TRAIN"
     | "LEADER BOARD"
 
 function App() {
@@ -30,7 +33,7 @@ function App() {
     }, [])
 
     useEffect(() => {
-        //console.log("ScreenState", ScreenState)
+        ////console.log("ScreenState", ScreenState)
     }, [ScreenState])
 
     const handlePlay = () => {
@@ -39,24 +42,32 @@ function App() {
         setScreenState("PLAY");
     }
 
+    const handleTrain = () => {
+        setShowBigTable(true);
+        setShowButton(false);
+        setScreenState("TRAIN");
+    }
+
+
     const handleShowLeaderboard = () => {
         setScreenState("LEADER BOARD");
     }
 
     function renderScreen() {
-        //console.log("ScreenState", ScreenState)
+        ////console.log("ScreenState", ScreenState)
         const changeScreen = (screen: Screens) => {
             setScreenState(screen)
         }
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col items-center space-y-2 pt-[25vh] pb-50">
+                return <div className="flex flex-col items-center space-y-8 pt-[25vh] pb-50">
 
-                    <div className="space-x-2 pb-6">
-                        <button className="btn font-tech text-lg" onClick={handlePlay}>Play</button>
-                    </div>
-
+                    {/*<div className="flex flex-col space-y-2 pb-6">*/}
+                    {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}>Play</button>*/}
+                    {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}><FaDumbbell size={18} fill="gray-800" />Train</button>*/}
+                    {/*</div>*/}
+                    <ScrollableButtonContainer button1={()=>handlePlay()} button2={()=>handleTrain()}/>
                     <SVGOne/>
                     {/*<button className="btn" onClick={handleShowLeaderboard}>See Leader Board</button>*/}
                     <LeaderBoard/>
@@ -64,15 +75,24 @@ function App() {
 
             case 'PLAY':
                 return <>
-                    {/*<div*/}
-                    {/*    className="absolute inset-0 flex flex-1 justify-center pt-24 h-screen w-screen overflow-hidden">*/}
-                    {/*    <MainContent onChange={changeScreen}/>*/}
-                    {/*</div>*/}
                     <div className="flex flex-1 justify-center">
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen}/>
+                            <MainContent changeScreenTo={changeScreen} trainingMode={false}/>
+                        </div>
+                        <div className="flex flex-1 justify-center items-center">
+                            <SVGTwo className="max-w-sm max-h-sm"/>
+                        </div>
+                    </div>
+                </>
+            case 'TRAIN':
+                return <>
+                    <div className="flex flex-1 justify-center">
+                        <div
+                            className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
+                        >
+                            <MainContent changeScreenTo={changeScreen} trainingMode={true}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
                             <SVGTwo className="max-w-sm max-h-sm"/>

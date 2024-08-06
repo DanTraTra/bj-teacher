@@ -51,7 +51,7 @@ function LeaderBoard() {
                     throw new Error(`SupaBase error: ${error.message}`);
                 }
 
-                //console.log("data", data)
+                ////console.log("data", data)
                 setLeaderboardData(data)
 
                 let entry: LeaderboardRow = {rank: 0, player: "", cashOut: 0, win: 0, hands: 0, db_index: 0}
@@ -87,13 +87,13 @@ function LeaderBoard() {
         fetchData();
 
         if (Leaderboard.length) {
-            //console.log("Leaderboard", Leaderboard)
+            ////console.log("Leaderboard", Leaderboard)
         }
     }, [])
 
     useEffect(() => {
             if (Leaderboard.length) {
-                //console.log("Leaderboard", Leaderboard)
+                ////console.log("Leaderboard", Leaderboard)
             }
 
         }, [Leaderboard]

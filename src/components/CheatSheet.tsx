@@ -147,37 +147,43 @@ export const cheatSheetDataLogic = (playerCards: CardProps[], dealerCard: CardPr
     if (playerCards.length == 2) {
         if (playerCards[0].display == playerCards[1].display) {
             //    Doubles
-            switch (playerHandSum) {
-                case 4:
+            switch (playerCards[0].display) {
+                case '2':
                     return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
-                case 6:
+                case '3':
                     return split && dealerCard.value >= 2 && dealerCard.value <= 7 ? 'SPLIT/HIT' : 'HIT';
-                case 8:
+                case '4':
                     return 'HIT';
-                case 10:
+                case '5':
                     return DD && dealerCard.value >= 2 && dealerCard.value <= 9 ? 'DD/HIT' : 'HIT';
-                case 12:
+                case '6':
                     return split && dealerCard.value == 1 ? 'HIT' :
                         split && dealerCard.value >= 3 && dealerCard.value <= 3 ? 'SPLIT/HIT' :
                             split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' :
                                 'HIT';
-                case 14:
+                case '7':
                     return split && dealerCard.value == 1 ? 'HIT' :
                         split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
                             split && dealerCard.value == 7 ? 'SPLIT/HIT'
                                 : 'HIT';
-                case 16:
+                case '8':
                     return split && dealerCard.value == 1 ? 'HIT' :
                         split && dealerCard.value >= 2 && dealerCard.value <= 6 ? 'SPLIT/STAND'
                             : 'SPLIT/HIT';
 
-                case 18:
+                case '9':
                     return split && dealerCard.value >= 2 && dealerCard.value <= 6 ? ('SPLIT/STAND') :
                         split && dealerCard.value == 7 ? 'STAND' :
                             split && dealerCard.value >= 8 && dealerCard.value <= 9 ? ('SPLIT/STAND') : 'STAND';
-                case 20:
+                case '10':
                     return 'STAND';
-                case 22:
+                case 'J':
+                    return 'STAND';
+                case 'Q':
+                    return 'STAND';
+                case 'K':
+                    return 'STAND';
+                case 'A':
                     return split && dealerCard.value >= 4 && dealerCard.value <= 6 ? 'SPLIT/STAND' : 'SPLIT/HIT';
                 default:
                     break;
@@ -258,7 +264,7 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
                                                }) => {
     const deck = initializeDeck(1);
     deck.splice(10);
-    // //console.log("deck", deck);
+    // ////console.log("deck", deck);
 
     const rowHeader: string[] = [];
     // Generate all possible player hands
@@ -300,19 +306,19 @@ const CheatSheet: React.FC<CheatSheetProps> = ({
     allPossibleDealerHands.push(initializeCard(1, 'spades', false));
 
 
-    // //console.log('card', initializeCard(11 > 10 ? 11 % 10 : 0, 'spades', false));
+    // ////console.log('card', initializeCard(11 > 10 ? 11 % 10 : 0, 'spades', false));
     //
-    // //console.log("allPossiblePlayerHands", allPossiblePlayerHands);
-    // //console.log("allPossibleDealerHands", allPossibleDealerHands);
+    // ////console.log("allPossiblePlayerHands", allPossiblePlayerHands);
+    // ////console.log("allPossibleDealerHands", allPossibleDealerHands);
 
     let highlightIndex: TableIndex = {playerHandIndex: 0, dealerHandIndex: 0, tableIndex: 0}
 
     if (playerHand && dealerHand) {
         highlightIndex = getTableIndex(playerHand, dealerHand, dd_available, split_available)
-        // //console.log("tableIndex", getTableIndex(playerHand, dealerHand, dd_available, split_available))
+        // ////console.log("tableIndex", getTableIndex(playerHand, dealerHand, dd_available, split_available))
     }
-    // //console.log("highlightIndex", highlightIndex)
-    // //console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
+    // ////console.log("highlightIndex", highlightIndex)
+    // ////console.log("dealerHand && playerHand", !!(dealerHand && playerHand))
 
     const isTableCellIntersection = (rowIndex: number, col_index: number, table_number: number) => {
         return (((rowIndex <= highlightIndex["playerHandIndex"] && col_index == highlightIndex["dealerHandIndex"]) &&
