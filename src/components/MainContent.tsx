@@ -50,6 +50,7 @@ import {checkGameState, pressButtonAndCheckBalanceState, pressButtonAndCheckGame
 import OutCome from "./OutCome";
 import {MdExitToApp} from "react-icons/md";
 import {BsFire} from "react-icons/bs";
+import CardCountingLog, {CountLogEntry} from "./CountLog";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -200,7 +201,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const [PlayerWins, setPlayerWins] = useState(0);
 
     const [RunningCount, setRunningCount] = useState(0);
-    const [CountLog, setCountLog] = useState([{value: '', change: 0, countNow: 0}]);
+    const [CountLogState, setCountLogState] = useState<CountLogEntry[]>([{value: '', change: 0, countNow: 0}]);
 
     const [isShaking, setIsShaking] = useState(false);
 
@@ -388,21 +389,31 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         let change = 0;
         if (2 <= card.value && card.value <= 6) {
             change = 1
-            // acount +1 because", card.value)
+            // count +1 because", card.value)
         } else if (card.value >= 10 || card.value === 1) {
             change = -1;
             // ////console.log("count -1 because", card.value)
-        } else {
-            // ////console.log("count unchanged because", card.value)
         }
+
         setRunningCount(currentCount => {
 
-            setCountLog(prevState => {
+            setCountLogState(prevState => {
                 return [...prevState, {value: card.display, change: change, countNow: currentCount + change}]
             })
 
             return (currentCount + change)
         })
+
+        // const newCount = RunningCount + change;
+        // const newLogEntry: CountLogEntry = {
+        //     value: card.display,
+        //     change: change,
+        //     countNow: newCount,
+        // };
+        //
+        // setRunningCount(newCount);
+        // setCountLogState([...CountLogState, newLogEntry]);
+
     }
 
     const updateGameLog = () => {
@@ -1280,7 +1291,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // ////console.log("WinAmount", WinAmount)
         // ////console.log("BetChange", BetChange)
 
-        //TODO: Streak Counter, set balance amount when player turns of training mode
+        //TODO: Card COunter fix dealerreveal card count
         //TODO: fix when user busts in the last hand after splitting - probably need to implement hand checking before flipping dealer cards in case all hands are busts
         //
         ////console.log("GameState", GameState)
@@ -1899,15 +1910,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         <>
             <div ref={menuRef}
                  className="absolute flex flex-row justify-between items-start w-full top-8 right-0 pr-4 pl-6 z-20">
-                {CardCountingMode ?
-                <div
-                    className="flex flex-row justify-center items-center bg-grey space-x-1.5 pl-4 pr-4 py-1 rounded-badge">
-
-                        <div>Running Count:</div>
-                        <div
-                            className="flex flex-col h-full justify-center items-center font-bold text-18px">{RunningCount}</div>
-
-                </div> : <div></div>}
+                {
+                    // CardCountingMode ?
+                    // <div
+                    //     className="flex flex-row justify-center items-center bg-grey space-x-1.5 pl-4 pr-4 py-1 rounded-badge">
+                    //
+                    //     <div>Running Count:</div>
+                    //     <div
+                    //         className="flex flex-col h-full justify-center items-center font-bold text-18px">{RunningCount}</div>
+                    //
+                    // </div> :
+                    <div/>}
                 <div>
                     <div className="flex flex-row justify-end space-x-3">
 
@@ -1946,26 +1959,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                 </div>
             </div>
             {CardCountingMode &&
-            <div className="absolute flex flex-row justify-between items-start top-16 left-0 pr-4 pl-6 z-20">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Value</th>
-                        <th>Change</th>
-                        <th>Current Count</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {CountLog.map(count =>
-                        <tr>
-                            <td>{count.value}</td>
-                            <td>{count.change}</td>
-                            <td>{count.countNow}</td>
-                        </tr>)
-                    }
-                    </tbody>
-                </table>
-            </div>}
+            <CardCountingLog CountLog={CountLogState}/>}
 
             <div className="flex flex-col pt-4 space-y-0 overflow-y-auto w-full">
                 <div className="flex flex-col pt-44 justify-center space-y-4 w-full">
