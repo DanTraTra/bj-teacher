@@ -1291,7 +1291,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // ////console.log("WinAmount", WinAmount)
         // ////console.log("BetChange", BetChange)
 
-        //TODO: Card COunter fix dealerreveal card count
+        //TODO: Fix when user turns on card couter, the entire screen shifts up. Only on mobile.
         //TODO: fix when user busts in the last hand after splitting - probably need to implement hand checking before flipping dealer cards in case all hands are busts
         //
         ////console.log("GameState", GameState)

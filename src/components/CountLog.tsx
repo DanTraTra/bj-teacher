@@ -16,9 +16,9 @@ interface CountLogProps {
 const CardCountingLog: React.FC<CountLogProps> = ({CountLog}) => {
     const logEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [CountLog]);
+    // useEffect(() => {
+    //     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // }, [CountLog]);
 
     return (
         <div className="absolute flex flex-col items-end top-8 left-4 z-20 pl-2 w-auto max-h-[160px] overflow-y-auto overflow-hidden">
