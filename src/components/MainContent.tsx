@@ -360,6 +360,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const [deckUpdated, setDeckUpdated] = useState(false)
     const [GlobalDeck, setGlobalDeck] = useState<CardProps[]>(initializeDeck(DeckCount));
+    const [isDeckSet, setIsDeckSet] = useState(false);
+
     const deckRef = useRef(GlobalDeck);
 
     useEffect(() => {
@@ -629,17 +631,23 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }
 
     const [StartOverDisabled, setStartOverDisabled] = useState(false);
-    const handleClickStartOver = () => {
-        // updateGameLog()
-        setUpGame()
+    const handleClickStartOver = (deckCount: number) => {
+        const newDeck = initializeDeck(deckCount)
+        setGlobalDeck(newDeck)
+        setIsDeckSet(true); // Indicate that the deck has been set
         setBalanceAmount(initialBalance)
         setGameLog([])
-        const newDeck = initializeDeck(6)
-        setGlobalDeck(newDeck)
         setGameCount(0)
         setTotalMaxBet(0)
         setTotalBetDisplay(0)
     }
+
+    useEffect(() => {
+        if (isDeckSet) {
+            setUpGame();
+            setIsDeckSet(false); // Reset the flag after setup
+        }
+    }, [isDeckSet]);
 
     const [KeepGoingDisabled, setKeepGoingDisabled] = useState(false);
     const handleClickKeepGoing = () => {
@@ -725,10 +733,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
         if (amount === BetSuggestion) {
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
-
-            const updatedChipClickPlayerHand = [...PlayerHand]
-            updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += betAmount
-            setPlayerHand(updatedChipClickPlayerHand)
 
             ////console.log("deck", updatedChipClickDeckCards)
             const mockEvent = {
@@ -860,7 +864,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
                 updatedRevealHand[PlayerHandIndex].cards = updatedRevealHand[PlayerHandIndex].cards.map(card => {
                     // return TrainingMode ? {...card, visible: true, betDisplay: 1} : {...card, visible: true}
-                    if (!card.visible) {
+                    if (!card.visible && CardCountingMode) {
                         updateCount(card)
                     }
                     return {...card, visible: true}
@@ -882,7 +886,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     ////console.log("indexToReveal", indexToReveal)
                     if (index == indexToReveal) {
 
-                        if (!updatedCount) {
+                        if (!updatedCount && CardCountingMode) {
                             // console.log("updatingDealerCount")
                             updateCount(card)
                             updatedCount = true
@@ -907,9 +911,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             count = 1
         } else {
             count = 16
+            setCountLogState([{value: '', change: 0, countNow: 0}])
         }
+        console.log("deckCount", count)
         setDeckCount(count)
-        setGlobalDeck(initializeDeck(count))
+        handleClickStartOver(count)
 
         console.log("CardCountingMode", CardCountingMode)
     }, [CardCountingMode])
@@ -921,7 +927,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
 
         if (TrainingMode
-            // && CardCountingMode
+            && CardCountingMode
         ) {
             setGameState("PLACING BET");
 
@@ -1005,12 +1011,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (TrainingMode) {
             setBalanceAmount(Infinity)
             setStreakAmount(0)
-            handleClickStartOver()
+            setDeckCount(16)
         } else {
-            handleClickStartOver()
+            setCardCountingMode(false)
         }
-
-        setUpGame()
+        handleClickStartOver(16)
         if (!randomOn) {
             handleClickTestCase(0)
         }
@@ -1838,7 +1843,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                                 BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
                                 CashOutDisabled={CashOutDisabled} GameLog={GameLog}
                                 handleClickKeepGoing={handleClickKeepGoing} handleClickCashOut={handleClickCashOut}
-                                handleClickStartOver={handleClickStartOver} onChange={changeScreenTo}/>
+                                handleClickStartOver={() => handleClickStartOver(DeckCount)} onChange={changeScreenTo}/>
         }
     }
 
