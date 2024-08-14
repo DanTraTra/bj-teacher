@@ -3,6 +3,7 @@ import {CardProps} from "./PlayingCard";
 import {GiCardDraw, GiCardJoker, GiCardPick} from "react-icons/gi";
 import {CgCardDiamonds, CgCardSpades} from "react-icons/cg";
 import {TbCards, TbCardsFilled} from "react-icons/tb";
+import {LuHistory} from "react-icons/lu";
 
 export interface CountLogEntry {
     value: string;
@@ -37,7 +38,10 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
                         <th className="w-2 px-0.5 py-1 text-center">&#9651;</th>
                     </>
                     }
-                    <th className={`w-auto py-1 pr-3 text-left rounded-r-full ${expanded ? "pl-1 " : "pl-3 pr-10 rounded-full"}`}>Count: {CountLog[CountLog.length - 1].countNow / deckCount}</th>
+                    <th className={`w-auto py-1 pr-2 text-left ${expanded ? "pl-1 pr-3 rounded-r-full" : "pl-3 rounded-l-full"}`}>Count: {CountLog[CountLog.length - 1].countNow / deckCount}</th>
+                     {!expanded &&
+                     <th className={`w-auto py-1 pl-2 pr-2 text-left rounded-r-full border-l border-pastelBlue`}><LuHistory size="18px"/></th>
+                     }
                 </tr>
                 </thead>
                 <tbody>
@@ -53,7 +57,7 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
                 )}
                 </tbody>
             </table>
-            <div ref={logEndRef}/>
+            {expanded && <div ref={logEndRef}/>}
         </div>
     );
 };

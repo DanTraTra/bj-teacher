@@ -2088,10 +2088,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                         </div>
                     </div>
                     <div className={`absolute flex justify-center items-center top-0 right-3 h-8`}>
-                        {
-                            !CardCountingHistoryView &&
-                            <LuHistory size="18px"/>
-                        }
+                        {/*    !CardCountingHistoryView &&*/}
+                        {/*    // <LuHistory size="18px"/>*/}
                     </div>
                 </div>
             </div>
