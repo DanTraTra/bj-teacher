@@ -15,9 +15,10 @@ interface CountLogProps {
     CountLog: CountLogEntry[];
     deckCount: number;
     expanded: boolean;
+    showCount: boolean;
 }
 
-const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded}) => {
+const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded, showCount}) => {
     const logEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -25,7 +26,7 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
     }, [CountLog, expanded]);
 
     return (
-        <div className="flex flex-col items-end z-10 pl-2 w-auto max-h-[130px] overflow-y-scroll overflow-hidden">
+        <div className="flex flex-col items-end pl-2 w-auto max-h-[130px] overflow-y-scroll overflow-hidden">
             <table className="w-full">
                 <thead className="sticky top-0 bg-gray-200 py-1 h-[32px]">
                 <tr>
@@ -38,9 +39,12 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
                         <th className="w-2 px-0.5 py-1 text-center">&#9651;</th>
                     </>
                     }
-                    <th className={`w-auto py-1 pr-2 text-left ${expanded ? "pl-1 pr-3 rounded-r-full" : "pl-3 rounded-l-full"}`}>Count: {CountLog[CountLog.length - 1].countNow / deckCount}</th>
+                    <th className={`w-auto py-1 pr-2 text-left ${expanded ? "pl-1 pr-3 rounded-r-full" : "pl-4 rounded-l-full"}`}>Count:
+                        {showCount || expanded ? ` ${CountLog[CountLog.length - 1].countNow / deckCount}` : " ?"}
+
+                    </th>
                      {!expanded &&
-                     <th className={`w-auto py-1 pl-2 pr-2 text-left rounded-r-full border-l border-pastelBlue`}><LuHistory size="18px"/></th>
+                     <th className={`w-auto py-1 pl-2 pr-2 text-left rounded-r-full border-l border-pastelBlue`}><LuHistory size="22px"/></th>
                      }
                 </tr>
                 </thead>

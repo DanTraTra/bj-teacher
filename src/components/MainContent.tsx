@@ -223,6 +223,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const [TrainingMode, setTrainingMode] = useState<boolean>(trainingMode);
     const [CardCountingMode, setCardCountingMode] = useState<boolean>(trainingMode);
 
+    const [ShowBetSuggestion, setShowBetSuggestion] = useState<boolean>(false);
     const [CardCountingHistoryView, setCardCountingHistoryView] = useState<boolean>(false);
     const [BetSuggestion, setBetSuggestion] = useState<BetSuggestionType>('Bet Low');
     const [LowBetPressed, setLowBetPressed] = useState<boolean>(false);
@@ -238,6 +239,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const [SplitButtonPressed, setSplitButtonPressed] = useState<boolean>(false);
     const [StandButtonPressed, setStandButtonPressed] = useState<boolean>(false);
     const [HitButtonPressed, setHitButtonPressed] = useState<boolean>(false);
+
+    const [needsShuffling, setNeedsShuffling] = useState<boolean>(false);
+    const [shufflingTimer, setShufflingTimer] = useState<number>(0);
 
 
     const menuRef = useRef<HTMLDivElement>(null);
@@ -367,6 +371,24 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     useEffect(() => {
         deckRef.current = GlobalDeck;
     }, [GlobalDeck]);
+
+    useEffect(() => {
+        if (needsShuffling) {
+            setGlobalDeck(initializeDeck(DeckCount))
+            setShufflingTimer(100)
+        }
+    }, [needsShuffling])
+
+    useEffect(() => {
+        if (shufflingTimer > 0 && needsShuffling) {
+            setTimeout(() => {
+                setShufflingTimer(shufflingTimer - 1)
+            }, 20)
+        } else {
+            setNeedsShuffling(false)
+        }
+    }, [shufflingTimer])
+
 
     const getCardFromDeck = (visible: boolean, random: boolean): CardProps => {
         let currentDeck = deckRef.current;
@@ -748,6 +770,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         } else {
             setStreakAmount(0)
             setBeginStreak(false)
+            setShowBetSuggestion(true)
+            setTimeout(() => {
+                setShowBetSuggestion(false)
+            }, 800)
         }
     };
 
@@ -924,7 +950,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // AUTO CALLED WHEN GAMECOUNT CHANGES DON'T CALL
         // TODO: Animate coins going to balance
         ////console.log("Setting Up Game")
+        if (GlobalDeck.length < (DeckCount * 26)) {
 
+            setNeedsShuffling(true)
+        }
 
         if (TrainingMode
             && CardCountingMode
@@ -1011,11 +1040,22 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (TrainingMode) {
             setBalanceAmount(Infinity)
             setStreakAmount(0)
-            setDeckCount(16)
+            if (CardCountingMode) {
+                console.log("setDeckCount(1)")
+                setDeckCount(1)
+                handleClickStartOver(1)
+
+            } else {
+                console.log("setDeckCount(16)A")
+                setDeckCount(16)
+                handleClickStartOver(16)
+
+            }
         } else {
             setCardCountingMode(false)
+            console.log("handleClickStartOver(16)B")
+            handleClickStartOver(16)
         }
-        handleClickStartOver(16)
         if (!randomOn) {
             handleClickTestCase(0)
         }
@@ -1213,7 +1253,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     default:
                         setGameState("IN PLAY")
                 }
-            }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime) : (0))
+            }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime + (CardCountingMode ? (DealerHand.length + PlayerHand[PlayerHandIndex].cards.length) * 1000 : 0)) : (0))
 
             // if (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) {
             //     console.log("Updating Game Log")
@@ -1379,8 +1419,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // ////console.log("WinAmount", WinAmount)
         // ////console.log("BetChange", BetChange)
 
-        //TODO: Fix when user turns on card couter, the entire screen shifts up. Only on mobile.
-        //TODO: fix when user busts in the last hand after splitting - probably need to implement hand checking before flipping dealer cards in case all hands are busts
+        //TODO: Fix when user turns on card counter, the entire screen shifts up. Only on mobile.
         //
         ////console.log("GameState", GameState)
         ////console.log("DealerTurnEnded", DealerTurnEnded)
@@ -1540,7 +1579,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         }
         snapBackTimeout.current = setTimeout(() => {
             if (splitCardsContainer.current) {
-                ////console.log("Wheel scroll PI, Extracardcount", PlayerHandIndex, ExtraCardCount)
+                ////console.log("Wheel scroll PI, ExtraCardCount", PlayerHandIndex, ExtraCardCount)
                 scrollToCurrentHand((PlayerHandIndex * 128) + (+(!!PlayerHandIndex)) * (ExtraCardCount * 24))
             }
         }, 150)
@@ -1582,6 +1621,21 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     }, [CountLogState, GameState])
 
+    const ShufflingCards = () => {
+        return (
+            <div className="flex-col items-center justify-center space-y-1 px-28">
+                <div className="flex items-center justify-center text-white text-xs ">Deck is almost empty</div>
+                <div className="flex items-center justify-center text-white font-bold pb-2">SHUFFLING CARDS...</div>
+                {/*<div className="flex items-center justify-center text-white text-lg">{shufflingTimer}</div>*/}
+                <div className="w-full bg-gray-800 h-2 rounded">
+                    <div
+                        className="bg-white h-2 rounded transition-all"
+                        style={{width: `${100 - shufflingTimer}%`}}
+                    />
+                </div>
+            </div>
+        )
+    }
     const PlaceBets = () => {
         return (
             <div className="flex flex-row px-auto space-x-2 z-20">
@@ -1830,20 +1884,25 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     };
 
     function renderDisplayBar(GameState: GameOutComeType) {
-        switch (GameState) {
-            case 'PLACING BET':
-                return TrainingMode && CardCountingMode ? <PlaceBetsTraining/> : <PlaceBets/>
-            case 'IN PLAY' :
-                return <ActionButtons/>
-            case 'SAVING GAME':
-                return <RenderSaveUserNameForm onSave={saveScore}/>
-            default:
-                return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex}
-                                TrainingMode={TrainingMode} GameState={GameState}
-                                BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
-                                CashOutDisabled={CashOutDisabled} GameLog={GameLog}
-                                handleClickKeepGoing={handleClickKeepGoing} handleClickCashOut={handleClickCashOut}
-                                handleClickStartOver={() => handleClickStartOver(DeckCount)} onChange={changeScreenTo}/>
+        if (needsShuffling) {
+            return <ShufflingCards/>
+        } else {
+            switch (GameState) {
+                case 'PLACING BET':
+                    return TrainingMode && CardCountingMode ? <PlaceBetsTraining/> : <PlaceBets/>
+                case 'IN PLAY' :
+                    return <ActionButtons/>
+                case 'SAVING GAME':
+                    return <RenderSaveUserNameForm onSave={saveScore}/>
+                default:
+                    return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex}
+                                    TrainingMode={TrainingMode} GameState={GameState}
+                                    BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
+                                    CashOutDisabled={CashOutDisabled} GameLog={GameLog}
+                                    handleClickKeepGoing={handleClickKeepGoing} handleClickCashOut={handleClickCashOut}
+                                    handleClickStartOver={() => handleClickStartOver(DeckCount)}
+                                    onChange={changeScreenTo}/>
+            }
         }
     }
 
@@ -2077,20 +2136,24 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     setCardCountingHistoryView(!CardCountingHistoryView)
                 }}>
                 <div className={`absolute top-8 left-4`}>
-                    <CardCountingLog CountLog={CountLogState}
-                                     deckCount={DeckCount}
-                                     expanded={CardCountingHistoryView}/>
-                    <div className={`absolute top-[32px] flex flex-row text-xs right-4`}>
+                    <div className={`relative z-20`}>
+                        <CardCountingLog CountLog={CountLogState}
+                                         deckCount={DeckCount}
+                                         expanded={CardCountingHistoryView}
+                                         showCount={ShowBetSuggestion}/>
+                    </div>
+                    <div
+                        className={`absolute z-10 ${ShowBetSuggestion ? "top-[32px]" : "top-[14px]"} flex flex-row text-xs right-4 transition-all`}>
                         <div
                             className={`px-2 pb-0.5 text-white rounded-b-lg ${BetSuggestion == "Bet Low" ? "bg-error/70" : BetSuggestion == "Bet Mid" ? "bg-info/70" : "bg-success/70"}`}
                         >
                             {BetSuggestion}
                         </div>
                     </div>
-                    <div className={`absolute flex justify-center items-center top-0 right-3 h-8`}>
-                        {/*    !CardCountingHistoryView &&*/}
-                        {/*    // <LuHistory size="18px"/>*/}
-                    </div>
+                    {/*<div className={`absolute flex justify-center items-center top-0 right-3 h-8`}>*/}
+                    {/*    /!*    !CardCountingHistoryView &&*!/*/}
+                    {/*    /!*    // <LuHistory size="18px"/>*!/*/}
+                    {/*</div>*/}
                 </div>
             </div>
             }
