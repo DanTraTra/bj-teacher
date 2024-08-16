@@ -75,7 +75,7 @@ function App() {
 
             case 'PLAY':
                 return <>
-                    <div className="flex flex-1 justify-center">
+                    <div className="flex flex-1 justify-center overflow-hidden">
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
@@ -88,7 +88,7 @@ function App() {
                 </>
             case 'TRAIN':
                 return <>
-                    <div className="flex flex-1 justify-center">
+                    <div className="flex flex-1 justify-center overflow-hidden">
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >

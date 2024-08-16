@@ -22,7 +22,9 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
     const logEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        logEndRef.current?.scrollIntoView({behavior: 'smooth'});
+        if (logEndRef.current) {
+            logEndRef.current.scrollIntoView({behavior: 'smooth'});
+        }
     }, [CountLog, expanded]);
 
     return (
