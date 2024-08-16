@@ -21,11 +21,11 @@ interface CountLogProps {
 const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded, showCount}) => {
     const logEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (logEndRef.current) {
-            logEndRef.current.scrollIntoView({behavior: 'smooth'});
-        }
-    }, [CountLog, expanded]);
+    // useEffect(() => {
+    //     if (logEndRef.current) {
+    //         logEndRef.current.scrollIntoView({behavior: 'smooth'});
+    //     }
+    // }, [CountLog, expanded]);
 
     return (
         <div className="relative w-full">
