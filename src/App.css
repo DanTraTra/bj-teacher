@@ -14,3 +14,7 @@
 .hidden {
   opacity: 0;
 }
+
+html, body {
+    overscroll-behavior: none; /* Prevents overscrolling on mobile devices */
+}
