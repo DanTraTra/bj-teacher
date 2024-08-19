@@ -59,6 +59,7 @@ import {MdExitToApp} from "react-icons/md";
 import {BsFire} from "react-icons/bs";
 import CardCountingLog, {CountLogEntry} from "./CountLog";
 import {LuHistory} from "react-icons/lu";
+import CountQuiz from "./CountQuiz";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -87,6 +88,7 @@ export type GameOutComeType =
     | "PLAYER BLACKJACK"
     | "GAME OVER"
     | "SAVING GAME"
+    | "CARD COUNT QUIZ"
 
 export type PlayerHandProps = { cards: CardProps[], sum: number, maxBet: number, betDisplay: number, winMultiplier: number, doubleDown: boolean }
 
@@ -132,6 +134,26 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
     return deck
 }
 
+export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
+        const deck: CardProps[] = []
+
+
+        const suits: Suit[] = ["spades", "hearts", "clubs", "diamonds"]
+
+        let index = 0;
+
+        while (index < testCards.length) {
+
+            if (index < testCards.length) {
+                deck.push(initializeCard(testCards[index], suits[index % 4], false));
+                index++;
+            }
+        }
+
+        // ////console.log("TestDeck: ",deck)
+
+        return deck
+    }
 
 const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode}) => {
 
@@ -225,6 +247,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const [ShowBetSuggestion, setShowBetSuggestion] = useState<boolean>(false);
     const [CardCountingHistoryView, setCardCountingHistoryView] = useState<boolean>(false);
+    const [CountView, setCountView] = useState<boolean>(false);
+
     const [BetSuggestion, setBetSuggestion] = useState<BetSuggestionType>('Bet Low');
     const [LowBetPressed, setLowBetPressed] = useState<boolean>(false);
     const [MidBetPressed, setMidBetPressed] = useState<boolean>(false);
@@ -340,27 +364,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const randomOn = true // TODO
 
     type TestDeck = { PlayerHand: number[], DealerHand: number[], Deck: number[] | null, Outcome: GameOutComeType }
-
-    const initializeSpecificHand = (testCards: number[]): CardProps[] => {
-        const deck: CardProps[] = []
-
-
-        const suits: Suit[] = ["spades", "hearts", "clubs", "diamonds"]
-
-        let index = 0;
-
-        while (index < testCards.length) {
-
-            if (index < testCards.length) {
-                deck.push(initializeCard(testCards[index], suits[index % 4], false));
-                index++;
-            }
-        }
-
-        // ////console.log("TestDeck: ",deck)
-
-        return deck
-    }
 
     const [deckUpdated, setDeckUpdated] = useState(false)
     const [GlobalDeck, setGlobalDeck] = useState<CardProps[]>(initializeDeck(DeckCount));
@@ -1253,7 +1256,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     default:
                         setGameState("IN PLAY")
                 }
-            }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime + (CardCountingMode ? (DealerHand.length + PlayerHand[PlayerHandIndex].cards.length) * 1000 : 0)) : (0))
+            }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime) : (0))
 
             // if (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) {
             //     console.log("Updating Game Log")
@@ -1623,7 +1626,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const ShufflingCards = () => {
         return (
-            <div className="flex-col items-center justify-center space-y-1 px-28">
+            <div className="flex-col items-center justify-center space-y-1 px-0 w-64">
                 <div className="flex items-center justify-center text-white text-xs ">Deck is almost empty</div>
                 <div className="flex items-center justify-center text-white font-bold pb-2">SHUFFLING CARDS...</div>
                 {/*<div className="flex items-center justify-center text-white text-lg">{shufflingTimer}</div>*/}
@@ -1638,7 +1641,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }
     const PlaceBets = () => {
         return (
-            <div className="flex flex-row px-auto space-x-2 z-20">
+            <div className="flex flex-row space-x-2 z-20">
                 {randomOn ?
                     <>
                         <button className={chipClass} onClick={() => handleClickChip(1)}>
@@ -1683,7 +1686,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const PlaceBetsTraining = () => {
         return (
-            <div className="flex flex-row px-16 space-x-2 z-20">
+            <div className="flex flex-row px-4 space-x-2 z-20">
                 <>
                     <button
                         className={`${chipClass} ${CardCountingMode && BetSuggestion != "Bet Low" && LowBetPressed && "animate-shake"}`}
@@ -1707,7 +1710,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
 
     const ActionButtons = () => {
-        return <div className="flex flex-row space-x-4 text-white px-12">
+        return <div className="flex flex-row space-x-4 text-white px-4">
             <div className="flex flex-col items-center space-y-2">
                 <button
                     className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && TrainingMode && DDButtonPressed ? 'animate-shake' : ''}`}
@@ -1890,16 +1893,30 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             switch (GameState) {
                 case 'PLACING BET':
                     return TrainingMode && CardCountingMode ? <PlaceBetsTraining/> : <PlaceBets/>
+                // return <CountQuiz Count={RunningCount} handleClickCorrectAnswer={()=>setGameState("PLACING BET")} handleClickWrongAnswer={()=>{}}/>
+
                 case 'IN PLAY' :
                     return <ActionButtons/>
                 case 'SAVING GAME':
                     return <RenderSaveUserNameForm onSave={saveScore}/>
+                case 'CARD COUNT QUIZ':
+                    return <CountQuiz Count={RunningCount}
+                                      handleClickCorrectAnswer={() => {
+                                          handleClickKeepGoing()
+                                      }}
+                                      handleClickWrongAnswer={() => {
+                                          setStreakAmount(0)
+                                          setBeginStreak(false)
+                                      }}/>
                 default:
                     return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex}
                                     TrainingMode={TrainingMode} GameState={GameState}
                                     BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
                                     CashOutDisabled={CashOutDisabled} GameLog={GameLog}
-                                    handleClickKeepGoing={handleClickKeepGoing} handleClickCashOut={handleClickCashOut}
+                                    handleClickKeepGoing={() => {
+                                        return CardCountingMode ? (setGameState("CARD COUNT QUIZ")) : (handleClickKeepGoing())
+                                    }}
+                                    handleClickCashOut={handleClickCashOut}
                                     handleClickStartOver={() => handleClickStartOver(DeckCount)}
                                     onChange={changeScreenTo}/>
             }
@@ -2140,7 +2157,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                         <CardCountingLog CountLog={CountLogState}
                                          deckCount={DeckCount}
                                          expanded={CardCountingHistoryView}
-                                         showCount={ShowBetSuggestion}/>
+                                         showCount={GameState == "PLACING BET"}/>
                     </div>
                     <div
                         className={`absolute z-10 ${ShowBetSuggestion ? "top-[32px]" : "top-[14px]"} flex flex-row text-xs right-4 transition-all`}>
@@ -2208,19 +2225,23 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     </div>
                     }
                     <div className="flex items-center justify-center">
-                        <div className="relative w-full max-w-[480px] overflow-hidden">
+                        <div className="relative max-w-[480px] overflow-hidden">
+                            {/*<div*/}
+                            {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
+                            {/*<div*/}
+                            {/*    className={`absolute inset-y-0 left-24 right-24 w-auto ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/80"}`}/>*/}
+                            {/*<div*/}
+                            {/*    className={`absolute inset-y-0 -right-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>*/}
+
                             <div
-                                className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>
-                            <div
-                                className={`absolute inset-y-0 left-24 right-24 w-auto ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/80"}`}/>
-                            <div
-                                className={`absolute inset-y-0 -right-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>
+                                className={`absolute inset-y-0 left-0 right-0 w-auto rounded-lg  ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}/>
+
 
                             <div
                                 className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
                                 // ref={scrollContainerRef}
                             >
-                                <div className="flex px-auto z-10">
+                                <div className="flex px-4 z-10">
                                     {renderDisplayBar(GameState)}
                                 </div>
                             </div>

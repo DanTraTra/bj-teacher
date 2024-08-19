@@ -29,7 +29,7 @@ const CardCountingLog: React.FC<CountLogProps> = ({CountLog, deckCount, expanded
 
     return (
         <div className="relative w-full">
-            <div className="flex flex-col items-end pl-2 w-auto max-h-[130px] overflow-y-auto">
+            <div className="flex flex-col-reverse items-end pl-2 w-auto max-h-[130px] overflow-y-auto">
                 <table className="w-full">
                     <thead className="sticky top-0 bg-gray-200 py-1 h-[32px]">
                     <tr>
