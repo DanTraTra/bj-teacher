@@ -965,6 +965,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
         } else if (TrainingMode) {
             setGameState("IN PLAY");
+            // setGameState("PLACING BET");
 
         } else {
             setGameState("PLACING BET");
@@ -1841,7 +1842,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                         {
                             GoToTrainingMode ?
                                 <div className="flex justify-end text-white font-tech space-x-1.5 items-center"
-                                     onClick={() => setTrainingMode(true)}>
+                                     onClick={() => {
+                                         setTrainingMode(currentState => !currentState)
+                                         // setTrainingMode(true)
+                                     }}>
                                     <FaDumbbell fill="white" size="18"/>
                                     <span>Start Training</span>
                                 </div>
@@ -1914,7 +1918,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                                     BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
                                     CashOutDisabled={CashOutDisabled} GameLog={GameLog}
                                     handleClickKeepGoing={() => {
-                                        return CardCountingMode ? (setGameState("CARD COUNT QUIZ")) : (handleClickKeepGoing())
+                                        return CardCountingMode ? (setGameState("CARD COUNT QUIZ")) : TrainingMode ? (handleClickKeepGoing()) : (handleClickKeepGoing())
                                     }}
                                     handleClickCashOut={handleClickCashOut}
                                     handleClickStartOver={() => handleClickStartOver(DeckCount)}
