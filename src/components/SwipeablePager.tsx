@@ -4,7 +4,7 @@ import 'tailwindcss/tailwind.css';
 import CheatSheet, {action2iconDict, cheatSheetDataLogic, CheatSheetProps, getTableIndex} from "./CheatSheet";
 import {AiOutlineClose, AiOutlineUp} from "react-icons/ai";
 import {CardProps, PlayingCard} from "./PlayingCard";
-import {animationTime, initializeCard, initializeSpecificHand, PlayerHandProps} from "./MainContent";
+import {animationTime, GameOutComeType, initializeCard, initializeSpecificHand, PlayerHandProps} from "./MainContent";
 import {Simulate} from "react-dom/test-utils";
 import doubleClick = Simulate.doubleClick;
 import {BiChevronUp} from "react-icons/bi";
@@ -23,7 +23,8 @@ export interface SwipeablePagerProps {
     split_available: boolean;
     dd_available: boolean;
     peaking: boolean;
-    onClose: () => void;
+    onOpen: () => void;
+    GameState: GameOutComeType;
 }
 
 const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
@@ -32,7 +33,8 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                                                            split_available,
                                                            dd_available,
                                                            peaking,
-                                                           onClose
+                                                           onOpen,
+                                                           GameState
                                                        }) => {
         let {
             playerHandIndex,
@@ -58,6 +60,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
 
         const handleHeaderClick = () => {
             setIsExpanded(!isExpanded);
+            onOpen()
         };
 
         const handleCheatSheet = (event: MouseEvent) => {
@@ -103,15 +106,16 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
         }, []);
 
         useEffect(() => {
-            // let index = playerHand && dealerHand ? getTableIndex(playerHand, dealerHand, dd_available, split_available) : {
-            //     playerHandIndex: 0,
-            //     dealerHandIndex: 0,
-            //     tableIndex: 0
-            // }
-            // ////console.log("index", index)
-            setCurrentPage(tableIndex)
+            setCurrentPage(tableIndex + 1)
         }, [tableIndex])
 
+        useEffect(() => {
+            if (["CARD COUNT QUIZ", "PLACING BET"].includes(GameState)) {
+                setCurrentPage(0)
+            } else {
+                setCurrentPage(tableIndex + 1)
+            }
+        }, [GameState])
 
         function CardCountingInfo() {
             const lowCards = initializeSpecificHand([2, 3, 4, 5, 6])
@@ -119,7 +123,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             const highCards = initializeSpecificHand([10, 11, 12, 13, 1])
 
             return <div
-                className="w-[100%] h-full flex-shrink-0 flex flex-col justify-center items-start px-6 bg-[#57A351] py-4">
+                className="w-[100%] h-full flex-shrink-0 flex flex-col justify-center items-start px-6 bg-[#57A351] py-4 mt-2">
 
                 <div className="text-white text-xl font-semibold pb-1">How to Count Cards:</div>
                 <div className="text-white text-sm pb-1">Begin count at 0 when the game starts or the deck is shuffled.
@@ -180,7 +184,8 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             <div className="flex flex-col justify-center">
                                 <LOW className="w-full h-full transform"/>
                             </div>
-                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>Low</div>
+                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>Low
+                            </div>
 
                         </div>
                     </div>
@@ -192,7 +197,8 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             <div className="flex flex-col justify-center">
                                 <MID className="w-full h-full transform"/>
                             </div>
-                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>Mid</div>
+                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>Mid
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col py-2 px-3 bg-gray-900/30 rounded">
@@ -203,7 +209,8 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             <div className="flex flex-col justify-center">
                                 <HIGH className="w-full h-full transform"/>
                             </div>
-                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>High</div>
+                            <div className="flex flex-col justify-center text-white text-sm leading-none pl-1">Bet <br/>High
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,12 +254,12 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                             onClick={handleHeaderClick}>
                             <div/>
                             <span className="text-lg font-bold">Cheat Sheet</span>
-                            {isExpanded ? <AiOutlineClose onClick={() => onClose()}/> :
+                            {isExpanded ? <AiOutlineClose onClick={() => setIsExpanded(false)}/> :
                                 <AiOutlineUp onClick={() => setIsExpanded(true)}/>}
                         </div>
-                        {dealerHand && playerHand && currentPage != 3 &&
+                        {dealerHand && playerHand && currentPage != 0 &&
                         <div
-                            className={`w-[350px] flex flex-row items-center justify-center bg-white px-4 py-2 mb-2 font-tech relative`}
+                            className={`w-[350px] flex flex-row items-center justify-center bg-white px-4 py-2 font-tech relative`}
                         >
                     <span
                         className="text-sm">{`${playerHand.reduce((acc, card) => card.value + acc, 0)} plays ${dealerHand.display == 'A' || dealerHand.display == '8' ? "an" : "a"} ${dealerHand.display == "A" ? "Ace" : dealerHand.display == "J" ? "Jack" : dealerHand.display == "K" ? "King" : dealerHand.display == "Q" ? "Queen" : dealerHand.display} you should:`}</span>
@@ -262,7 +269,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                         }
                     </div>
                     <div
-                        className="relative w-[350px] overflow-hidden flex justify-center items-center mt-2">
+                        className="relative w-[350px] overflow-hidden flex justify-center items-center">
                         <div className="w-full h-full flex transition-transform items-center duration-500 space-x-4"
                              style={{transform: `translateX(calc(-1 * (${currentPage * 104.5}%)))`}}>
                             {CardCountingInfo()}
@@ -281,8 +288,12 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
                         className="flex flex-row w-[350px] justify-center bg-white p-2 rounded-b-lg mt-2 space-x-2 overflow-x-auto">
                         {currentPage == 0 ?
                             <div className="flex flex-row justify-center px-4 w-full">
-                                <div className="flex flex-row w-full h-6 justify-between items-center text-gray-800 bg-white p-0 text-xs font-bold">
-                                    When casinos use multiple decks: <div className="flex flex-col justify-center -my-2"> <span className="text-[10px] text-center">count </span> <div className="bg-gray-800 w-full h-[1.5px]"/> <span className="text-[10px] text-center">number of decks</span></div>
+                                <div
+                                    className="flex flex-row w-full h-6 justify-between items-center text-gray-800 bg-white p-0 text-xs font-bold">
+                                    When casinos use multiple decks: <div className="flex flex-col justify-center -my-2">
+                                    <span className="text-[10px] text-center">count </span>
+                                    <div className="bg-gray-800 w-full h-[1.5px]"/>
+                                    <span className="text-[10px] text-center">number of decks</span></div>
                                 </div>
 
                                 {/*<div className="text-whi*/}

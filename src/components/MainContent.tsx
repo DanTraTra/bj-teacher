@@ -386,8 +386,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (shufflingTimer > 0 && needsShuffling) {
             setTimeout(() => {
                 setShufflingTimer(shufflingTimer - 1)
-            }, 20)
+            }, 10)
         } else {
+            setRunningCount(0)
+            setCountLogState([{value: '', change: 0, countNow: 0}])
             setNeedsShuffling(false)
         }
     }, [shufflingTimer])
@@ -1426,8 +1428,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // ////console.log("WinAmount", WinAmount)
         // ////console.log("BetChange", BetChange)
 
-        //TODO: Fix when user turns on card counter, the entire screen shifts up. Only on mobile.
-        //
+        // TODO:
         ////console.log("GameState", GameState)
         ////console.log("DealerTurnEnded", DealerTurnEnded)
         if (HANDOVER.includes(GameState) && DealerTurnEnded) {
@@ -1624,7 +1625,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                 return
             }
         }
-        console.log("GlobalDeck", GlobalDeck)
+        // console.log("GlobalDeck", GlobalDeck)
 
     }, [CountLogState, GameState])
 
@@ -2158,6 +2159,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             <div
                 onClick={() => {
                     setCardCountingHistoryView(!CardCountingHistoryView)
+                    setStreakAmount(0)
+                    setBeginStreak(false)
                 }}>
                 <div className={`absolute top-8 left-4`}>
                     <div className={`relative z-20`}>
@@ -2360,7 +2363,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                                     playerHand={PlayerHand[PlayerHandIndex].cards.every(card => card.visible) ? PlayerHand[PlayerHandIndex].cards : null}
                                     dealerHand={(DealerHand && DealerHand[0] ? DealerHand[0] : null)}
                                     peaking={CheatSheetPeak}
-                                    onClose={() => setCheatSheetOpen(false)}/>
+                                    onOpen={() => {
+                                        setStreakAmount(0)
+                                        setBeginStreak(false)
+                                    }}
+                                    GameState={GameState}/>
                 </div>
             </div>}
 
