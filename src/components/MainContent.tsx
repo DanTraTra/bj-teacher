@@ -135,25 +135,25 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
 }
 
 export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
-        const deck: CardProps[] = []
+    const deck: CardProps[] = []
 
 
-        const suits: Suit[] = ["spades", "hearts", "clubs", "diamonds"]
+    const suits: Suit[] = ["spades", "hearts", "clubs", "diamonds"]
 
-        let index = 0;
+    let index = 0;
 
-        while (index < testCards.length) {
+    while (index < testCards.length) {
 
-            if (index < testCards.length) {
-                deck.push(initializeCard(testCards[index], suits[index % 4], false));
-                index++;
-            }
+        if (index < testCards.length) {
+            deck.push(initializeCard(testCards[index], suits[index % 4], false));
+            index++;
         }
-
-        // ////console.log("TestDeck: ",deck)
-
-        return deck
     }
+
+    // ////console.log("TestDeck: ",deck)
+
+    return deck
+}
 
 const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode}) => {
 
@@ -543,6 +543,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             if (PlayerHandIndex == PlayerHand.length - 1) {
                 setPlayerStand(true)
                 revealDealerCard(1)
+                console.log("updatingCount - dealerhand2")
+
             } else if (PlayerHand.length > 1) {
                 setPlayerHandIndex(PlayerHandIndex + 1)
                 const updatedList = [...CardShift]
@@ -916,7 +918,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     if (index == indexToReveal) {
 
                         if (!updatedCount && CardCountingMode) {
-                            // console.log("updatingDealerCount")
                             updateCount(card)
                             updatedCount = true
                         }
@@ -1291,8 +1292,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             return
         }
 
-        if (PlayerStand && HANDOVER.includes(GameState)) {
+        if (PlayerStand && HANDOVER.includes(GameState) && !DealerHand[1].visible) {
             revealDealerCard(1) //When the player loses
+            console.log("updatingCount - dealerhand1")
         }
         let dealerHandSum = DealerHand.reduce((acc, card) => acc + card.value, 0);
 
@@ -1364,11 +1366,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }, [PlayerStand, GameState, DealerHand.every((card) => card.visible)])
 
     useEffect(() => {
-        console.log("-------inside useEffect dep [GameState]", GameState)
+        // console.log("-------inside useEffect dep [GameState]", GameState)
         if ((GameState == 'PLAYER BUST' || GameState == 'PLAYER BLACKJACK') && (PlayerHandIndex == PlayerHand.length - 1)) {
             //Reveal dealers card if isn't turned over
             //console.log("-------inside useEffect dep [GameState]")
             revealDealerCard(1)
+            console.log("updatingCount - dealerhand3")
 
         } else if (GameState == 'IN PLAY') {
             revealPlayerCards()

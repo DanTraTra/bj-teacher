@@ -133,7 +133,7 @@ function LeaderBoard() {
                                 <tbody>
                                 {Leaderboard.map((row, index) => (
                                     <React.Fragment key={index}>
-                                        <tr key={index} className="border-t cursor-pointer"
+                                        <tr key={index} className="border-t cursor-pointer "
                                             style={{
                                                 backgroundColor: `${index === 0
                                                     ? "#e8e8e8"
