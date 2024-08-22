@@ -131,6 +131,7 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
 
     }
 
+    // return initializeSpecificHand([1, 4, 1, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 4, 4, 4, 3, 3, 3, 5, 5, 5, 6, 6, 6])
     return deck
 }
 
@@ -172,7 +173,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         BalanceAmountRef.current = BalanceAmount
     }, [BalanceAmount])
 
-    const [DeckCount, setDeckCount] = useState(trainingMode ? 1 : 16)
+    const [DeckCount, setDeckCount] = useState(trainingMode ? 1 : 6)
 
     const [GameState, setGameState] = useState<GameOutComeType>("PLACING BET");
     const GameStateRef = useRef(GameState)
@@ -301,15 +302,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const allTestCases: TestDeck[] = [
         {
-            PlayerHand: [1, 5],
+            PlayerHand: [1, 1],
             DealerHand: [4, 10],
             Deck: null,
             Outcome: "PLAYER BUST",
         }
         , {
-            PlayerHand: [7, 7],
+            PlayerHand: [4, 4],
             DealerHand: [3, 10],
-            Deck: null,
+            Deck: [10, 8, 10, 8, 2, 5, 3, 4, 2],
             Outcome: "PLAYER BUST",
         }
         , {
@@ -386,7 +387,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (shufflingTimer > 0 && needsShuffling) {
             setTimeout(() => {
                 setShufflingTimer(shufflingTimer - 1)
-            }, 10)
+            }, 5)
         } else {
             setRunningCount(0)
             setCountLogState([{value: '', change: 0, countNow: 0}])
@@ -488,7 +489,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const [ExtraCardCount, setExtraCardCount] = useState(0)
     const [HitDisabled, setHitDisabled] = useState(false);
     const handleClickHit = (doubleDownHit: boolean) => {
-        ////console.log("CLICKED HIT")
+        console.log("CLICKED HIT")
         setHitButtonPressed(true)
         setTimeout(() => {
             setHitButtonPressed(false)
@@ -498,7 +499,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             setExtraCardCount(ExtraCardCount + 1)
             setHitDisabled(true)
             setStandDisabled(true)
-            setDoubleDownDisabled(true);
+            setDoubleDownDisabled(true); //clicked Hit
             setSplitDisabled(true);
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
@@ -507,6 +508,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             // setPlayerHand(currentHand => [...currentHand, random_card]);
             const updatedHitHand = [...PlayerHand]
             updatedHitHand[PlayerHandIndex].cards = [...updatedHitHand[PlayerHandIndex].cards, random_card_hit]
+
+            console.log("PlayerHandIndex", PlayerHandIndex)
+            console.log("updatedHitHand[PlayerHandIndex]", updatedHitHand[PlayerHandIndex])
             setPlayerHand(updatedHitHand);
             // revealPlayerCards()
 
@@ -538,7 +542,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (!TrainingMode || doubleDownStand || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
             setStandDisabled(true)
             setHitDisabled(true)
-            setDoubleDownDisabled(true)
+            setDoubleDownDisabled(true) // Clicked Stand
             setSplitDisabled(true)
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
@@ -573,7 +577,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             setSplitDisabled(true)
             setStandDisabled(true)
             setHitDisabled(true)
-            setDoubleDownDisabled(true)
+            setDoubleDownDisabled(true) //Clicked Split
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
             const splitHand = [...PlayerHand]
@@ -594,6 +598,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             ////console.log("post-split", splitHand)
 
             setPlayerHand(splitHand)
+            console.log("splitHand", splitHand)
             setBalanceAmount(BalanceAmount - splitHand[PlayerHandIndex].betDisplay)
 
             setTimeout(() => {
@@ -608,7 +613,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
                 setStandDisabled(false)
                 setHitDisabled(false)
-                setDoubleDownDisabled(false)
+                setDoubleDownDisabled(false) //After Clicking Split
             }, animationTime + 100)
         } else {
             setStreakAmount(0)
@@ -633,10 +638,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             ////console.log('PlayerHand[PlayerHandIndex].bet', PlayerHand[PlayerHandIndex].betDisplay)
 
             if (BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
-                setDoubleDownDisabled(true)
+                setDoubleDownDisabled(true) //clicked dd
                 setHitDisabled(true)
                 setStandDisabled(true)
-                setDoubleDownDisabled(true);
                 BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
                 const updatedBalanceDD = BalanceAmount - PlayerHand[PlayerHandIndex].betDisplay
@@ -826,13 +830,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const handleClickChip = (amount: number) => {
         ////console.log(`Chip Clicked - added ${amount} to BetAmountState`)
-        if (amount <= BalanceAmount) {
+        if ((amount <= BalanceAmount) || (TrainingMode && !CardCountingMode)) {
 
             const updatedChipClickPlayerHand = [...PlayerHand]
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += amount
             setPlayerHand(updatedChipClickPlayerHand)
             setBalanceAmount(currentValue => currentValue - amount) //Chip click increase
-        } else if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0) < 1) {
+        } else if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0) < 1 && !TrainingMode && !CardCountingMode) {
             const updatedChipClickPlayerHand = [...PlayerHand]
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += 1
             setPlayerHand(updatedChipClickPlayerHand)
@@ -907,6 +911,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                 setPlayerHand(updatedRevealHand)
 
             }, 0);
+
         }
     }
 
@@ -942,7 +947,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (CardCountingMode) {
             count = 1
         } else {
-            count = 16
+            count = 6
             setCountLogState([{value: '', change: 0, countNow: 0}])
         }
         console.log("deckCount", count)
@@ -954,19 +959,26 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const setUpGame = () => {
         // AUTO CALLED WHEN GAMECOUNT CHANGES DON'T CALL
+        // TODO: BUG FIX Starting in training mode -> switching to normal from settings -> switching back to training doens't work
+        // TODO: BUG FIX Sometimes the cards don't flip over in trainingmode - not card counting
         // TODO: Animate coins going to balance
-        ////console.log("Setting Up Game")
+
+        // console.log("Setting Up Game")
+        // console.log("PlayerHand[PlayerHandIndex].betDisplay", PlayerHand[PlayerHandIndex].betDisplay)
         if (GlobalDeck.length < (DeckCount * 26)) {
 
             setNeedsShuffling(true)
         }
 
-        if (TrainingMode
-            && CardCountingMode
-        ) {
+        if (TrainingMode && CardCountingMode) {
+
             setGameState("PLACING BET");
 
         } else if (TrainingMode) {
+            setBalanceAmount(Infinity)
+            if (PlayerHand[PlayerHandIndex].betDisplay == 0) {
+                handleClickChip(20)
+            }
             setGameState("IN PLAY");
             // setGameState("PLACING BET");
 
@@ -989,9 +1001,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         setGoToTrainingMode(false)
 
         if (PlayerHand[PlayerHandIndex].betDisplay > BalanceAmount) {
-            setDoubleDownDisabled(true);
+            setDoubleDownDisabled(true); // PlayerHand[PlayerHandIndex].betDisplay > BalanceAmount setup game
         } else {
-            setDoubleDownDisabled(false);
+            setDoubleDownDisabled(false);// PlayerHand[PlayerHandIndex].betDisplay <= BalanceAmount
         }
 
         if (PlayerHand[PlayerHandIndex].cards.length
@@ -1053,15 +1065,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                 handleClickStartOver(1)
 
             } else {
-                console.log("setDeckCount(16)A")
-                setDeckCount(16)
-                handleClickStartOver(16)
-
+                console.log("setDeckCount(6)A")
+                setDeckCount(6)
+                handleClickStartOver(6)
             }
         } else {
             setCardCountingMode(false)
-            console.log("handleClickStartOver(16)B")
-            handleClickStartOver(16)
+            console.log("handleClickStartOver(6)B")
+            handleClickStartOver(6)
         }
         if (!randomOn) {
             handleClickTestCase(0)
@@ -1078,10 +1089,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         ////console.log("GameState", GameState)
         setTimeout(() => {
             if (GameState == 'IN PLAY') {
-                const action = cheatSheetDataLogic(PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
-                console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
-                console.log("CorrectAction", action)
-                setCorrectAction(action)
+                // const action = cheatSheetDataLogic(PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+                // console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+                // console.log("CorrectAction", action)
+                // setCorrectAction(action)
                 if (PlayerHand[PlayerHandIndex].sum > 21 || (PlayerHand[PlayerHandIndex].sum == 21 && PlayerHand[PlayerHandIndex].cards.length == 2)) {
                     //If player's current hand busts or hits blackjack
                     if (PlayerHandIndex == PlayerHand.length - 1) {
@@ -1110,6 +1121,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
         }, animationTime)
 
+
     }, [PlayerHand[PlayerHandIndex].sum, GameState])
 
     useEffect(() => {
@@ -1121,12 +1133,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         // ////console.log("PlayerHand", PlayerHand)
         // ////console.log("PlayerHand", PlayerHandIndex)
         if (PlayerStand) {
-            setDoubleDownDisabled(true)
+            setDoubleDownDisabled(true) //PLayer stand
             setSplitDisabled(true)
             setStandDisabled(true)
             setHitDisabled(true)
         } else {
-            setDoubleDownDisabled(false)
+            setDoubleDownDisabled(false) //Player not stand
             setSplitDisabled(false)
             setStandDisabled(false)
             setHitDisabled(false)
@@ -1135,29 +1147,30 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }, [PlayerStand])
 
     useEffect(() => {
-        ////console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
+        console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
         let playerHandSums = PlayerHand.map(hand => hand.cards.reduce((acc, card) => acc + card.value, 0));
-        ////console.log("playerHandSum", playerHandSums)
+        console.log("playerHandSum", playerHandSums)
         ////console.log("PlayerHand", PlayerHand)
         // ////console.log("setDealerHandSumState1", dealerHandSum)
         // setDealerHandSumState(dealerHandSum);
 
-
         // If dealerHandSum > 21, go through all As and reduce to one 1 until the hand is <=21 or when all As are 1
-        PlayerHand.map(hand => {
-            if ((playerHandSums[PlayerHandIndex] > 21 && hand.cards.some(card => card.value == 11)) || (playerHandSums[PlayerHandIndex] <= 11 && hand.cards.some(card => card.value == 1))) {
+        PlayerHand.map((hand, handIndex) => {
+            if ((playerHandSums[handIndex] > 21 && hand.cards.some(card => card.value == 11)) || (playerHandSums[handIndex] <= 11 && hand.cards.some(card => card.value == 1))) {
                 const hand_copy = [...hand.cards]
-                ////console.log("in conditional", ((hand.sum > 21 && hand.cards.some(card => card.value == 11)) || (hand.sum <= 11 && hand.cards.some(card => card.value == 1))))
+                console.log("in conditional", ((playerHandSums[handIndex] > 21 && hand.cards.some(card => card.value == 11) || (playerHandSums[handIndex] <= 11 && hand.cards.some(card => card.value == 1)))))
+                console.log("index", handIndex)
+                console.log("hand_copy", hand_copy)
                 for (let [index, card] of hand_copy.entries()) {
                     // ////console.log(`playerHandSum index ${index} -`, playerHandSums)
-                    if (card.display === 'A' && card.value === 11 && playerHandSums[PlayerHandIndex] > 21) {
+                    if (card.display === 'A' && card.value === 11 && playerHandSums[handIndex] > 21) {
                         hand_copy[index].value = 1
                         ////console.log("changing A from 11 to 1")
-                    } else if (card.display === 'A' && card.value === 1 && playerHandSums[PlayerHandIndex] <= 21) {
+                    } else if (card.display === 'A' && card.value === 1 && playerHandSums[handIndex] <= 21) {
                         hand_copy[index].value = 11
                         ////console.log("changing A from 1 to 11")
                     }
-                    playerHandSums[PlayerHandIndex] = hand_copy.reduce((acc, card) => acc + card.value, 0);
+                    playerHandSums[handIndex] = hand_copy.reduce((acc, card) => acc + card.value, 0);
 
                 }
 
@@ -1169,14 +1182,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                     // })
                     // const updatedHand = [...PlayerHand]
                     // updatedHand[PlayerHandIndex].cards = hand_copy
-                    // ////console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
                     // setPlayerHand(updatedHand)
 
                     setPlayerHand(currentHand => {
                         const updatedHand = [...currentHand]
-                        updatedHand[PlayerHandIndex].cards = hand_copy
-                        updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
-                        // ////console.log("setPlayerHand1", playerHandSums[PlayerHandIndex])
+                        updatedHand[handIndex].cards = hand_copy
+                        updatedHand[handIndex].sum = playerHandSums[handIndex]
+                        console.log("setPlayerHand1", playerHandSums[handIndex])
                         return updatedHand
                     })
 
@@ -1189,7 +1201,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         setPlayerHand(currentHand => {
             const updatedHand = [...currentHand]
             updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
-            // ////console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
+            console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
             return updatedHand
         })
 
@@ -1378,12 +1390,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         } else if (GameState == 'IN PLAY') {
             revealPlayerCards()
             //console.log("-------inside useEffect dep [GameState]")
+            console.log("BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay", BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay)
             revealDealerCard(0)
             if (BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
-                setDoubleDownDisabled(true)
+                setDoubleDownDisabled(true) //BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay
                 setSplitDisabled(true)
             } else {
-                setDoubleDownDisabled(false)
+                setDoubleDownDisabled(false) //BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay
                 if (PlayerHand[PlayerHandIndex].cards.length
                     && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display)) {
                     setSplitDisabled(false)
@@ -1499,11 +1512,27 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
         if (BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
             setSplitDisabled(true)
-            setDoubleDownDisabled(true)
+            setDoubleDownDisabled(true) //BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay
         }
 
-
     }, [BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay])
+
+
+    useEffect(() => {
+        // Set the action suggestion
+        if (PlayerHand[PlayerHandIndex].cards && PlayerHand[PlayerHandIndex].cards.every(card => card.visible) && DealerHand[0]) {
+            const action = cheatSheetDataLogic(PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+            console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+            console.log("CorrectAction", action)
+            setCorrectAction(action)
+        }
+    }, [doubleDownDisabled, splitDisabled, PlayerHand[PlayerHandIndex].cards])
+
+    useEffect(() => {
+        // Set the action suggestion
+        console.log("CorrectAction Changed", CorrectAction)
+    }, [CorrectAction])
+
 
     const splitCardsContainer = useRef<HTMLDivElement>(null);
     const [CardShift, setCardShift] = useState<number[]>([])
@@ -1761,7 +1790,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-neutral ${!["SPLIT/HIT", "SPLIT/STAND"].includes(CorrectAction!) && TrainingMode && SplitButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-neutral ${!(["SPLIT/HIT", "SPLIT/STAND"].includes(CorrectAction!)) && TrainingMode && SplitButtonPressed ? 'animate-shake' : ''}`}
                     onClick={handleClickSplit}
                     disabled={splitDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1901,7 +1930,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             switch (GameState) {
                 case 'PLACING BET':
                     return TrainingMode && CardCountingMode ? <PlaceBetsTraining/> : <PlaceBets/>
-                // return <CountQuiz Count={RunningCount} handleClickCorrectAnswer={()=>setGameState("PLACING BET")} handleClickWrongAnswer={()=>{}}/>
+
+                // return <PlaceBets/>
 
                 case 'IN PLAY' :
                     return <ActionButtons/>
@@ -2282,7 +2312,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                                         // style={{transform: `translateX(-${GameState == 'PLACING BET' ? (0) : (CardShift)}px)`}}
                                     >
                                         <div className="flex flex-col space-y-4">
-                                            {((BalanceAmount + TotalBetDisplay) != 0 || !["GAME OVER", "HOUSE WINS", "PLAYER BUST",].includes(GameState)) && !TrainingMode &&
+                                            {((BalanceAmount + TotalBetDisplay) != 0 || !["GAME OVER", "HOUSE WINS", "PLAYER BUST",].includes(GameState)) &&
+                                            // !TrainingMode &&
+                                            !CardCountingMode &&
                                             <div className="flex flex-col items-center pt-0 space-y-4">
                                                 <div className="flex flex-row h-1">
                                                     {renderBabyChips(getBetBabyChips(hand.betDisplay))}
