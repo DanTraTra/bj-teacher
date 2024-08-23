@@ -138,7 +138,7 @@ const PerformanceGraph: React.FC<PerformanceGraphProps> = ({game_log_data, dark_
         return (
 
             <div
-                className="flex flex-row justify-center items-center px-4">
+                className="flex flex-row justify-center items-center px-2">
                 <Line data={data} options={options}/>
             </div>
 

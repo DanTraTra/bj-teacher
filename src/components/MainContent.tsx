@@ -1744,7 +1744,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
 
     const ActionButtons = () => {
-        return <div className="flex flex-row space-x-4 text-white px-4">
+        return <div className="flex flex-row space-x-4 text-white px-8">
             <div className="flex flex-col items-center space-y-2">
                 <button
                     className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && TrainingMode && DDButtonPressed ? 'animate-shake' : ''}`}
@@ -2274,14 +2274,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                             {/*    className={`absolute inset-y-0 -right-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>*/}
 
                             <div
-                                className={`absolute inset-y-0 left-0 right-0 w-auto rounded-lg  ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}/>
+                                className={`absolute inset-y-0 left-0 right-0 w-auto rounded-lg  ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}/>
 
 
                             <div
                                 className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
                                 // ref={scrollContainerRef}
                             >
-                                <div className="flex px-4 z-10">
+                                <div className="flex px-0 z-10">
                                     {renderDisplayBar(GameState)}
                                 </div>
                             </div>

@@ -92,9 +92,9 @@ const OutCome: React.FC<Props> = ({
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
 
     return (
-        <div className="flex-col items-center justify-center mx-auto space-y-2">
+        <div className="flex flex-col items-center justify-center mx-auto space-y-2">
 
-            <div className="flex items-center justify-center text-white font-bold w-64">{GameState}</div>
+            <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
             {(() => {
                 if (!TrainingMode) {
                     if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
