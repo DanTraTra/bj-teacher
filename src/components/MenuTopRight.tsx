@@ -75,6 +75,7 @@ import React, {forwardRef} from "react";
 import {IoStatsChart} from "react-icons/io5";
 import {FaCheck} from "react-icons/fa6";
 import {AiOutlineDown, AiOutlineLeft} from "react-icons/ai";
+import {FaAngleDown} from "react-icons/fa";
 
 export interface MenuTopRightProps {
     buttons: {
@@ -98,18 +99,18 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                     <tr key={index}>
                         <td className="py-0" colSpan={2}>
                             <button
-                                className={`btn btn-md flex flex-row w-52 h-full py-4 pl-3 pr-4 rounded-none 
+                                className={`btn  btn-md flex flex-row w-52 h-full py-4 pl-3 pr-4 rounded-none 
                                     ${index === 0 ? "rounded-t-lg border-t-0 border-x-0 border-b-grey" : "border-0"} 
                                     ${index === buttons.length - 1 ? "rounded-b-lg" : ""}
-                                    `}
+                                    active:bg-gray-100`}
                                 onClick={button.onClick}
                             >
-                                <div className="flex flex-row w-full justify-between space-x-2 items-center">
+                                <div className="flex flex-row w-full justify-between space-x-2 items-end">
                                     <div className="flex flex-row h-full justify-between space-x-2">
                                         <div className="flex flex-col justify-start h-full">{button.icon}</div>
                                         <div className={`${index==0 ? "mt-1.5" : "my-0.5"} `}>{button.label}</div>
                                     </div>
-                                    {(button.isChecked && index !=0) ? <FaCheck size={16} fill={icon_fill}/> : index == 0 && button.isChecked ? <AiOutlineLeft/> :  index == 0 ? <AiOutlineDown/> : <></>}
+                                    {(button.isChecked && index !=0) ? <FaCheck size={16} fill={icon_fill}/> : index == 0 && button.isChecked ? <AiOutlineLeft/> :  index == 0 ? <FaAngleDown/> : <></>}
                                 </div>
                             </button>
                         </td>

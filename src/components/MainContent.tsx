@@ -61,7 +61,7 @@ import CardCountingLog, {CountLogEntry} from "./CountLog";
 import {LuHistory} from "react-icons/lu";
 import CountQuiz from "./CountQuiz";
 import WarningBanner from "./Warning";
-import {FaAngleDown} from "react-icons/fa";
+import {FaAngleDown, FaAngleLeft} from "react-icons/fa";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -2091,7 +2091,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const GameStats = ():React.ReactElement => {
         console.log("GlobalDeck", GlobalDeck)
         return (<div className="flex flex-col justify-start items-start">
-                <div className="flex flex-row items-center justify-between w-full"><div>Game Stats</div><div><FaAngleDown/></div></div>
+                <div className="flex flex-row items-center justify-between w-full"><div>Game Stats</div><div><FaAngleLeft/></div></div>
                 <div className="flex flex-row w-[185px] h-[1px] bg-gray-600 -ml-7 mt-2 mb-3 rounded"/>
                 <div className="flex flex-col font-normal justify-center items-start space-y-2 text-gray-600 -ml-6">
                     <div>Deck Count: {DeckCount}</div>
