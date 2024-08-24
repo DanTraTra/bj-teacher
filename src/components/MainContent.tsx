@@ -40,7 +40,7 @@ import CheatSheet, {Action, cheatSheetDataLogic} from "./CheatSheet";
 import SwipeablePager from "./SwipeablePager";
 import {
     AiFillCalculator,
-    AiOutlineCalculator, AiOutlineCheck,
+    AiOutlineCalculator, AiOutlineCheck, AiOutlineDown,
     AiOutlineMenu,
     AiOutlineMore,
     AiOutlineQuestionCircle
@@ -60,6 +60,8 @@ import {BsFire} from "react-icons/bs";
 import CardCountingLog, {CountLogEntry} from "./CountLog";
 import {LuHistory} from "react-icons/lu";
 import CountQuiz from "./CountQuiz";
+import WarningBanner from "./Warning";
+import {FaAngleDown} from "react-icons/fa";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -302,15 +304,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const allTestCases: TestDeck[] = [
         {
-            PlayerHand: [1, 1],
-            DealerHand: [4, 10],
+            PlayerHand: [1, 6],
+            DealerHand: [4, 4],
             Deck: null,
             Outcome: "PLAYER BUST",
         }
         , {
             PlayerHand: [4, 4],
-            DealerHand: [3, 10],
-            Deck: [10, 8, 10, 8, 2, 5, 3, 4, 2],
+            DealerHand: [7, 10],
+            Deck: [10, 8, 7, 8, 2, 5, 3, 4, 2],
             Outcome: "PLAYER BUST",
         }
         , {
@@ -696,7 +698,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }
 
     useEffect(() => {
-        ////console.log("GameLog changing to:", GameLog)
+        // console.log("GameLog changing to:", GameLog)
     }, [GameLog])
 
     useEffect(() => {
@@ -714,9 +716,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         ////console.log("CLICKED CashOutEarly")
 
         if (!["IN PLAY"].includes(GameState)) {
-            handleClickCashOut()
-            toTraining ? setGoToTrainingMode(true) : setGoToTrainingMode(false)
+            if (GameLog.length) {
+                handleClickCashOut()
+                toTraining ? setGoToTrainingMode(true) : setGoToTrainingMode(false)
+            } else {
+                toTraining ? setTrainingMode(true) : changeScreenTo("START")
+            }
             setMenuOpen(false)
+        } else {
+            showWarning()
         }
     }
     const [CashOutDisabled, setCashOutDisabled] = useState(false);
@@ -848,10 +856,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     const handleBabyChipClick = (amount: number) => {
         ////console.log(`Baby Chip Clicked - removed ${amount} from BetAmountState`)
 
-        const updatedBabyChipClickPlayerHand = [...PlayerHand]
-        updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay - amount
-        setPlayerHand(updatedBabyChipClickPlayerHand)
-        setBalanceAmount(currentValue => currentValue + amount) //baby chip click decrease
+        // const updatedBabyChipClickPlayerHand = [...PlayerHand]
+        // updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay - amount
+        // setPlayerHand(updatedBabyChipClickPlayerHand)
+        // setBalanceAmount(currentValue => currentValue + amount) //baby chip click decrease
 
 
     }
@@ -1059,6 +1067,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
         if (TrainingMode) {
             setBalanceAmount(Infinity)
             setStreakAmount(0)
+            setCheatSheetVisible(true)
+            changeScreenTo("TRAIN")
             if (CardCountingMode) {
                 console.log("setDeckCount(1)")
                 setDeckCount(1)
@@ -1071,8 +1081,16 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             }
         } else {
             setCardCountingMode(false)
+            setCheatSheetVisible(false)
+            changeScreenTo("PLAY")
+            const updatedBabyChipClickPlayerHand = [...PlayerHand]
+            updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = 0
+            setPlayerHand(updatedBabyChipClickPlayerHand)
+
             console.log("handleClickStartOver(6)B")
             handleClickStartOver(6)
+            setUpGame()
+
         }
         if (!randomOn) {
             handleClickTestCase(0)
@@ -1286,13 +1304,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
     }, [DealerTurnEnded, PlayerHandIndex])
 
     useEffect(() => {
-        if (DealerTurnEnded && (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) && GameState != "GAME OVER") {
+        // console.log("--------Inside useEffect [DealerTurnEnded, GameState]")
+        // console.log("DealerTurnEnded", DealerTurnEnded)
+        // console.log("PlayerHandIndex", PlayerHandIndex)
+        // console.log("GameState", GameState)
+
+        if (DealerTurnEnded && (PlayerHandIndex == 0 && PlayerHand.length && HANDOVER.includes(GameState)) && GameState != "GAME OVER") {
             console.log("Updating Game Log")
             setTimeout(() => {
                 updateGameLog()
             }, 0)
         }
-    }, [DealerTurnEnded, GameState])
+    }, [DealerTurnEnded, PlayerHandIndex, GameState])
 
     useEffect(() => {
         ////console.log("--------inside useEffect dep [PlayerStand, GameState, DealerHand.every((card) => card.visible)]")
@@ -1872,15 +1895,21 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
                     </form>
                     <div className="flex flex-row w-full justify-between px-5 text-white font-tech items-center">
+                        <div className="flex justify-end text-white font-tech space-x-1 items-center"
+                             onClick={handleClickBack}>
+                            <IoArrowBack fill="white" size="18"/>
+                            <span>Back</span>
+                        </div>
+
                         {
                             GoToTrainingMode ?
                                 <div className="flex justify-end text-white font-tech space-x-1.5 items-center"
                                      onClick={() => {
-                                         setTrainingMode(currentState => !currentState)
-                                         // setTrainingMode(true)
+                                         // setTrainingMode(currentState => !currentState)
+                                         setTrainingMode(true)
                                      }}>
                                     <FaDumbbell fill="white" size="18"/>
-                                    <span>Start Training</span>
+                                    <span>Start</span>
                                 </div>
                                 :
                                 <div className="flex justify-end text-white font-tech space-x-1 items-center"
@@ -1889,11 +1918,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
                                     <span>Exit</span>
                                 </div>
                         }
-                        <div className="flex justify-end text-white font-tech space-x-1 items-center"
-                             onClick={handleClickBack}>
-                            <IoArrowBack fill="white" size="18"/>
-                            <span>Back</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -2064,18 +2088,32 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     }
 
+    const GameStats = ():React.ReactElement => {
+        console.log("GlobalDeck", GlobalDeck)
+        return (<div className="flex flex-col justify-start items-start">
+                <div className="flex flex-row items-center justify-between w-full"><div>Game Stats</div><div><FaAngleDown/></div></div>
+                <div className="flex flex-row w-[185px] h-[1px] bg-gray-600 -ml-7 mt-2 mb-3 rounded"/>
+                <div className="flex flex-col font-normal justify-center items-start space-y-2 text-gray-600 -ml-6">
+                    <div>Deck Count: {DeckCount}</div>
+                    <div>Cards Left: {GlobalDeck.length}/{DeckCount*52}</div>
+                    <div>Win-Loss: {GameLog.filter(game=>game.PlayerCards.some(card=>card.winMultiplier > 1)).length}-{GameLog.filter(game=>game.PlayerCards.some(card=>card.winMultiplier < 1)).length}</div>
+                    <div>Hands Played: {GameLog.length}</div>
+                </div>
+            </div>
+        )
+    }
     const trainMenuButtons = [
         {
-            label: "Game Stats",
+            label: GameStatsOpen ? GameStats() : "Game Stats",
             icon: <IoStatsChart size={18} fill="gray-800"/>,
-            onClick: () => setGameStatsOpen(true),
-            isChecked: false,
+            onClick: () => setGameStatsOpen(currentState => !currentState),
+            isChecked: GameStatsOpen,
         },
         {
             label: "Training Mode",
             icon: <FaDumbbell size={18} fill="gray-800"/>,
             onClick: () => {
-                setTrainingMode(currentState => !currentState)
+                setTrainingMode(false)
                 setMenuOpen(false)
             },
             isChecked: TrainingMode,
@@ -2102,10 +2140,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
 
     const playMenuButtons = [
         {
-            label: "Game Stats",
+            label: GameStatsOpen ? GameStats() : "Game Stats",
             icon: <IoStatsChart size={18} fill="gray-800"/>,
-            onClick: () => setGameStatsOpen(true),
-            isChecked: false,
+            onClick: () => setGameStatsOpen(currentState => !currentState),
+            isChecked: GameStatsOpen,
         },
         {
             label: "Training Mode",
@@ -2114,37 +2152,25 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode})
             isChecked: TrainingMode,
         },
         {
-            label: "Cash Out",
+            label: GameLog.length ? "Cash Out":"Exit",
             icon: <MdExitToApp size={18} fill="gray-800"/>,
             onClick: () => handleClickCashOutEarly(false),
             isChecked: false,
         },
     ];
 
-    const playMenuButtonsWrongGameState = [
-        {
-            label: "Game Stats",
-            icon: <IoStatsChart size={18} fill="gray-800"/>,
-            onClick: () => setGameStatsOpen(true),
-            isChecked: false,
-        },
-        {
-            label: "Training Mode",
-            icon: <FaDumbbell size={18} fill="gray-800"/>,
-            onClick: () => handleClickCashOutEarly(true),
-            isChecked: TrainingMode,
-        },
-        {
-            label: "Finish this round first!",
-            icon: <MdExitToApp size={18} fill="gray-800"/>,
-            onClick: () => handleClickCashOutEarly(false),
-            isChecked: false,
-        },
-    ];
+    const [WarningVisible, setWarningVisible] = useState(false)
+    const showWarning = () => {
+        setWarningVisible(true);
+        setTimeout(() => {
+            setWarningVisible(false);
+        }, 1000); // Keep the warning visible for 1 second
+    };
 
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <div className="overflow-hidden">
+            <div className="absolute z-30"><WarningBanner visible={WarningVisible}/></div>
             <div ref={menuRef}
                  className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6 z-20">
                 <div>
