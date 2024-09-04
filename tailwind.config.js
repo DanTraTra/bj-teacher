@@ -36,7 +36,8 @@ export default {
             filter: ['hover', 'focus'],
 
             animation: {
-                shake: 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both'
+                shake: 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+                'arm-wave': 'wave 2s ease-in-out infinite',
             },
             keyframes: {
                 shake: {
@@ -44,8 +45,14 @@ export default {
                     '20%, 80%': {transform: 'translate3d(2px, 0, 0)'},
                     '30%, 50%, 70%': {transform: 'translate3d(-4px, 0, 0)'},
                     '40%, 60%': {transform: 'translate3d(4px, 0, 0)'}
-                }
-            }
+                },
+                wave: {
+                    '0%, 100%': {transform: 'rotate(0deg)'},
+                    '50%': {transform: 'rotate(10deg)'},
+                },
+
+            },
+
         },
     },
     daisyui: {

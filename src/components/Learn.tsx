@@ -77,7 +77,6 @@ interface UserNameProps {
 interface MainContentProps {
     changeScreenTo: (screen: Screens) => void;
     trainingMode: boolean;
-    tutorialMode: boolean;
 }
 
 export type GameOutComeType =
@@ -159,7 +158,7 @@ export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
     return deck
 }
 
-const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, tutorialMode}) => {
+const Tutorial: React.FC<MainContentProps> = ({changeScreenTo, trainingMode}) => {
 
     const initialBalance = trainingMode ? Infinity : 20
 
@@ -247,7 +246,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     const [CheatSheetVisible, setCheatSheetVisible] = useState<boolean>(trainingMode);
     const [CheatSheetPeak, setCheatSheetPeak] = useState<boolean>(false);
     const [TrainingMode, setTrainingMode] = useState<boolean>(trainingMode);
-    const [TutorialMode, setTutorialMode] = useState<boolean>(tutorialMode);
     const [CardCountingMode, setCardCountingMode] = useState<boolean>(false);
 
     const [ShowBetSuggestion, setShowBetSuggestion] = useState<boolean>(false);
@@ -1100,7 +1098,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                 setDeckCount(6)
                 handleClickStartOver(6)
             }
-        } else if (!TutorialMode) {
+        } else {
             setCardCountingMode(false)
             setCheatSheetVisible(false)
             changeScreenTo("PLAY")
@@ -1116,7 +1114,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         if (!randomOn) {
             handleClickTestCase(0)
         }
-    }, [TrainingMode, TutorialMode])
+    }, [TrainingMode])
 
     useEffect(() => {
         // revealPlayerCards()
@@ -1729,7 +1727,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }
     const PlaceBets = () => {
         return (
-            <div className="flex flex-row space-x-2 pl-20">
+            <div className="flex flex-row space-x-2 z-20 pl-20">
                 {randomOn ?
                     <>
                         <button className={chipClass} onClick={() => handleClickChip(1)}>
@@ -2208,7 +2206,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         <div className="overflow-hidden">
             <div className="absolute z-30"><WarningBanner visible={WarningVisible}/></div>
             <div ref={menuRef}
-                 className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6">
+                 className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6 z-20">
                 <div>
                     <div className="flex flex-row justify-end space-x-1">
 
@@ -2343,7 +2341,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                 className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
                                 // ref={scrollContainerRef}
                             >
-                                <div className="flex px-0 z-0">
+                                <div className="flex px-0 z-10">
                                     {renderDisplayBar(GameState)}
                                 </div>
                             </div>
@@ -2468,4 +2466,4 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         </div>);
 };
 
-export default MainContent;
+export default Tutorial;

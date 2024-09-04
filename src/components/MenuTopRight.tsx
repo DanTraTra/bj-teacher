@@ -75,7 +75,7 @@ import React, {forwardRef} from "react";
 import {IoStatsChart} from "react-icons/io5";
 import {FaCheck} from "react-icons/fa6";
 import {AiOutlineDown, AiOutlineLeft} from "react-icons/ai";
-import {FaAngleDown} from "react-icons/fa";
+import {FaAngleDown, FaAngleLeft} from "react-icons/fa";
 
 export interface MenuTopRightProps {
     buttons: {
@@ -110,7 +110,7 @@ const MenuTopRight = forwardRef<HTMLDivElement, MenuTopRightProps>((props, ref) 
                                         <div className="flex flex-col justify-start h-full">{button.icon}</div>
                                         <div className={`${index==0 ? "mt-1.5" : "my-0.5"} `}>{button.label}</div>
                                     </div>
-                                    {(button.isChecked && index !=0) ? <FaCheck size={16} fill={icon_fill}/> : index == 0 && button.isChecked ? <AiOutlineLeft/> :  index == 0 ? <FaAngleDown/> : <></>}
+                                    {(button.isChecked && index !=0) ? <FaCheck size={16} fill={icon_fill}/> : index == 0 && button.isChecked ? <AiOutlineLeft/> :  index == 0 ? <FaAngleLeft/> : <></>}
                                 </div>
                             </button>
                         </td>

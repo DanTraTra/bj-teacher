@@ -6,6 +6,7 @@ import {Screens} from "../App";
 interface Props {
     PlayerHand: PlayerHandProps[];
     PlayerHandIndex: number;
+    ChipAnimationOver: boolean;
     TrainingMode: boolean;
     GameState: GameOutComeType;
     BalanceAmount: number;
@@ -21,6 +22,7 @@ interface Props {
 const OutCome: React.FC<Props> = ({
                                       PlayerHand,
                                       PlayerHandIndex,
+                                      ChipAnimationOver,
                                       TrainingMode,
                                       GameState,
                                       BalanceAmount,
@@ -84,10 +86,10 @@ const OutCome: React.FC<Props> = ({
     const isGameOver = ["GAME OVER", "HOUSE WINS"].includes(GameState) && BalanceAmount + PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0) === 0;
 
     useEffect(() => {
-        if (TrainingMode && PlayerHandIndex === 0) {
-            setTimeout(handleClickKeepGoing, dealerAnimationTime);
+        if (TrainingMode && ChipAnimationOver) {
+            setTimeout(handleClickKeepGoing, animationTime/2);
         }
-    }, [TrainingMode, PlayerHandIndex]);
+    }, [ChipAnimationOver]);
 
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
 
