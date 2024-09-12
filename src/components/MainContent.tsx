@@ -62,6 +62,7 @@ import {LuHistory} from "react-icons/lu";
 import CountQuiz from "./CountQuiz";
 import WarningBanner from "./Warning";
 import {FaAngleDown, FaAngleLeft} from "react-icons/fa";
+import Tutorial from "./Tutorial";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -77,7 +78,8 @@ interface UserNameProps {
 interface MainContentProps {
     changeScreenTo: (screen: Screens) => void;
     trainingMode: boolean;
-    tutorialMode: boolean;
+    TutorialState: number;
+    setTutorialState: (arg0: number) => void;
 }
 
 export type GameOutComeType =
@@ -138,6 +140,12 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
     return deck
 }
 
+export const initializeTutorialDeck = (): CardProps[] => {
+    // console.log("tutorial deck")
+    return initializeSpecificHand([5, 2, 6, 4, 9, 6, 7, 1, 12, 1, 6, 13, 11, 4, 2, 3])
+}
+
+
 export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
     const deck: CardProps[] = []
 
@@ -159,11 +167,11 @@ export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
     return deck
 }
 
-const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, tutorialMode}) => {
+const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, TutorialState, setTutorialState}) => {
 
     const initialBalance = trainingMode ? Infinity : 20
 
-    // const [UserName, setUserName] = useState('');
+    // const [UserName, setUserName] = useState('');xx
     const testHasRun = useRef(false); // Ref to track if the test has run
 
     const [BalanceAmount, setBalanceAmount] = useState<number>(initialBalance);
@@ -247,7 +255,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     const [CheatSheetVisible, setCheatSheetVisible] = useState<boolean>(trainingMode);
     const [CheatSheetPeak, setCheatSheetPeak] = useState<boolean>(false);
     const [TrainingMode, setTrainingMode] = useState<boolean>(trainingMode);
-    const [TutorialMode, setTutorialMode] = useState<boolean>(tutorialMode);
+    // const [TutorialState, setTutorialState] = useState<number>(tutorialMode)
     const [CardCountingMode, setCardCountingMode] = useState<boolean>(false);
 
     const [ShowBetSuggestion, setShowBetSuggestion] = useState<boolean>(false);
@@ -283,6 +291,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     };
 
 
+    // useEffect(() => { setTutorialState(tutorialMode)}, [tutorialMode])
     useEffect(() => {
         setTrainingMode(trainingMode)
         console.log(trainingMode)
@@ -371,7 +380,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     type TestDeck = { PlayerHand: number[], DealerHand: number[], Deck: number[] | null, Outcome: GameOutComeType }
 
     const [deckUpdated, setDeckUpdated] = useState(false)
-    const [GlobalDeck, setGlobalDeck] = useState<CardProps[]>(initializeDeck(DeckCount));
+    const [GlobalDeck, setGlobalDeck] = useState<CardProps[]>(TutorialState >= 0 ? initializeTutorialDeck() : initializeDeck(DeckCount));
+    // const [GlobalDeck, setGlobalDeck] = useState<CardProps[]>(initializeTutorialDeck());
     const [isDeckSet, setIsDeckSet] = useState(false);
 
     const deckRef = useRef(GlobalDeck);
@@ -401,6 +411,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
 
     const getCardFromDeck = (visible: boolean, random: boolean): CardProps => {
+        // console.log("getCardFromDeck random", random)
         let currentDeck = deckRef.current;
         const indices = Object.keys(currentDeck);
         if (indices.length === 0) {
@@ -408,20 +419,22 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         }
 
         const index = random ? Math.floor(Math.random() * indices.length) : 0;
+        console.log("index", index)
         const card = {...currentDeck[index], visible};
 
         currentDeck = currentDeck.filter((_, i) => i !== index);
         deckRef.current = currentDeck;
         setGlobalDeck(currentDeck);
 
-        ////console.log("remaining deck", currentDeck);
-        ////console.log("got card", card);
+        console.log("remaining deck", currentDeck);
+        console.log("got card", card);
 
         return card;
     };
 
     const addRandomCardToDealerHand = () => {
-        const newCard = getCardFromDeck(false, randomOn);
+        console.log(`random card - ${randomOn && ![6, 7].includes(TutorialState)}`)
+        const newCard = getCardFromDeck(false, randomOn && ![6].includes(TutorialState));
         const newDealerHand = [...DealerHand, newCard];
         //console.log("addRandomCardToDealerHand")
         setDealerHand(newDealerHand)
@@ -523,18 +536,21 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
             // Add random card to player hand
-            const random_card_hit = getCardFromDeck(false, randomOn)
+            const random_card_hit = getCardFromDeck(false, randomOn && TutorialState < 0)
             // setPlayerHand(currentHand => [...currentHand, random_card]);
             const updatedHitHand = [...PlayerHand]
             updatedHitHand[PlayerHandIndex].cards = [...updatedHitHand[PlayerHandIndex].cards, random_card_hit]
 
-            console.log("PlayerHandIndex", PlayerHandIndex)
-            console.log("updatedHitHand[PlayerHandIndex]", updatedHitHand[PlayerHandIndex])
+            // console.log("PlayerHandIndex", PlayerHandIndex)
+            // console.log("updatedHitHand[PlayerHandIndex]", updatedHitHand[PlayerHandIndex])
             setPlayerHand(updatedHitHand);
             // revealPlayerCards()
 
             setTimeout(() => {
                 revealPlayerCards()
+                if (TutorialState === 4) {
+                    setTutorialState(TutorialState + 1)
+                }
             }, animationTime)
 
             setTimeout(() => {
@@ -569,6 +585,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             if (PlayerHandIndex == PlayerHand.length - 1) {
                 setPlayerStand(true)
                 revealDealerCard(1)
+                if (TutorialState == 5) {
+                    setTutorialState(TutorialState + 1)
+                }
                 console.log("updatingCount - dealerhand2")
 
             } else if (PlayerHand.length > 1) {
@@ -686,7 +705,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     const [StartOverDisabled, setStartOverDisabled] = useState(false);
     const handleClickStartOver = (deckCount: number) => {
-        const newDeck = initializeDeck(deckCount)
+        const newDeck = TutorialState >= 0 ? initializeTutorialDeck() : initializeDeck(DeckCount)
         setGlobalDeck(newDeck)
         setIsDeckSet(true); // Indicate that the deck has been set
         setBalanceAmount(initialBalance)
@@ -858,11 +877,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     const handleClickChip = (amount: number) => {
         ////console.log(`Chip Clicked - added ${amount} to BetAmountState`)
         if ((amount <= BalanceAmount) || (TrainingMode && !CardCountingMode)) {
-
             const updatedChipClickPlayerHand = [...PlayerHand]
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += amount
             setPlayerHand(updatedChipClickPlayerHand)
             setBalanceAmount(currentValue => currentValue - amount) //Chip click increase
+            if (TutorialState === 2) {
+                setTutorialState(TutorialState + 1)
+            }
+
         } else if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0) < 1 && !TrainingMode && !CardCountingMode) {
             const updatedChipClickPlayerHand = [...PlayerHand]
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += 1
@@ -887,6 +909,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         event.preventDefault();
         ////console.log("Pressed place bet")
         setGameState('IN PLAY')
+        if (TutorialState === 3) {
+            setTutorialState(TutorialState + 1)
+        }
     }
 
     const handleClickResetBet = () => {
@@ -977,11 +1002,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             count = 6
             setCountLogState([{value: '', change: 0, countNow: 0}])
         }
-        console.log("deckCount", count)
+        // console.log("deckCount", count)
         setDeckCount(count)
+        console.log("starting over1")
         handleClickStartOver(count)
 
-        console.log("CardCountingMode", CardCountingMode)
+        // console.log("CardCountingMode", CardCountingMode)
     }, [CardCountingMode])
 
     const setUpGame = () => {
@@ -992,7 +1018,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
         // console.log("Setting Up Game")
         // console.log("PlayerHand[PlayerHandIndex].betDisplay", PlayerHand[PlayerHandIndex].betDisplay)
-        if (GlobalDeck.length < (DeckCount * 26) && randomOn) {
+        if (GlobalDeck.length < (DeckCount * 26) && randomOn && (TutorialState < 0)) {
+            console.log("Needs Shuffling")
             setNeedsShuffling(true)
         }
 
@@ -1029,15 +1056,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
         // const [random_player_card_1, random_dealer_card_1, random_player_card_2, random_dealer_card_2] = drawInitialCards(4, false, randomOn);
 
-        const random_player_card_1 = getCardFromDeck(false, randomOn)
-        const random_dealer_card_1 = getCardFromDeck(false, randomOn)
-        const random_player_card_2 = getCardFromDeck(false, randomOn)
-        const random_dealer_card_2 = getCardFromDeck(false, randomOn)
+        const random_player_card_1 = getCardFromDeck(false, randomOn && TutorialState < 0)
+        const random_dealer_card_1 = getCardFromDeck(false, randomOn && TutorialState < 0)
+        const random_player_card_2 = getCardFromDeck(false, randomOn && TutorialState < 0)
+        const random_dealer_card_2 = getCardFromDeck(false, randomOn && TutorialState < 0)
 
-        ////console.log("random_player_card_1", random_player_card_1);
-        ////console.log("random_dealer_card_1", random_dealer_card_1);
-        ////console.log("random_player_card_2", random_player_card_2);
-        ////console.log("random_dealer_card_2", random_dealer_card_2);
+        // console.log("random_player_card_1", random_player_card_1);
+        // console.log("random_dealer_card_1", random_dealer_card_1);
+        // console.log("random_player_card_2", random_player_card_2);
+        // console.log("random_dealer_card_2", random_dealer_card_2);
 
         // Create an addToDeck function
         const firstHand: PlayerHandProps = {
@@ -1080,7 +1107,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }
 
     useEffect(() => {
-        setUpGame()
+        if (GameCount) {
+            setUpGame()
+        }
         ////console.log("----------- Game count changing to:", GameCount)
     }, [GameCount])
 
@@ -1091,16 +1120,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             setCheatSheetVisible(true)
             changeScreenTo("TRAIN")
             if (CardCountingMode) {
-                console.log("setDeckCount(1)")
                 setDeckCount(1)
+                console.log("starting over2")
+
                 handleClickStartOver(1)
 
             } else {
-                console.log("setDeckCount(6)A")
                 setDeckCount(6)
+                console.log("starting over3")
+
                 handleClickStartOver(6)
             }
-        } else if (!TutorialMode) {
+        } else if (TutorialState < 0) {
             setCardCountingMode(false)
             setCheatSheetVisible(false)
             changeScreenTo("PLAY")
@@ -1108,7 +1139,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = 0
             setPlayerHand(updatedBabyChipClickPlayerHand)
 
-            console.log("handleClickStartOver(6)B")
+            console.log("starting over4")
             handleClickStartOver(6)
             setUpGame()
 
@@ -1116,7 +1147,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         if (!randomOn) {
             handleClickTestCase(0)
         }
-    }, [TrainingMode, TutorialMode])
+    }, [TrainingMode, TutorialState])
 
     useEffect(() => {
         // revealPlayerCards()
@@ -1186,9 +1217,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }, [PlayerStand])
 
     useEffect(() => {
-        console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
+        // console.log("----------- inside useEffect dep [PlayerHand[PlayerHandIndex].cards]")
         let playerHandSums = PlayerHand.map(hand => hand.cards.reduce((acc, card) => acc + card.value, 0));
-        console.log("playerHandSum", playerHandSums)
+        // console.log("playerHandSum", playerHandSums)
         ////console.log("PlayerHand", PlayerHand)
         // ////console.log("setDealerHandSumState1", dealerHandSum)
         // setDealerHandSumState(dealerHandSum);
@@ -1227,7 +1258,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         const updatedHand = [...currentHand]
                         updatedHand[handIndex].cards = hand_copy
                         updatedHand[handIndex].sum = playerHandSums[handIndex]
-                        console.log("setPlayerHand1", playerHandSums[handIndex])
+                        // console.log("setPlayerHand1", playerHandSums[handIndex])
                         return updatedHand
                     })
 
@@ -1240,7 +1271,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         setPlayerHand(currentHand => {
             const updatedHand = [...currentHand]
             updatedHand[PlayerHandIndex].sum = playerHandSums[PlayerHandIndex]
-            console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
+            // console.log("setPlayerHand2", updatedHand[PlayerHandIndex])
             return updatedHand
         })
 
@@ -1729,7 +1760,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }
     const PlaceBets = () => {
         return (
-            <div className="flex flex-row space-x-2 pl-20">
+            <div className={`flex flex-row space-x-2 pl-20`}>
                 {randomOn ?
                     <>
                         <button className={chipClass} onClick={() => handleClickChip(1)}>
@@ -2163,7 +2194,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         {
             label: "Card Counting",
             icon: <PiMathOperationsFill size={18} fill="gray-800"/>,
-            onClick: () => setCardCountingMode(currentState => !currentState),
+            onClick: () => {
+                setCardCountingMode(currentState => !currentState)
+            },
             isChecked: CardCountingMode,
         },
         {
@@ -2205,7 +2238,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     return (
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
-        <div className="overflow-hidden">
+        <div className="overflow-hidden" id="MC">
             <div className="absolute z-30"><WarningBanner visible={WarningVisible}/></div>
             <div ref={menuRef}
                  className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6">
@@ -2220,7 +2253,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                             </div>
                             :
                             <div
-                                className="flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge">
+                                className={`flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge ${[2, 3, 4, 5].includes(TutorialState) ? "z-20" : ""}`}>
                                 <svg width="22" height="22" viewBox="0 0 32 32" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2287,7 +2320,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         onTouchEnd={handleTouchEnd}
                     >
 
-                        <div className={'inline-flex px-auto transition-transform transform'}>
+                        <div
+                            className={`inline-flex px-auto transition-transform transform ${[6].includes(TutorialState) ? 'z-20' : ''}`}>
                             {[DealerHand].map((hand, index) =>
                                 (
                                     <div key={index}
@@ -2317,7 +2351,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                                 </div>
                                                 {(DealerTurnEnded && (!(GameState == 'IN PLAY') && !(GameState == 'PLACING BET'))) &&
                                                 <div
-                                                    className="absolute flex ml-1 size-6 bottom-0.5 -right-5 rounded-lg items-center justify-center bg-info-content/60 text-white text-sm">{DealerHandSumState}</div>
+                                                    className="absolute flex ml-2 size-6 bottom-0.5 -right-6 rounded-lg items-center justify-center bg-info-content/60 text-white text-sm">{DealerHandSumState}</div>
                                                 }
                                             </div>
                                         </div>
@@ -2326,7 +2360,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         </div>
                     </div>
                     }
-                    <div className="flex items-center justify-center">
+                    <div
+                        className={`flex items-center justify-center ${[2, 3, 4, 5, 6].includes(TutorialState) ? "z-20" : ""}`}>
                         <div className="relative max-w-[480px] overflow-hidden">
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
@@ -2357,16 +2392,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         onTouchEnd={handleTouchEnd}
                     >
 
-                        <div className={'inline-flex px-auto transition-transform transform'}
-                             style={{
-                                 position: `${GameState == 'PLACING BET' ? ("inherit") : ("relative")}`,
-                                 // This moves the cards once the player stands or stops hitting
-                                 // left: `${GameState == 'PLACING BET' ? ("inherit") : (`calc(50vw - ${64 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px)`)}`,
-                                 // transform: `translateX(-${GameState == 'PLACING BET' ? (0) : (CardShift)}px)`,
-                                 margin: `0 ${GameState == 'PLACING BET' ? ("0") : (`calc(50vw - ${64 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px)`)}`
-                                 // transform: `${PlayerHandIndex ? ("translateX(calc(-${56 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px))") : ("")}`
+                        <div
+                            className={`inline-flex px-auto transition-transform transform ${[3, 4, 5, 6].includes(TutorialState) ? "z-50" : ""}`}
+                            style={{
+                                position: `${GameState == 'PLACING BET' ? ("inherit") : ("relative")}`,
+                                // This moves the cards once the player stands or stops hitting
+                                // left: `${GameState == 'PLACING BET' ? ("inherit") : (`calc(50vw - ${64 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px)`)}`,
+                                // transform: `translateX(-${GameState == 'PLACING BET' ? (0) : (CardShift)}px)`,
+                                margin: `0 ${GameState == 'PLACING BET' ? ("0") : (`calc(50vw - ${64 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px)`)}`
+                                // transform: `${PlayerHandIndex ? ("translateX(calc(-${56 + 12 * (PlayerHand[PlayerHandIndex].cards.length - 2)}px))") : ("")}`
 
-                             }}>
+                            }}>
                             {PlayerHand.map((hand, index) =>
                                 (
                                     <div key={index}
@@ -2388,9 +2424,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                             <div className="flex flex-row h-24 justify-center">
                                                 {GameState == 'PLACING BET' ? (
                                                     <div
-                                                        className="absolute flex flex-row items-center justify-center space-x-2">
+                                                        className={`absolute flex flex-row items-center justify-center space-x-2`}>
                                                         <button
-                                                            className="flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90"
+                                                            className={"flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90 z-50"}
                                                             onClick={handleClickPlaceBet}
                                                             onTouchStart={handleClickPlaceBet}
                                                             disabled={hand.betDisplay <= 0}
@@ -2430,7 +2466,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                                             </div>
 
                                                         </div>
-                                                        {(PlayerStand || !(GameState == 'IN PLAY')) &&
+                                                        {(PlayerStand || !(GameState == 'IN PLAY') || [4, 5].includes(TutorialState)) &&
                                                         <div
                                                             className="absolute -right-5 flex size-6 bottom-[76px] -right-6 rounded-lg items-center justify-center bg-info-content/60 text-white text-sm">{hand.sum}</div>}
                                                     </>
@@ -2464,7 +2500,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     GameState={GameState}/>
                 </div>
             </div>}
-
+            <div
+                // className="absolute flex items-end justify-center pb-12 h-screen w-screen overflow-hidden"
+                className="absolute flex items-end justify-center bottom-[40px] left-0 right-0 h-screen w-screen overflow-hidden"
+            >
+                <Tutorial changeScreenTo={changeScreenTo} setTutorialState={setTutorialState}
+                          TutorialState={TutorialState} PlayerHandSum={PlayerHand[PlayerHandIndex].sum} DealerHandSum={DealerHandSumState}/>
+            </div>
         </div>);
 };
 
