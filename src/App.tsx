@@ -107,6 +107,7 @@ function App() {
         pointingTeacher1(),
         pointingTeacher1(),
         pointingTeacher1(),
+        pointingTeacher1(),
     ]
 
     function renderScreen() {
@@ -198,7 +199,7 @@ function App() {
                         <div
                             className="absolute flex items-center justify-center h-screen w-screen overflow-hidden">
                             <div
-                                className="absolute z-40 flex flex-row items-center justify-start h-20 w-[65%] max-w-[350px] min-w-[280px] -mb-[770px]">
+                                className={`absolute ${[2,].includes(TutorialState) ? "z-50" : "z-30"} flex flex-row items-center justify-start h-20 w-[65%] max-w-[350px] min-w-[280px] -mb-[770px]`}>
                                 {tutorialTeacher[TutorialState]}
                             </div>
                         </div>

@@ -434,7 +434,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     const addRandomCardToDealerHand = () => {
         console.log(`random card - ${randomOn && ![6, 7].includes(TutorialState)}`)
-        const newCard = getCardFromDeck(false, randomOn && ![6].includes(TutorialState));
+        const newCard = getCardFromDeck(false, randomOn && ![6, 7, 8].includes(TutorialState));
         const newDealerHand = [...DealerHand, newCard];
         //console.log("addRandomCardToDealerHand")
         setDealerHand(newDealerHand)
@@ -733,6 +733,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         // updateGameLog()
         // setUpGame()
         setGameCount(prevState => prevState + 1)
+        if (TutorialState == 6) {
+            setTutorialState(TutorialState + 1)
+        }
     }
 
     useEffect(() => {
@@ -881,7 +884,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += amount
             setPlayerHand(updatedChipClickPlayerHand)
             setBalanceAmount(currentValue => currentValue - amount) //Chip click increase
-            if (TutorialState === 2) {
+            if (TutorialState === 2 && PlayerHand[PlayerHandIndex].betDisplay == 10) {
                 setTutorialState(TutorialState + 1)
             }
 
@@ -1763,7 +1766,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             <div className={`flex flex-row space-x-2 pl-20`}>
                 {randomOn ?
                     <>
-                        <button className={chipClass} onClick={() => handleClickChip(1)}>
+                        <button className={chipClass} onClick={() => handleClickChip(1)} disabled={TutorialState > 0}>
                             <C1 className="w-full h-full transform"/>
                         </button>
                         <button className={chipClass} onClick={() => handleClickChip(5)}>
@@ -1772,13 +1775,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         <button className={chipClass} onClick={() => handleClickChip(10)}>
                             <C10 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass} onClick={() => handleClickChip(25)}>
+                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(25)}>
                             <C25 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass} onClick={() => handleClickChip(50)}>
+                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(50)} disabled={TutorialState > 0}>
                             <C50 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass} onClick={() => handleClickChip(100)}>
+                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(100)}>
                             <C100 className="w-full h-full transform"/>
                         </button>
                     </>
@@ -2253,7 +2256,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                             </div>
                             :
                             <div
-                                className={`flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge ${[2, 3, 4, 5].includes(TutorialState) ? "z-20" : ""}`}>
+                                className={`flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge ${[2, 3, 4, 5, 7, 9].includes(TutorialState) ? "z-20" : ""}`}>
                                 <svg width="22" height="22" viewBox="0 0 32 32" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2321,7 +2324,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     >
 
                         <div
-                            className={`inline-flex px-auto transition-transform transform ${[6].includes(TutorialState) ? 'z-20' : ''}`}>
+                            className={`inline-flex px-auto transition-transform transform ${[6, 7, 8].includes(TutorialState) ? 'z-20' : ''}`}>
                             {[DealerHand].map((hand, index) =>
                                 (
                                     <div key={index}
@@ -2361,7 +2364,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     </div>
                     }
                     <div
-                        className={`flex items-center justify-center ${[2, 3, 4, 5, 6].includes(TutorialState) ? "z-20" : ""}`}>
+                        className={`flex items-center justify-center ${[2, 3, 4, 5, 6, 7, 8].includes(TutorialState) ? "z-20" : ""}`}>
                         <div className="relative max-w-[480px] overflow-hidden">
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
@@ -2393,7 +2396,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     >
 
                         <div
-                            className={`inline-flex px-auto transition-transform transform ${[3, 4, 5, 6].includes(TutorialState) ? "z-50" : ""}`}
+                            className={`inline-flex px-auto transition-transform transform ${[2, 3, 4, 5, 6, 7, 8].includes(TutorialState) ? "z-40" : ""}`}
                             style={{
                                 position: `${GameState == 'PLACING BET' ? ("inherit") : ("relative")}`,
                                 // This moves the cards once the player stands or stops hitting
@@ -2502,7 +2505,8 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             </div>}
             <div
                 // className="absolute flex items-end justify-center pb-12 h-screen w-screen overflow-hidden"
-                className="absolute flex items-end justify-center bottom-[40px] left-0 right-0 h-screen w-screen overflow-hidden"
+                // className="absolute flex items-end justify-center bottom-[40px] left-0 right-0 h-screen w-screen overflow-hidden"
+                className="absolute flex items-end justify-center bottom-0 left-0 right-0 h-screen w-screen overflow-hidden"
             >
                 <Tutorial changeScreenTo={changeScreenTo} setTutorialState={setTutorialState}
                           TutorialState={TutorialState} PlayerHandSum={PlayerHand[PlayerHandIndex].sum} DealerHandSum={DealerHandSumState}/>

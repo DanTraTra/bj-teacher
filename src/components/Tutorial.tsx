@@ -81,7 +81,7 @@ const Tutorial: React.FC<TutorialProps> = ({
         const howToPlay = () => {
             return (
                 <div
-                    className="flex flex-col items-center justify-center w-[95%] h-[75%] max-w-[400px] bg-[#57A351] rounded px-6 pt-8 pb-10">
+                    className="flex flex-col items-center justify-center w-[95%] h-ful max-w-[400px] bg-[#57A351] rounded px-6 pt-8 pb-10">
                     <div className="flex flex-row items-center text-center text-white text-xl font-bold pb-3">How to
                         Play
                         Blackjack
@@ -99,7 +99,7 @@ const Tutorial: React.FC<TutorialProps> = ({
         const cardValues = () => {
             return (
                 <div
-                    className="flex flex-col items-center justify-center w-[95%] h-[75%] max-w-[400px] bg-[#57A351] rounded px-6 py-8">
+                    className="flex flex-col items-center justify-center w-[95%] h-full max-w-[400px] bg-[#57A351] rounded px-6 py-8">
                     <div className="flex flex-col items-center space-y-2">
                         <div className="flex flex-row items-center text-center text-white text-xl font-bold pb-1">Adding up
                             your hand
@@ -223,7 +223,7 @@ const Tutorial: React.FC<TutorialProps> = ({
                             className="flex flex-col h-full items-center justify-start w-[95%] h-[440px] bg-[#57A351] text-white rounded px-6 py-8">
                             <div
                                 className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                {`${(DealerHandSum > 16 && DealerHandSum > PlayerHandSum) ? "Oh no!" : ""} The dealer drew ${DealerHandSum}`}
+                                {`${(DealerHandSum > 16 && DealerHandSum > PlayerHandSum) ? "Oh no!" : ""} Dealer hand adds to ${DealerHandSum}`}
                             </div>
                             <div
                                 className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold h-20">
@@ -285,47 +285,50 @@ const Tutorial: React.FC<TutorialProps> = ({
                 />
                 <div
                     // className={`fixed bottom-[140px] left-0 right-0 transition-transform duration-500 ease-in-out ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'} flex flex-col items-center`}
-                    className={`flex flex-col justify-center items-center bottom-[200px] left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'}`}
+                    // className={`flex flex-col justify-center items-center bottom-0 left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[150px]' : 'transform translate-y-full'}`}
+                    className="absolute flex items-center justify-center h-screen w-screen overflow-hidden pt-[150px]"
                     // className={`flex flex-col justify-center items-center -mb-[80px] left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'}`}
                     {...handlers}
                 >
-                    <div
-                        className="relative w-[350px] overflow-hidden flex justify-center items-center">
-                        <div className="w-full h-full flex transition-transform items-end duration-500 space-x-4"
-                             style={{transform: `translateX(calc(-1 * (${TutorialState <= 2 ? (TutorialState * 104.5) : (2 * 104.5)}%)))`}}>
-                            {Array.from({length: tutorialPages.length}, (_, index) => (
-                                <div key={index}
-                                     className="w-full h-full flex-shrink-0 flex justify-center items-start">
-                                    {/*<div*/}
-                                    {/*    className="flex flex-col items-center justify-center w-[95%] h-[75%] max-w-[400px] bg-[#57A351] rounded px-6 py-8">*/}
-                                    {/*    {tutorialPages[index]}*/}
-                                    {/*</div>*/}
-                                    {tutorialPages[index]}
-                                </div>
-                            ))}
+                    <div className="absolute flex flex-col space-y-4 items-center justify-center h-screen w-screen overflow-hidden">
+                        <div
+                            className="relative w-[350px] overflow-hidden flex flex-col justify-center items-center">
+                            <div className="w-full h-full flex transition-transform items-end duration-500 space-x-4"
+                                 style={{transform: `translateX(calc(-1 * (${TutorialState <= 2 ? (TutorialState * 104.5) : (2 * 104.5)}%)))`}}>
+                                {Array.from({length: tutorialPages.length}, (_, index) => (
+                                    <div key={index}
+                                         className="w-full h-full flex-shrink-0 flex justify-center items-end">
+                                        {/*<div*/}
+                                        {/*    className="flex flex-col items-center justify-center w-[95%] h-[75%] max-w-[400px] bg-[#57A351] rounded px-6 py-8">*/}
+                                        {/*    {tutorialPages[index]}*/}
+                                        {/*</div>*/}
+                                        {tutorialPages[index]}
+                                    </div>
+                                ))}
 
+                            </div>
                         </div>
+                        <div className="flex flex-row w-[350px] justify-end pr-4">
+                            {Array.from({length: tutorialPages.length}, (_, index) => (
+                                <div
+                                    key={index}
+                                    className={`h-2 w-2 mx-1 rounded-full ${TutorialState <= 2 ? TutorialState === index ? 'bg-white' : 'bg-gray-400' : index === 2 ? 'bg-white' : 'bg-gray-400'}`}
+                                    onClick={() => setCurrentPage(index)}
+                                />
+                            ))}
+                        </div>
+                        <div className="flex flex-row justify-end w-[350px] h-[62px] px-2 z-50">
+                            {(nextButtonText[TutorialState] === "Next" || nextButtonText[TutorialState] === "Back") &&
+                            <button
+                                onClick={() => {
+                                    console.log("next clicked")
+                                    nextButtonText[TutorialState] === "Next" ? setTutorialState((TutorialState + 1) % tutorialPages.length) : setTutorialState((TutorialState - 1 + tutorialPages.length) % tutorialPages.length)
+                                }}
+                                className="btn btn-sm text-base font-bold z-20 rounded">{nextButtonText[TutorialState]}
+                            </button>}
+                        </div>
+                        {/*{tutorialTeacher[CurrentTeacher]}*/}
                     </div>
-                    <div className="flex flex-row w-[350px] justify-end pr-4">
-                        {Array.from({length: tutorialPages.length}, (_, index) => (
-                            <div
-                                key={index}
-                                className={`h-2 w-2 mx-1 rounded-full ${TutorialState <= 2 ? TutorialState === index ? 'bg-white' : 'bg-gray-400' : index === 2 ? 'bg-white' : 'bg-gray-400'}`}
-                                onClick={() => setCurrentPage(index)}
-                            />
-                        ))}
-                    </div>
-                    <div className="flex flex-row justify-end w-[350px] h-[62px] px-2 z-50">
-                        {(nextButtonText[TutorialState] === "Next" || nextButtonText[TutorialState] === "Back") &&
-                        <button
-                            onClick={() => {
-                                console.log("next clicked")
-                                nextButtonText[TutorialState] === "Next" ? setTutorialState((TutorialState + 1) % tutorialPages.length) : setTutorialState((TutorialState - 1 + tutorialPages.length) % tutorialPages.length)
-                            }}
-                            className="btn btn-sm text-base font-bold z-20 rounded">{nextButtonText[TutorialState]}
-                        </button>}
-                    </div>
-                    {/*{tutorialTeacher[CurrentTeacher]}*/}
                 </div>
             </>
         );
