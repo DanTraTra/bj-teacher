@@ -94,7 +94,7 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
                             >
                                 <button
                                     onClick={() => handleModeClick(isSelected, item.label, index)}
-                                    className={`btn btn-sm font-tech items-center justify-center text-lg border-0 px-8 flex-shrink-0 transition-all ${
+                                    className={`btn btn-sm font-tech flex items-center justify-center text-lg border-0 px-8 flex-shrink-0 transition-all ${
                                         isSelected ? 'text-lg' : 'text-sm'
                                     }`}
                                 >
