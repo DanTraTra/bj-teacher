@@ -2010,7 +2010,7 @@ const Tutorial: React.FC<MainContentProps> = ({changeScreenTo, trainingMode}) =>
                                     }}
                                     handleClickCashOut={handleClickCashOut}
                                     handleClickStartOver={() => handleClickStartOver(DeckCount)}
-                                    onChange={changeScreenTo}/>
+                                    onChange={changeScreenTo} TutorialState={-1} handleClickTutorialEnd={()=>{}}/>
             }
         }
     }
