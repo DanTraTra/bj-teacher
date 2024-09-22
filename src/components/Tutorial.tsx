@@ -11,6 +11,12 @@ import {CardProps, PlayingCard} from "./PlayingCard";
 import {AiOutlineClose, AiOutlineUp} from "react-icons/ai";
 import {GiClubs, GiDiamonds, GiHearts, GiSpades} from "react-icons/gi";
 import {FaDiamond} from "react-icons/fa6";
+// @ts-ignore
+import Arrow1 from "/src/assets/arrow1.svg?react";
+// @ts-ignore
+import Arrow2 from "/src/assets/arrow2.svg?react";
+// @ts-ignore
+import Arrow3 from "/src/assets/arrow3.svg?react";
 
 interface TutorialProps {
     changeScreenTo: (screen: Screens) => void;
@@ -81,8 +87,8 @@ const Tutorial: React.FC<TutorialProps> = ({
         const howToPlay = () => {
             return (
                 <div
-                    className="flex flex-col items-center justify-center w-[95%] h-ful max-w-[400px] bg-[#57A351] rounded px-6 pt-8 pb-10">
-                    <div className="flex flex-row items-center text-center text-white text-xl font-bold pb-3">How to
+                    className="flex flex-col items-center justify-center w-[95%] h-ful max-w-[400px] bg-[#57A351] rounded px-6 pt-8 pb-10 tracking-tighter">
+                    <div className="flex flex-row items-center text-center text-white text-2xl font-bold pb-3">How to
                         Play
                         Blackjack
                     </div>
@@ -99,34 +105,34 @@ const Tutorial: React.FC<TutorialProps> = ({
         const cardValues = () => {
             return (
                 <div
-                    className="flex flex-col items-center justify-center w-[95%] h-full max-w-[400px] bg-[#57A351] rounded px-6 py-8">
-                    <div className="flex flex-col items-center space-y-2">
-                        <div className="flex flex-row items-center text-center text-white text-xl font-bold pb-1">Adding up
-                            your hand
+                    className="flex flex-col items-center justify-between w-[95%] h-[350px] max-w-[400px] bg-[#57A351] rounded px-6 py-8">
+                    <div className="flex flex-col h-full justify-between items-center tracking-tighter">
+                        <div className="flex flex-row items-center text-center text-white font-bold text-2xl pb-1">Card
+                            Values
                         </div>
-                        <div className="flex flex-col items-center text-black text-l font-semibold pb-1 space-y-0">
+                        <div className="flex flex-col items-center text-black text-l pb-1 space-y-2">
                             {/*<div className="flex flex-row text-sm text-white font-bold">*/}
                             {/*    Number cards are worth face value*/}
                             {/*</div>*/}
                             <div className="flex flex-row">
                                 <div
                                     className="flex flex-row scale-75 transform">{[2, 3, 4, 5, 6, 7, 8, 9, 10].map((number, index) => (
-                                    <PlayingCard suit={'spades'} value={number} display={`${number}`}
+                                    <PlayingCard key={index} suit={'spades'} value={number} display={`${number}`}
                                                  visible={true}/>))}</div>
                                 <div
-                                    className="flex flex-row items-center w-28 text-sm text-white font-bold py-2 -ml-1">Number
-                                    cards are worth face value
+                                    className="flex flex-row items-center w-28 text-sm text-white py-2 -ml-1">Number
+                                    cards <br/> are worth <br/> face value
                                 </div>
                             </div>
 
                             <div className="flex flex-row">
                                 <div
                                     className="flex flex-row scale-75 transform">{[11, 12, 13].map((number, index) => (
-                                    <PlayingCard suit={'spades'} value={number}
+                                    <PlayingCard key={index + 10} suit={'spades'} value={number}
                                                  display={`${pictureCards[number % 11]}`}
                                                  visible={true}/>))}</div>
                                 <div
-                                    className="flex flex-row items-center w-24 text-sm text-white font-bold py-2 pl-3 ">Picture
+                                    className="flex flex-row items-center w-24 text-sm text-white py-2 pl-3 ">Picture
                                     Cards are
                                     worth 10
                                 </div>
@@ -155,102 +161,365 @@ const Tutorial: React.FC<TutorialProps> = ({
             )
         }
 
+        interface tutorialPage {
+            header: React.ReactNode;
+            text: React.ReactNode;
+            spaceHeight: number;
+        }
+        const pages: tutorialPage[] = [
+            {
+                header: "",
+                text: "",
+                spaceHeight: 210,
+            },
+            {
+                header: "",
+                text: "",
+                spaceHeight: 210,
+            },
+            {   //2
+                header: "Place $10 to bet",
+                text: "You start with $20 in your balance, so lets start with betting half of it",
+                spaceHeight: 210,
+            },
+            {   //3
+                header: <>Press <span className="text-black">&nbsp;Place Bet</span> </>,
+                text: "You start with $20 in your balance, so lets start with betting half of it",
+                spaceHeight: 210
+            },
+            {   //4
+                header: "Card Dealing",
+                text: <span> Your hand totals 11. <span className="text-black">Hit</span> to draw another card and get closer to 21.</span>,
+                spaceHeight: 310,
+            },
+            {   //5
+                header: "Almost at 21",
+                text: <span>You have 20. Press <span className="text-black">Stand</span> to end your turn and see what the dealer has</span>,
+                spaceHeight: 310,
+            },
+            {   //6
+                header: "Dealer's turn",
+                text: <span>The dealer will keep drawing cards until their total is <span className="text-black"> at least 17</span></span>,
+                spaceHeight: 310,
+            },
+            {   //7
+                header: "Place another bet",
+                text: '',
+                spaceHeight: 310,
+            },
+            {   //8
+                header: "Blackjack!",
+                text: <span>Blackjack is when you have 21 with two cards. <span className="text-black">You win 2.5x your bet</span> (unless the dealer gets Blackjack too)</span>,
+                spaceHeight: 310,
+            },
+            {   //9
+                header: "Select $15 to bet",
+                text: <span>Remember, you can <span className="text-black">Reset</span> the bet amount</span>,
+                spaceHeight: 310,
+            },
+            {   //10
+                header: "Double Down",
+                text: "Doubling down will end your turn but with double your bet",
+                spaceHeight: 310,
+            },
+            {   //11
+                header: "Push (Tie Game)",
+                text: "If your hand and the dealer's hand are the same, you don’t win or lose",
+                spaceHeight: 310,
+            },
+            {   //12
+                header: "Bet strategically",
+                text: "Save enough in your balance to split or double down on your next hand",
+                spaceHeight: 310,
+            },
+            {   //13
+                header: "Splitting Pairs",
+                text: <span>With two identical cards, you can <span className="text-black">Split</span> them into 2 hands and double your bet</span>,
+                spaceHeight: 310,
+            },
+            {   //14
+                header: "Split Hands",
+                text: "Each hand is played separately. Splitting can sometimes help you win!",
+                spaceHeight: 310,
+            },
+
+        ]
+
         const selectBet = () => {
+            let content;
+
+            // switch (TutorialState) {
+            //     // case 4:
+            //     case 2:
+            //         content =
+            //             // <div className="flex flex-col h-full items-center justify-start w-[95%] h-[350px] bg-[#57A351] text-white rounded px-6 py-8">
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+            //                     Place $10 to bet
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center text-center items-start text-sm font-bold">
+            //                     You start with $20 in your balance, so lets start with betting half of it
+            //                 </div>
+            //                 <div className="h-[210px]"/>
+            //             </div>
+            //         break
+            //     case 3:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+            //                     Press <span className="text-black">&nbsp;Place Bet</span>
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-bold">
+            //                     If you change your mind, you can press reset.
+            //                 </div>
+            //                 <div className="h-[210px]"/>
+            //             </div>
+            //         break
+            //     case 4:
+            //         // case 2:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+            //                     Your Hand Value
+            //                 </div>
+            //                 <div
+            //                     className="flex w-full justify-center items-start text-center text-sm font-bold">
+            //                     <span> Your hand totals 11. <span
+            //                         className="text-black">Hit</span> to draw another card and get closer to 21.</span>
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //
+            //         break
+            //     case 5:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+            //                     Almost at 21
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     <span>You have 20. Press <span className="text-black">Stand</span> to end your turn and see what the dealer has</span>
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //             </div>
+            //         break
+            //     case 6:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+            //                     Dealer's Turn
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     <span>The dealer will keep drawing cards until their total is <span className="text-black"> at least 17</span></span>
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //             </div>
+            //         break
+            //     case 7:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Blackjack!
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     <span>Blackjack is when you get 21 with only two cards. You win 2.5x your bet (unless the dealer gets Blackjack too)</span>
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 7:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Select $15 to bet
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     <span>Remember, you can <span className="text-black">Reset</span> the bet amount</span>
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 8:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Splitting Pairs
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     With two identical cards, you can split them into 2 hands and double your bet.
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 9:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Split Hands
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     Each hand is played separately. Splitting increases your chances of winning!
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 10:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Place a smaller bet
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     Save enough in your balance to split or double down on your next hand
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 11:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Double Down
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     Doubling down will end your turn but with double your bet.
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     case 12:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8 tracking-tighter">
+            //                 <div
+            //                     className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1">
+            //                     Push (Tie Game)
+            //                 </div>
+            //                 <div
+            //                     className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+            //                     If your hand and the dealer's hand add to the same value, you don’t win or lose.
+            //                 </div>
+            //                 <div className="h-[310px]"/>
+            //
+            //             </div>
+            //         break
+            //     default:
+            //         content =
+            //             <div
+            //                 className="flex flex-col w-full h-[350px] justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+            //             </div>
+            //         break
+            // }
+
+            return (
+                <div className="flex flex-col w-full h-full justify-end items-center">
+                    <div
+                        className="flex flex-col w-full justify-start items-center bg-[#57A351] text-white rounded px-6 py-8">
+
+                        <div
+                            className="flex flex-row w-full items-center justify-center text-center text-2xl font-bold pb-1 tracking-tighter">
+                            {pages[TutorialState].header}
+                        </div>
+                        <div
+                            className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold">
+                            {pages[TutorialState].text}
+                        </div>
+                        <div className={`h-[${pages[TutorialState].spaceHeight}px]`}/>
+                    </div>
+                </div>
+            )
+        }
+
+        const annotations = () => {
             let content;
 
             switch (TutorialState) {
                 case 2:
+                    // case 2:
                     content =
-                        <div
-                            className="flex flex-col h-full items-center justify-start w-[95%] h-[336px] bg-[#57A351] text-white rounded px-6 py-8">
-                            <div
-                                className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                Select your bet amount
+                        // <div className="flex flex-col h-full items-center justify-start w-[95%] h-[350px] bg-[#57A351] text-white rounded px-6 py-8">
+                        <>
+                            <div className={`absolute flex flex-row justify-end items-start top-16 right-32 text-white`}>
+                                <Arrow1 className="size-12 max-w-sm max-h-sm -rotate-[10deg]"/>
                             </div>
                             <div
-                                className="flex flex-row w-full justify-center text-center items-start text-sm font-bold h-36">
-                                You start with $20 in your balance, so lets start with betting $10
+                                className={`absolute text-xs text-white font-bold flex flex-row justify-end items-start top-[115px] right-[140px] font-tech`}>
+                                Your balance
                             </div>
-                        </div>
-                    break
-                case 3:
-                    content =
-                        <div
-                            className="flex flex-col h-full items-center justify-start w-[95%] h-[336px] bg-[#57A351] text-white rounded px-6 py-8">
-                            <div
-                                className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                Press <span className="text-black">&nbsp;Place Bet</span>
-                            </div>
-                            <div
-                                className="flex flex-row w-full justify-center items-start text-center text-sm font-bold h-20">
-                                If you change your mind, you can press reset.
-                            </div>
-                        </div>
+                        </>
                     break
                 case 4:
+                    // case 2:
                     content =
-                        <div className="flex flex-col w-full h-[336px] justify-center items-center">
+                        // <div className="flex flex-col h-full items-center justify-start w-[95%] h-[350px] bg-[#57A351] text-white rounded px-6 py-8">
+                        // <div className="w-[350px] h-[500px] -mt-[20px] z-50">
+                        <div className="z-50">
+                            <div className={`absolute flex flex-row justify-end items-start ml-[50px] mt-[130px]`}>
+                                <Arrow1 className="size-12 max-w-sm max-h-sm -rotate-[190deg]"/>
+                            </div>
                             <div
-                                className="flex flex-col h-full items-center justify-start w-[95%] bg-[#57A351] text-white rounded px-6 py-8">
-                                <div
-                                    className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                    Your hand adds up to 11
-                                </div>
-                                <div
-                                    className="flex flex-row w-full justify-center items-start text-center text-sm font-bold h-20">
-                                    Still far from 21. Draw another card by pressing "Hit"
-                                </div>
+                                className={`absolute text-xs text-black font-bold flex flex-row justify-end items-center ml-[70px] mt-[110px] font-tech`}>
+                                Your hand
+                            </div>
+                            <div className={`absolute flex flex-row justify-end items-start ml-[55px] -mt-[115px]`}>
+                                <Arrow2 className="size-14 max-w-sm max-h-sm"/>
+                            </div>
+                            <div
+                                className={`absolute text-xs text-black font-bold flex flex-row justify-end items-center ml-[70px] -mt-[70px] font-tech`}>
+                                Dealer's hand
                             </div>
                         </div>
                     break
-                case 5:
+                default:
                     content =
-                        <div
-                            className="flex flex-col h-full items-center justify-start w-[95%] h-[336px] bg-[#57A351] text-white rounded px-6 py-8">
-                            <div
-                                className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                20 is pretty close to 21
-                            </div>
-                            <div
-                                className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold h-20">
-                                Press "Stand" to see what the dealer has
-                            </div>
-                        </div>
-                    break
-                case 6:
-                    content =
-                        <div
-                            className="flex flex-col h-full items-center justify-start w-[95%] h-[440px] bg-[#57A351] text-white rounded px-6 py-8">
-                            <div
-                                className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                {`${(DealerHandSum > 16 && DealerHandSum > PlayerHandSum) ? "Oh no!" : ""} Dealer hand adds to ${DealerHandSum}`}
-                            </div>
-                            <div
-                                className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold h-20">
-                                The dealer will draw cards until their hand adds to 17 or above
-                            </div>
-                        </div>
-                    break
-                case 7:
-                    content =
-                        <div
-                            className="flex flex-col h-full items-center justify-start w-[95%] h-[440px] bg-[#57A351] text-white rounded px-6 py-8">
-                            <div
-                                className="flex flex-row w-full items-center justify-center text-center text-xl font-bold pb-1">
-                                Select $15 to bet this time
-                            </div>
-                            <div
-                                className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold h-20">
-                                Remember, you can Reset the bet amount
-                            </div>
-                        </div>
+                        <></>
                     break
             }
 
             return (
-                <div className="flex flex-col w-full h-full justify-center items-center">
-                    {content}
-                </div>
+                content
             )
         }
 
@@ -259,6 +528,7 @@ const Tutorial: React.FC<TutorialProps> = ({
             cardValues(),
             selectBet(),
         ];
+
 
         const nextButtonText = [
             "Next",
@@ -286,22 +556,20 @@ const Tutorial: React.FC<TutorialProps> = ({
                 <div
                     // className={`fixed bottom-[140px] left-0 right-0 transition-transform duration-500 ease-in-out ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'} flex flex-col items-center`}
                     // className={`flex flex-col justify-center items-center bottom-0 left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[150px]' : 'transform translate-y-full'}`}
-                    className="absolute flex items-center justify-center h-screen w-screen overflow-hidden pt-[150px]"
+                    className="absolute flex items-center justify-center h-screen w-screen overflow-hidden pt-[20px]"
                     // className={`flex flex-col justify-center items-center -mb-[80px] left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'}`}
                     {...handlers}
                 >
-                    <div className="absolute flex flex-col space-y-4 items-center justify-center h-screen w-screen overflow-hidden">
+                    {annotations()}
+                    <div
+                        className="absolute flex flex-col space-y-4 items-center justify-center h-screen w-screen overflow-hidden">
                         <div
                             className="relative w-[350px] overflow-hidden flex flex-col justify-center items-center">
                             <div className="w-full h-full flex transition-transform items-end duration-500 space-x-4"
                                  style={{transform: `translateX(calc(-1 * (${TutorialState <= 2 ? (TutorialState * 104.5) : (2 * 104.5)}%)))`}}>
                                 {Array.from({length: tutorialPages.length}, (_, index) => (
                                     <div key={index}
-                                         className="w-full h-full flex-shrink-0 flex justify-center items-end">
-                                        {/*<div*/}
-                                        {/*    className="flex flex-col items-center justify-center w-[95%] h-[75%] max-w-[400px] bg-[#57A351] rounded px-6 py-8">*/}
-                                        {/*    {tutorialPages[index]}*/}
-                                        {/*</div>*/}
+                                         className="w-full h-[500px] flex-shrink-0 flex justify-center items-end font-tech">
                                         {tutorialPages[index]}
                                     </div>
                                 ))}
@@ -317,14 +585,14 @@ const Tutorial: React.FC<TutorialProps> = ({
                                 />
                             ))}
                         </div>
-                        <div className="flex flex-row justify-end w-[350px] h-[62px] px-2 z-50">
+                        <div className="flex flex-row justify-end w-[350px] h-[80px] px-2 z-50">
                             {(nextButtonText[TutorialState] === "Next" || nextButtonText[TutorialState] === "Back") &&
                             <button
                                 onClick={() => {
                                     console.log("next clicked")
-                                    nextButtonText[TutorialState] === "Next" ? setTutorialState((TutorialState + 1) % tutorialPages.length) : setTutorialState((TutorialState - 1 + tutorialPages.length) % tutorialPages.length)
+                                    nextButtonText[TutorialState] === "Next" ? setTutorialState(TutorialState + 1) : setTutorialState(TutorialState - 1)
                                 }}
-                                className="btn btn-sm text-base font-bold z-20 rounded">{nextButtonText[TutorialState]}
+                                className="btn btn-sm text-base font-tech font-bold z-20 rounded">{nextButtonText[TutorialState]}
                             </button>}
                         </div>
                         {/*{tutorialTeacher[CurrentTeacher]}*/}

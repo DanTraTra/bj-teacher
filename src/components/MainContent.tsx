@@ -142,7 +142,7 @@ export const initializeDeck = (deck_count: number): CardProps[] => {
 
 export const initializeTutorialDeck = (): CardProps[] => {
     // console.log("tutorial deck")
-    return initializeSpecificHand([5, 2, 6, 4, 9, 6, 7, 1, 12, 1, 6, 13, 11, 4, 2, 3])
+    return initializeSpecificHand([5, 2, 6, 4, 9, 6, 7, 1, 1, 11, 7, 4, 7, 7, 4, 10, 10, 1, 12, 1, 6, 13, 2, 4, 2, 6, 11, 10, 3, 12, 2, 4, 7, 8, 3, 12])
 }
 
 
@@ -246,7 +246,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     const [RunningCount, setRunningCount] = useState(0);
     const [CountLogState, setCountLogState] = useState<CountLogEntry[]>([{value: '', change: 0, countNow: 0}]);
 
-    const [isShaking, setIsShaking] = useState(false);
+    const [isShaking, setIsShakingResetBet] = useState(false);
+    const [isShakingPlaceBet, setIsShakingPlaceBet] = useState(false);
+    const [isShakingStandButton, setIsShakingStandButton] = useState(false);
+    const [isShakingHitButton, setIsShakingHitButton] = useState(false);
+    const [isShakingDDButton, setIsShakingDDButton] = useState(false);
 
     const [CheatSheetOpen, setCheatSheetOpen] = useState(false);
     const [MenuOpen, setMenuOpen] = useState<boolean>(false);
@@ -321,9 +325,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             Outcome: "PLAYER BUST",
         }
         , {
-            PlayerHand: [4, 4],
+            PlayerHand: [1, 1],
             DealerHand: [7, 10],
-            Deck: [10, 8, 7, 8, 2, 5, 3, 4, 2],
+            Deck: [10, 10, 10, 8, 2, 5, 3, 4, 2],
             Outcome: "PLAYER BUST",
         }
         , {
@@ -392,6 +396,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     useEffect(() => {
         if (needsShuffling) {
+            console.log("setting New Deck with count", DeckCount)
             setGlobalDeck(initializeDeck(DeckCount))
             setShufflingTimer(100)
         }
@@ -411,7 +416,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
 
     const getCardFromDeck = (visible: boolean, random: boolean): CardProps => {
-        // console.log("getCardFromDeck random", random)
+        console.log("getCardFromDeck random", random)
         let currentDeck = deckRef.current;
         const indices = Object.keys(currentDeck);
         if (indices.length === 0) {
@@ -419,22 +424,18 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         }
 
         const index = random ? Math.floor(Math.random() * indices.length) : 0;
-        console.log("index", index)
         const card = {...currentDeck[index], visible};
 
         currentDeck = currentDeck.filter((_, i) => i !== index);
         deckRef.current = currentDeck;
         setGlobalDeck(currentDeck);
 
-        console.log("remaining deck", currentDeck);
-        console.log("got card", card);
-
         return card;
     };
 
     const addRandomCardToDealerHand = () => {
-        console.log(`random card - ${randomOn && ![6, 7].includes(TutorialState)}`)
-        const newCard = getCardFromDeck(false, randomOn && ![6, 7, 8].includes(TutorialState));
+        console.log(`random card - ${randomOn && 0 < TutorialState}`)
+        const newCard = getCardFromDeck(false, randomOn && 0 > TutorialState);
         const newDealerHand = [...DealerHand, newCard];
         //console.log("addRandomCardToDealerHand")
         setDealerHand(newDealerHand)
@@ -521,92 +522,109 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     const [HitDisabled, setHitDisabled] = useState(false);
     const handleClickHit = (doubleDownHit: boolean) => {
         console.log("CLICKED HIT")
-        setHitButtonPressed(true)
-        setTimeout(() => {
-            setHitButtonPressed(false)
-        }, 82 * 5)
-
-        if (!TrainingMode || doubleDownHit || (CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT")) {
-            setExtraCardCount(ExtraCardCount + 1)
-            setHitDisabled(true)
-            setStandDisabled(true)
-            setDoubleDownDisabled(true); //clicked Hit
-            setSplitDisabled(true);
-
-            BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
-
-            // Add random card to player hand
-            const random_card_hit = getCardFromDeck(false, randomOn && TutorialState < 0)
-            // setPlayerHand(currentHand => [...currentHand, random_card]);
-            const updatedHitHand = [...PlayerHand]
-            updatedHitHand[PlayerHandIndex].cards = [...updatedHitHand[PlayerHandIndex].cards, random_card_hit]
-
-            // console.log("PlayerHandIndex", PlayerHandIndex)
-            // console.log("updatedHitHand[PlayerHandIndex]", updatedHitHand[PlayerHandIndex])
-            setPlayerHand(updatedHitHand);
-            // revealPlayerCards()
-
+        if ([5, 8, 9].includes(TutorialState)) {
+            setIsShakingHitButton(true);
             setTimeout(() => {
-                revealPlayerCards()
-                if (TutorialState === 4) {
-                    setTutorialState(TutorialState + 1)
-                }
-            }, animationTime)
-
-            setTimeout(() => {
-                if (PlayerHand[PlayerHandIndex].sum <= 21 && !PlayerHand[PlayerHandIndex].doubleDown) {
-                    setHitDisabled(false)
-                    setStandDisabled(false)
-                }
-            }, animationTime + 300)
+                setIsShakingHitButton(false);
+            }, 820); // Duration of the shake animation
         } else {
-            setStreakAmount(0)
-            setBeginStreak(false)
-            setCheatSheetPeak(true)
+            setHitButtonPressed(true)
+            setTimeout(() => {
+                setHitButtonPressed(false)
+            }, 82 * 5)
+
+            if (!TrainingMode || doubleDownHit || (CorrectAction == "HIT" || CorrectAction == "SPLIT/HIT" || CorrectAction == "DD/HIT")) {
+                setExtraCardCount(ExtraCardCount + 1)
+                setHitDisabled(true)
+                setStandDisabled(true)
+                setDoubleDownDisabled(true); //clicked Hit
+                setSplitDisabled(true);
+
+                BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
+
+                // Add random card to player hand
+                const random_card_hit = getCardFromDeck(false, randomOn && TutorialState < 0)
+                // setPlayerHand(currentHand => [...currentHand, random_card]);
+                const updatedHitHand = [...PlayerHand]
+                updatedHitHand[PlayerHandIndex].cards = [...updatedHitHand[PlayerHandIndex].cards, random_card_hit]
+
+                // console.log("PlayerHandIndex", PlayerHandIndex)
+                console.log("updatedHitHand[PlayerHandIndex]", updatedHitHand[PlayerHandIndex])
+                setPlayerHand(updatedHitHand);
+                // revealPlayerCards()
+
+                setTimeout(() => {
+                    revealPlayerCards()
+                    if (TutorialState === 4) {
+                        setTutorialState(TutorialState + 1)
+                    }
+                }, animationTime)
+
+                setTimeout(() => {
+                    if (PlayerHand[PlayerHandIndex].sum <= 21 && !PlayerHand[PlayerHandIndex].doubleDown) {
+                        setHitDisabled(false)
+                        setStandDisabled(false)
+                    }
+                }, animationTime + 300)
+            } else {
+                setStreakAmount(0)
+                setBeginStreak(false)
+                setCheatSheetPeak(true)
+            }
         }
 
     }
 
     const [standDisabled, setStandDisabled] = useState(false);
     const handleClickStand = (doubleDownStand: boolean) => {
-        setStandButtonPressed(true)
-        ////console.log("CLICKED STAND")
-        setTimeout(() => {
-            setStandButtonPressed(false)
-        }, 82 * 5)
-        if (!TrainingMode || doubleDownStand || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
-            setStandDisabled(true)
-            setHitDisabled(true)
-            setDoubleDownDisabled(true) // Clicked Stand
-            setSplitDisabled(true)
 
-            BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
-
-            if (PlayerHandIndex == PlayerHand.length - 1) {
-                setPlayerStand(true)
-                revealDealerCard(1)
-                if (TutorialState == 5) {
-                    setTutorialState(TutorialState + 1)
-                }
-                console.log("updatingCount - dealerhand2")
-
-            } else if (PlayerHand.length > 1) {
-                setPlayerHandIndex(PlayerHandIndex + 1)
-                const updatedList = [...CardShift]
-                updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
-                setCardShift(updatedList)
-            }
+        if ([4, 8].includes(TutorialState)) {
+            setIsShakingStandButton(true);
+            setTimeout(() => {
+                setIsShakingStandButton(false);
+            }, 820); // Duration of the shake animation
         } else {
-            setStreakAmount(0)
-            setBeginStreak(false)
-            setCheatSheetPeak(true)
-        }
+            setStandButtonPressed(true)
+            ////console.log("CLICKED STAND")
+            setTimeout(() => {
+                setStandButtonPressed(false)
+            }, 82 * 5)
+            if (!TrainingMode || doubleDownStand || (CorrectAction == "STAND" || CorrectAction == "SPLIT/STAND" || CorrectAction == "DD/STAND")) {
+                setStandDisabled(true)
+                setHitDisabled(true)
+                setDoubleDownDisabled(true) // Clicked Stand
+                setSplitDisabled(true)
 
+                BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
+
+                if (PlayerHandIndex == PlayerHand.length - 1) {
+                    setPlayerStand(true)
+                    revealDealerCard(1)
+                    if (TutorialState == 5) {
+                        setTutorialState(TutorialState + 1)
+                    }
+                    console.log("updatingCount - dealerhand2")
+
+                } else if (PlayerHand.length > 1) {
+                    setPlayerHandIndex(PlayerHandIndex + 1)
+                    const updatedList = [...CardShift]
+                    updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
+                    setCardShift(updatedList)
+                }
+            } else {
+                setStreakAmount(0)
+                setBeginStreak(false)
+                setCheatSheetPeak(true)
+            }
+        }
     }
 
     const [splitDisabled, setSplitDisabled] = useState(false);
     const handleClickSplit = () => {
         setSplitButtonPressed(true)
+        if ([13].includes(TutorialState)) {
+            setTutorialState(TutorialState + 1)
+        }
         setTimeout(() => {
             setSplitButtonPressed(false)
         }, 82 * 5)
@@ -614,20 +632,19 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
         if (!TrainingMode || (CorrectAction == "SPLIT/HIT" || CorrectAction == "SPLIT/STAND")) {
             setSplitDisabled(true)
-
             setStandDisabled(true)
             setHitDisabled(true)
             setDoubleDownDisabled(true) //Clicked Split
             BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
 
             const splitHand = [...PlayerHand]
-            ////console.log("currentHand", splitHand)
+            console.log("currentHand", splitHand)
 
             const latterCard: CardProps = splitHand[PlayerHandIndex].cards.pop() || getCardFromDeck(true, randomOn)
-            splitHand[PlayerHandIndex].cards = [splitHand[PlayerHandIndex].cards[0], getCardFromDeck(false, randomOn)]
+            splitHand[PlayerHandIndex].cards = [splitHand[PlayerHandIndex].cards[0], getCardFromDeck(false, randomOn && TutorialState < 0)]
 
             splitHand.splice(PlayerHandIndex + 1, 0, {
-                cards: [latterCard, getCardFromDeck(false, randomOn)],
+                cards: [latterCard, getCardFromDeck(false, randomOn && TutorialState < 0)],
                 sum: latterCard.value,
                 maxBet: splitHand[PlayerHandIndex].maxBet,
                 betDisplay: splitHand[PlayerHandIndex].betDisplay,
@@ -635,10 +652,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                 doubleDown: false,
             })
 
-            ////console.log("post-split", splitHand)
-
+            // console.log("post-split", splitHand)
             setPlayerHand(splitHand)
-            console.log("splitHand", splitHand)
+            // console.log("splitHand", splitHand)
             setBalanceAmount(BalanceAmount - splitHand[PlayerHandIndex].betDisplay)
 
             setTimeout(() => {
@@ -646,7 +662,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     return {...card, visible: true}
                 })
                 setPlayerHand(splitHand)
-
                 PlayerHand[PlayerHandIndex].betDisplay <= BalanceAmount - splitHand[PlayerHandIndex].betDisplay
                 && PlayerHand[PlayerHandIndex].cards.length
                 && (PlayerHand[PlayerHandIndex].cards[0].display == PlayerHand[PlayerHandIndex].cards[1].display) ? (setSplitDisabled(false)) : (setSplitDisabled(true))
@@ -664,47 +679,59 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     const [doubleDownDisabled, setDoubleDownDisabled] = useState(false);
     const handleClickDoubleDown = () => {
-        setDDButtonPressed(true)
-        ////console.log("CLICKED DOUBLE DOWN")
-        setTimeout(() => {
-            setDDButtonPressed(false)
-        }, 82 * 5)
-
-        if (!TrainingMode || (CorrectAction == "DD/STAND" || CorrectAction == "DD/HIT")) {
-            // const currentBetAmount = [...BetAmount]
-            // currentBetAmount[PlayerHandIndex] = currentBetAmount[PlayerHandIndex] * 2
-            // setBetAmount(currentBetAmount)
-            ////console.log('BalanceAmount', BalanceAmount)
-            ////console.log('PlayerHand[PlayerHandIndex].bet', PlayerHand[PlayerHandIndex].betDisplay)
-
-            if (BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
-                setDoubleDownDisabled(true) //clicked dd
-                setHitDisabled(true)
-                setStandDisabled(true)
-                BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
-
-                const updatedBalanceDD = BalanceAmount - PlayerHand[PlayerHandIndex].betDisplay
-                setBalanceAmount(updatedBalanceDD)
-                const updatedDoubleDownHand = [...PlayerHand];
-
-                updatedDoubleDownHand[PlayerHandIndex].betDisplay = updatedDoubleDownHand[PlayerHandIndex].betDisplay * 2;
-                updatedDoubleDownHand[PlayerHandIndex].doubleDown = true;
-                setPlayerHand(updatedDoubleDownHand);
-                handleClickHit(true)
-                setTimeout(() => {
-                    handleClickStand(true)
-                }, dealerAnimationTime)
-            }
-
+        if ([4, 8].includes(TutorialState)) {
+            setIsShakingDDButton(true);
+            setTimeout(() => {
+                setIsShakingDDButton(false);
+            }, 820); // Duration of the shake animation
         } else {
-            setStreakAmount(0)
-            setBeginStreak(false)
-            setCheatSheetPeak(true)
+
+            if ([10].includes(TutorialState)) {
+                setTutorialState(TutorialState + 1)
+            }
+            setDDButtonPressed(true)
+            ////console.log("CLICKED DOUBLE DOWN")
+            setTimeout(() => {
+                setDDButtonPressed(false)
+            }, 82 * 5)
+
+            if (!TrainingMode || (CorrectAction == "DD/STAND" || CorrectAction == "DD/HIT")) {
+                // const currentBetAmount = [...BetAmount]
+                // currentBetAmount[PlayerHandIndex] = currentBetAmount[PlayerHandIndex] * 2
+                // setBetAmount(currentBetAmount)
+                ////console.log('BalanceAmount', BalanceAmount)
+                ////console.log('PlayerHand[PlayerHandIndex].bet', PlayerHand[PlayerHandIndex].betDisplay)
+
+                if (BalanceAmount >= PlayerHand[PlayerHandIndex].betDisplay) {
+                    setDoubleDownDisabled(true) //clicked dd
+                    setHitDisabled(true)
+                    setStandDisabled(true)
+                    BeginStreak ? setStreakAmount(currentAmount => currentAmount + 1) : setStreakAmount(0)
+
+                    const updatedBalanceDD = BalanceAmount - PlayerHand[PlayerHandIndex].betDisplay
+                    setBalanceAmount(updatedBalanceDD)
+                    const updatedDoubleDownHand = [...PlayerHand];
+
+                    updatedDoubleDownHand[PlayerHandIndex].betDisplay = updatedDoubleDownHand[PlayerHandIndex].betDisplay * 2;
+                    updatedDoubleDownHand[PlayerHandIndex].doubleDown = true;
+                    setPlayerHand(updatedDoubleDownHand);
+                    handleClickHit(true)
+                    setTimeout(() => {
+                        handleClickStand(true)
+                    }, dealerAnimationTime)
+                }
+
+            } else {
+                setStreakAmount(0)
+                setBeginStreak(false)
+                setCheatSheetPeak(true)
+            }
         }
     }
 
     const [StartOverDisabled, setStartOverDisabled] = useState(false);
     const handleClickStartOver = (deckCount: number) => {
+        console.log("handleClickStartOver")
         const newDeck = TutorialState >= 0 ? initializeTutorialDeck() : initializeDeck(DeckCount)
         setGlobalDeck(newDeck)
         setIsDeckSet(true); // Indicate that the deck has been set
@@ -733,7 +760,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         // updateGameLog()
         // setUpGame()
         setGameCount(prevState => prevState + 1)
-        if (TutorialState == 6) {
+        if ([6, 8, 11].includes(TutorialState)) {
             setTutorialState(TutorialState + 1)
         }
     }
@@ -842,6 +869,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         // Update the deck
         const updatedChipClickPlayerHand = [...PlayerHand];
         updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += 1;
+        console.log("added 1chip from test case")
         updatedChipClickPlayerHand[PlayerHandIndex].cards = initializeSpecificHand(allTestCases[index].PlayerHand);
         const updatedChipClickDealerHand = initializeSpecificHand(allTestCases[index].DealerHand);
         const updatedChipClickDeckCards = allTestCases[index].Deck ? initializeSpecificHand(allTestCases[index].Deck!) : initializeDeck(DeckCount);
@@ -878,7 +906,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }, [deckUpdated]);
 
     const handleClickChip = (amount: number) => {
-        ////console.log(`Chip Clicked - added ${amount} to BetAmountState`)
+        // console.log(`Chip Clicked - added ${amount} to BetAmountState`)
         if ((amount <= BalanceAmount) || (TrainingMode && !CardCountingMode)) {
             const updatedChipClickPlayerHand = [...PlayerHand]
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += amount
@@ -890,6 +918,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
         } else if (BalanceAmount + PlayerHand.reduce((acc, hand) => hand.betDisplay + acc, 0) < 1 && !TrainingMode && !CardCountingMode) {
             const updatedChipClickPlayerHand = [...PlayerHand]
+            console.log("Bet 1 to round up from 0.")
             updatedChipClickPlayerHand[PlayerHandIndex].betDisplay += 1
             setPlayerHand(updatedChipClickPlayerHand)
             setBalanceAmount(0)  //Chip click decrease
@@ -909,19 +938,29 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }
 
     const handleClickPlaceBet = async (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        ////console.log("Pressed place bet")
-        setGameState('IN PLAY')
-        if (TutorialState === 3) {
-            setTutorialState(TutorialState + 1)
+        if ((TutorialState == 2 && PlayerHand[PlayerHandIndex].betDisplay != 10 && GameState == "PLACING BET") ||
+            (TutorialState == 3 && PlayerHand[PlayerHandIndex].betDisplay != 10 && GameState == "PLACING BET") ||
+            (TutorialState == 9 && PlayerHand[PlayerHandIndex].betDisplay != 15 && GameState == "PLACING BET") ||
+            (TutorialState == 12 && BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay && GameState == "PLACING BET")) {
+            setIsShakingPlaceBet(true);
+            setTimeout(() => {
+                setIsShakingPlaceBet(false);
+            }, 820); // Duration of the shake animation
+        } else {
+            event.preventDefault();
+            ////console.log("Pressed place bet")
+            setGameState('IN PLAY')
+            if ([3, 7, 9, 12].includes(TutorialState)) {
+                setTutorialState(TutorialState + 1)
+            }
         }
     }
 
     const handleClickResetBet = () => {
         if (PlayerHand[PlayerHandIndex].betDisplay == 0 && GameState == "PLACING BET") {
-            setIsShaking(true);
+            setIsShakingResetBet(true);
             setTimeout(() => {
-                setIsShaking(false);
+                setIsShakingResetBet(false);
             }, 820); // Duration of the shake animation
         }
 
@@ -1015,7 +1054,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     const setUpGame = () => {
         // AUTO CALLED WHEN GAMECOUNT CHANGES DON'T CALL
-        // TODO: BUG FIX Starting in training mode -> switching to normal from settings -> switching back to training doens't work
+        // TODO: BUG FIX double black jack with split hands and the second bet goes from 15->17 and then winnings are given based on $17
         // TODO: BUG FIX Sometimes the cards don't flip over in trainingmode - not card counting
         // TODO: Animate coins going to balance
 
@@ -1147,7 +1186,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             setUpGame()
 
         }
-        if (!randomOn) {
+        if (!randomOn && TrainingMode) {
             handleClickTestCase(0)
         }
     }, [TrainingMode, TutorialState])
@@ -1178,14 +1217,17 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         // setDealerHit(0);
 
                         setPlayerStand(true)
-                        setDealerTurnEnded(true);
-
+                        revealDealerCard(1)
+                        // setDealerTurnEnded(true); turn this back on
+                        //    Case1: setPlayerStand => revealDealerCard(1) => setDealerTurnEnded => setWinMultiplier => setGameState
 
                     } else if (PlayerHand.length > 1) {
-                        setPlayerHandIndex(PlayerHandIndex + 1)
-                        const updatedList = [...CardShift]
-                        updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
-                        setCardShift(updatedList)
+                        setTimeout(() => {
+                            setPlayerHandIndex(PlayerHandIndex + 1)
+                            const updatedList = [...CardShift]
+                            updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
+                            setCardShift(updatedList)
+                        }, dealerAnimationTime)
                     }
 
                 }
@@ -1345,6 +1387,10 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     default:
                         setGameState("IN PLAY")
                 }
+
+                // if ([11].includes(TutorialState)) {
+                //     setTutorialState(TutorialState + 1)
+                // }
             }, PlayerHandIndex == PlayerHand.length - 1 ? (dealerAnimationTime) : (0))
 
             // if (PlayerHandIndex == 0 && HANDOVER.includes(GameState)) {
@@ -1470,7 +1516,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         } else if (GameState == 'IN PLAY') {
             revealPlayerCards()
             //console.log("-------inside useEffect dep [GameState]")
-            console.log("BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay", BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay)
+            // console.log("BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay", BalanceAmount, PlayerHand[PlayerHandIndex].betDisplay)
             revealDealerCard(0)
             if (BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay) {
                 setDoubleDownDisabled(true) //BalanceAmount < PlayerHand[PlayerHandIndex].betDisplay
@@ -1508,6 +1554,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     //     | "HOUSE WINS"
     //     | "YOU WIN"
     //     | "PLAYER BLACKJACK"
+    // const WIN: GameOutComeType[] = ['YOU WIN', "DEALER BUST"]
     const WIN: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST"]
     const LOSE: GameOutComeType[] = ['HOUSE WINS', 'PLAYER BUST']
     const HANDOVER: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST", 'HOUSE WINS', 'PLAYER BUST', "GAME OVER", "PUSH",]
@@ -1526,11 +1573,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         ////console.log("GameState", GameState)
         ////console.log("DealerTurnEnded", DealerTurnEnded)
         if (HANDOVER.includes(GameState) && DealerTurnEnded) {
-            // ////console.log("BetAmount", PlayerHand[PlayerHandIndex].maxBet)
+            // console.log("BetAmount", PlayerHand[PlayerHandIndex].maxBet)
+            // console.log("winMultiplier", PlayerHand[PlayerHandIndex].winMultiplier)
+            let winAmount = PlayerHand[PlayerHandIndex].maxBet * PlayerHand[PlayerHandIndex].winMultiplier
+            // console.log("winAmount", winAmount)
             setTimeout(() => {
-                let winAmount = PlayerHand[PlayerHandIndex].maxBet * PlayerHand[PlayerHandIndex].winMultiplier
                 if (PlayerHandIndex == 0) {
+                    // For multiple hands, sum all of the into the first hand.
                     winAmount = TotalMaxBet
+                    // console.log("TotalMaxBet", TotalMaxBet)
                     const updatedPlayerHandBetDisplay = [...PlayerHand]
                     updatedPlayerHandBetDisplay.map((hand, index) => index == 0 ? (hand) : (hand.betDisplay = 0))
                     setPlayerHand(updatedPlayerHandBetDisplay)
@@ -1540,10 +1591,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                 // ////console.log("PlayerHandIndex", PlayerHandIndex)
 
                 const betAnimationChange = PlayerHand[PlayerHandIndex].maxBet >= 10 ? Math.round(PlayerHand[PlayerHandIndex].maxBet / 10) : (1)
+
                 // ////console.log("WinAmount", WinAmount)
                 // ////console.log("betAnimationChange", betAnimationChange)
                 let betAmountChangeTime = 50
-
+                // console.log("winAmount", winAmount)
                 if (PlayerHand[PlayerHandIndex].betDisplay != winAmount) {
                     const timer = setTimeout(() => {
                         // if you lose || you win
@@ -1555,6 +1607,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         } else if (WIN.includes(GameState) && winAmount - PlayerHand[PlayerHandIndex].betDisplay >= betAnimationChange) {
                             //// increment bet display by the calculated difference for animation purposes
                             const updatedPlayerHandBetDisplay = [...PlayerHand]
+                            // console.log("betDisplay",updatedPlayerHandBetDisplay[PlayerHandIndex].betDisplay)
                             updatedPlayerHandBetDisplay[PlayerHandIndex].betDisplay = PlayerHand[PlayerHandIndex].betDisplay + betAnimationChange
                             setPlayerHand(updatedPlayerHandBetDisplay)
                         } else {
@@ -1609,15 +1662,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         // Set the action suggestion
         if (PlayerHand[PlayerHandIndex].cards && PlayerHand[PlayerHandIndex].cards.every(card => card.visible) && DealerHand[0]) {
             const action = cheatSheetDataLogic(PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
-            console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
-            console.log("CorrectAction", action)
+            // console.log("PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled", PlayerHand[PlayerHandIndex].cards, DealerHand[0], !doubleDownDisabled, !splitDisabled)
+            // console.log("CorrectAction", action)
             setCorrectAction(action)
         }
     }, [doubleDownDisabled, splitDisabled, PlayerHand[PlayerHandIndex].cards])
 
     useEffect(() => {
         // Set the action suggestion
-        console.log("CorrectAction Changed", CorrectAction)
+        // console.log("CorrectAction Changed", CorrectAction)
     }, [CorrectAction])
 
 
@@ -1766,22 +1819,28 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             <div className={`flex flex-row space-x-2 pl-20`}>
                 {randomOn ?
                     <>
-                        <button className={chipClass} onClick={() => handleClickChip(1)} disabled={TutorialState > 0}>
+                        <button className={chipClass + (BalanceAmount < 1 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(1)}>
                             <C1 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass} onClick={() => handleClickChip(5)}>
+                        <button className={chipClass + (BalanceAmount < 5 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(5)}>
                             <C5 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass} onClick={() => handleClickChip(10)}>
+                        <button className={chipClass + (BalanceAmount < 10 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(10)}>
                             <C10 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(25)}>
+                        <button className={chipClass + (BalanceAmount < 25 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(25)}>
                             <C25 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(50)} disabled={TutorialState > 0}>
+                        <button className={chipClass + (BalanceAmount < 50 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(50)}>
                             <C50 className="w-full h-full transform"/>
                         </button>
-                        <button className={chipClass + (TutorialState > 0 ? " opacity-30" : "")} onClick={() => handleClickChip(100)}>
+                        <button className={chipClass + (BalanceAmount < 100 ? " opacity-30" : "")}
+                                onClick={() => handleClickChip(100)}>
                             <C100 className="w-full h-full transform"/>
                         </button>
                     </>
@@ -1835,7 +1894,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         return <div className="flex flex-row space-x-4 text-white px-8">
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && TrainingMode && DDButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-warning ${!["DD/HIT", "DD/STAND"].includes(CorrectAction!) && TrainingMode && DDButtonPressed || (isShakingDDButton) ? 'animate-shake' : ''}`}
                     onClick={handleClickDoubleDown}
                     disabled={doubleDownDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1850,7 +1909,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-success ${!["HIT", "SPLIT/HIT", "DD/HIT"].includes(CorrectAction!) && TrainingMode && HitButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-success ${(!["HIT", "SPLIT/HIT", "DD/HIT"].includes(CorrectAction!) && TrainingMode && HitButtonPressed) || (isShakingHitButton) ? 'animate-shake' : ''}`}
                     onClick={() => handleClickHit(false)}
                     disabled={HitDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -1864,7 +1923,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             </div>
             <div className="flex flex-col items-center space-y-2">
                 <button
-                    className={`${buttonClass} btn-error ${!["STAND", "SPLIT/STAND", "DD/STAND"].includes(CorrectAction!) && TrainingMode && StandButtonPressed ? 'animate-shake' : ''}`}
+                    className={`${buttonClass} btn-error ${(!["STAND", "SPLIT/STAND", "DD/STAND"].includes(CorrectAction!) && TrainingMode && StandButtonPressed) || (isShakingStandButton) ? 'animate-shake' : ''}`}
                     onClick={() => handleClickStand(false)}
                     disabled={standDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -2037,12 +2096,20 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                       }}/>
                 default:
                     return <OutCome PlayerHand={PlayerHand} PlayerHandIndex={PlayerHandIndex}
-                                    TrainingMode={TrainingMode} GameState={GameState}
+                                    TrainingMode={TrainingMode}
+                                    TutorialState={TutorialState}
+                                    GameState={GameState}
                                     ChipAnimationOver={ChipAnimationOver}
-                                    BalanceAmount={BalanceAmount} KeepGoingDisabled={KeepGoingDisabled}
-                                    CashOutDisabled={CashOutDisabled} GameLog={GameLog}
+                                    BalanceAmount={BalanceAmount}
+                                    KeepGoingDisabled={KeepGoingDisabled}
+                                    CashOutDisabled={CashOutDisabled}
+                                    GameLog={GameLog}
                                     handleClickKeepGoing={() => {
                                         return CardCountingMode ? (setGameState("CARD COUNT QUIZ")) : TrainingMode ? (handleClickKeepGoing()) : (handleClickKeepGoing())
+                                    }}
+                                    handleClickTutorialEnd={() => {
+                                        setTutorialState(-1)
+                                        changeScreenTo("PLAY")
                                     }}
                                     handleClickCashOut={handleClickCashOut}
                                     handleClickStartOver={() => handleClickStartOver(DeckCount)}
@@ -2167,7 +2234,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     <div>Cards Left: {GlobalDeck.length}/{DeckCount * 52}</div>
                     <div>Win-Loss: {GameLog.filter(game => game.PlayerCards.some(card => card.winMultiplier > 1)).length}-{GameLog.filter(game => game.PlayerCards.some(card => card.winMultiplier < 1)).length}</div>
                     <div>Hands Played: {GameLog.length}</div>
-                    <div><PerformanceGraph dark_bg={false} game_log_data={GameLog}/></div>
+                    {/*<div><PerformanceGraph dark_bg={false} game_log_data={GameLog}/></div>*/}
                 </div>
             </div>
         )
@@ -2240,11 +2307,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     };
 
     return (
+        // TODO
         // <div className="flex flex-col items-center space-y-auto text-white h-screen overflow-hidden w-screen">
         <div className="overflow-hidden" id="MC">
             <div className="absolute z-30"><WarningBanner visible={WarningVisible}/></div>
             <div ref={menuRef}
-                 className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6">
+                 className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6 z-10">
                 <div>
                     <div className="flex flex-row justify-end space-x-1">
 
@@ -2256,7 +2324,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                             </div>
                             :
                             <div
-                                className={`flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge ${[2, 3, 4, 5, 7, 9].includes(TutorialState) ? "z-20" : ""}`}>
+                                className={`flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge ${[2, 3, 7, 9, 10, 12].includes(TutorialState) ? "z-20" : ""}`}>
                                 <svg width="22" height="22" viewBox="0 0 32 32" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2324,7 +2392,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     >
 
                         <div
-                            className={`inline-flex px-auto transition-transform transform ${[6, 7, 8].includes(TutorialState) ? 'z-20' : ''}`}>
+                            className={`inline-flex px-auto transition-transform transform ${[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(TutorialState) ? 'z-20' : ''}`}>
                             {[DealerHand].map((hand, index) =>
                                 (
                                     <div key={index}
@@ -2335,7 +2403,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
                                                 <div className="relative flex flex-col items-end mx-2 ">
                                                     <div
-                                                        className={`flex flex-row inline-flex justify-center px-4 ring-accent-content rounded-lg`}>
+                                                        className={`flex flex-row inline-flex justify-center px-4 ${TutorialState === 4 ? "ring-2" : ""} ring-accent-content rounded-lg`}>
                                                         {
                                                             hand.map((card, index) =>
                                                                 (
@@ -2364,7 +2432,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     </div>
                     }
                     <div
-                        className={`flex items-center justify-center ${[2, 3, 4, 5, 6, 7, 8].includes(TutorialState) ? "z-20" : ""}`}>
+                        className={`flex items-center justify-center ${[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(TutorialState) ? "z-20" : ""}`}>
                         <div className="relative max-w-[480px] overflow-hidden">
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
@@ -2396,7 +2464,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     >
 
                         <div
-                            className={`inline-flex px-auto transition-transform transform ${[2, 3, 4, 5, 6, 7, 8].includes(TutorialState) ? "z-40" : ""}`}
+                            className={`inline-flex px-auto transition-transform transform ${[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(TutorialState) ? "z-40" : ""}`}
                             style={{
                                 position: `${GameState == 'PLACING BET' ? ("inherit") : ("relative")}`,
                                 // This moves the cards once the player stands or stops hitting
@@ -2429,7 +2497,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                                     <div
                                                         className={`absolute flex flex-row items-center justify-center space-x-2`}>
                                                         <button
-                                                            className={"flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90 z-50"}
+                                                            className={`flex btn btn-sm disabled:bg-red-600 disabled:text-white disabled:opacity-90 z-50 ${isShakingPlaceBet ? 'animate-shake' : ''}`}
                                                             onClick={handleClickPlaceBet}
                                                             onTouchStart={handleClickPlaceBet}
                                                             disabled={hand.betDisplay <= 0}
@@ -2469,7 +2537,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                                             </div>
 
                                                         </div>
-                                                        {(PlayerStand || !(GameState == 'IN PLAY') || [4, 5].includes(TutorialState)) &&
+                                                        {(PlayerStand || !(GameState == 'IN PLAY')) &&
                                                         <div
                                                             className="absolute -right-5 flex size-6 bottom-[76px] -right-6 rounded-lg items-center justify-center bg-info-content/60 text-white text-sm">{hand.sum}</div>}
                                                     </>
@@ -2503,14 +2571,16 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     GameState={GameState}/>
                 </div>
             </div>}
+            {TutorialState >= 0 &&
             <div
                 // className="absolute flex items-end justify-center pb-12 h-screen w-screen overflow-hidden"
                 // className="absolute flex items-end justify-center bottom-[40px] left-0 right-0 h-screen w-screen overflow-hidden"
                 className="absolute flex items-end justify-center bottom-0 left-0 right-0 h-screen w-screen overflow-hidden"
             >
                 <Tutorial changeScreenTo={changeScreenTo} setTutorialState={setTutorialState}
-                          TutorialState={TutorialState} PlayerHandSum={PlayerHand[PlayerHandIndex].sum} DealerHandSum={DealerHandSumState}/>
-            </div>
+                          TutorialState={TutorialState} PlayerHandSum={PlayerHand[PlayerHandIndex].sum}
+                          DealerHandSum={DealerHandSumState}/>
+            </div>}
         </div>);
 };
 

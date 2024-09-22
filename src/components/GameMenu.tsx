@@ -21,9 +21,10 @@ interface MenuItem {
 
 interface GameMenuProps {
     changeScreenTo: (screen: Screens) => void;
+    setTutorialState: (arg0: number) => void;
 }
 
-const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo}) => {
+const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) => {
     const menuItems: MenuItem[] = [
         {id: 0, label: 'LEARN', svg: <SVGOne/>},
         {id: 1, label: 'PLAY', svg: <SVGTwo/>},
@@ -55,6 +56,18 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo}) => {
     };
     const translateX = `-${selectedIndex * 160}px`;
 
+
+    const handleModeClick = (isSelected: boolean, label: Screens, index: number) => {
+        if (isSelected) {
+            changeScreenTo(label)
+            if (label === "LEARN") {
+                setTutorialState(0)
+            }
+        } else {
+            handleSelect(index)
+        }
+    }
+
     return (
         <div className="flex flex-col items-center justify-center h-full w-full p-4" {...handlers}>
             <div className="relative flex items-center w-full max-w-xs px-20">
@@ -80,11 +93,7 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo}) => {
                                 }`}
                             >
                                 <button
-                                    onClick={() => {
-                                        isSelected ?
-                                            changeScreenTo(item.label) :
-                                            handleSelect(index)
-                                    }}
+                                    onClick={() => handleModeClick(isSelected, item.label, index)}
                                     className={`btn btn-sm font-tech text-lg border-0 px-8 flex-shrink-0 transition-all ${
                                         isSelected ? 'text-lg font-bold' : 'text-sm'
                                     }`}
@@ -92,11 +101,7 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo}) => {
                                     {item.label}
                                 </button>
                                 <div className="mt-2 transition-transform duration-300"
-                                     onClick={() => {
-                                         isSelected ?
-                                         changeScreenTo(item.label) :
-                                         handleSelect(index)
-                                     }}
+                                     onClick={() => handleModeClick(isSelected, item.label, index)}
                                      style={{
                                          // transformOrigin: `${transformOrigin} center`,
                                          transform: isSelected ? 'scale(1)' : 'scale(0.8)',

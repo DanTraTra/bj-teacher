@@ -12,13 +12,15 @@ export default {
             fontFamily: {
                 sans: ['Inter var', ...defaultTheme.fontFamily.sans],
                 tech: ['Share Tech Mono', 'monospace'], // Add this line
-                main: ['Share Tech Mono']
+                main: ['Share Tech Mono'],
+                tech_bold: ['Share Tech Mono'],
             },
             fontSize: {
                 '2px': '10px',
                 '10px': '10px',
                 '12px': '12px',
                 '22px': '22px',
+                '32px': '32px',
             },
             colors: {
                 pastelBlue: '#A2C7D3',  // Define your custom color

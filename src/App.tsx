@@ -14,6 +14,8 @@ import SVGTeacherPoint from "./assets/Teacher1.svg?react";
 import SVGTeacherPoint1 from "./assets/Teacher2.svg?react";
 // @ts-ignore
 import SVGTeacherPoint2 from "./assets/Teacher3.svg?react";
+// @ts-ignore
+import Arrow1 from "./assets/arrow1.svg?react";
 
 
 import React, {useEffect, useRef, useState} from "react";
@@ -44,8 +46,8 @@ function App() {
     const [showMessage, setShowMessage] = useState(true)
     const [showBigTable, setShowBigTable] = useState(false)
     const [showButton, setShowButton] = useState(true)
-    const [ScreenState, setScreenState] = useState<Screens>("LEARN")
-    const [TutorialState, setTutorialState] = useState<number>(0)
+    const [ScreenState, setScreenState] = useState<Screens>("START")
+    const [TutorialState, setTutorialState] = useState<number>(-1)
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -57,6 +59,14 @@ function App() {
     useEffect(() => {
         console.log("TutorialState", TutorialState)
     }, [TutorialState])
+
+    useEffect(() => {
+        // if (ScreenState == "LEARN") {
+        //     console.log("setting to learn")
+        //     setTutorialState(0)
+        // }
+        console.log("ScreenState", ScreenState)
+    }, [ScreenState])
 
 
     const handlePlay = () => {
@@ -108,6 +118,13 @@ function App() {
         pointingTeacher1(),
         pointingTeacher1(),
         pointingTeacher1(),
+        pointingTeacher1(),
+        pointingTeacher2(),
+        pointingTeacher1(),
+        pointingTeacher1(),
+        pointingTeacher2(),
+        pointingTeacher1(),
+        pointingTeacher1(),
     ]
 
     function renderScreen() {
@@ -133,7 +150,7 @@ function App() {
                     {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}><FaDumbbell size={18} fill="gray-800" />Train</button>*/}
                     {/*</div>*/}
                     {/*<ScrollableButtonContainer button1={()=>handlePlay()} button2={()=>handleTrain()}/>*/}
-                    <GameMenu changeScreenTo={changeScreen}/>
+                    <GameMenu changeScreenTo={changeScreen} setTutorialState={setTutorialState}/>
                     {/*<GameMenu1/>*/}
                     {/*<SVGOne/>*/}
                     {/*<button className="btn" onClick={handleShowLeaderboard}>See Leader Board</button>*/}
@@ -147,7 +164,7 @@ function App() {
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
                             <MainContent changeScreenTo={changeScreen} trainingMode={false} setTutorialState={() => {
-                            }} TutorialState={0}/>
+                            }} TutorialState={TutorialState}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
                             <SVGTwo className="max-w-sm max-h-sm"/>
@@ -161,7 +178,7 @@ function App() {
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
                             <MainContent changeScreenTo={changeScreen} trainingMode={true} setTutorialState={() => {
-                            }} TutorialState={0}/>
+                            }} TutorialState={TutorialState}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
                             <SVGTrain className="max-w-sm max-h-sm"/>
@@ -184,7 +201,9 @@ function App() {
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
                             <MainContent changeScreenTo={changeScreen} trainingMode={false}
-                                         TutorialState={TutorialState} setTutorialState={setTutorialState}/>
+                                // TutorialState={7}
+                                         TutorialState={TutorialState}
+                                         setTutorialState={setTutorialState}/>
                         </div>
                         {/*<div*/}
                         {/*    // className="absolute flex items-end justify-center pb-12 h-screen w-screen overflow-hidden"*/}
@@ -197,12 +216,22 @@ function App() {
                             <SVGTwo className="max-w-sm max-h-sm"/>
                         </div>
                         <div
-                            className="absolute flex items-center justify-center h-screen w-screen overflow-hidden">
-                            <div
-                                className={`absolute ${[2,].includes(TutorialState) ? "z-50" : "z-30"} flex flex-row items-center justify-start h-20 w-[65%] max-w-[350px] min-w-[280px] -mb-[770px]`}>
+                            className="absolute flex items-center justify-center">
+                            <div id={`tutorialTeacher`}
+                                 className={`absolute ${[14].includes(TutorialState) ? "z-50" : "z-30"} flex flex-row items-center justify-start h-20 w-[65%] max-w-[350px] min-w-[280px] -mb-[770px]`}>
                                 {tutorialTeacher[TutorialState]}
                             </div>
                         </div>
+                        {/*<div*/}
+                        {/*    className={`absolute z-30 flex items-center justify-center h-screen w-screen overflow-hidden`}>*/}
+                        {/*    <div className={`absolute flex flex-row justify-end items-start top-20 right-32`}>*/}
+                        {/*        <Arrow1 className="size-12 max-w-sm max-h-sm -rotate-[10deg]"/>*/}
+                        {/*    </div>*/}
+                        {/*    <div className={`absolute text-sm text-white font-bold flex flex-row justify-end items-start top-32 right-32`}>*/}
+                        {/*        Your balance*/}
+                        {/*    </div>*/}
+
+                        {/*</div>*/}
 
                     </div>
                 </>

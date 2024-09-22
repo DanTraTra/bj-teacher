@@ -8,6 +8,7 @@ interface Props {
     PlayerHandIndex: number;
     ChipAnimationOver: boolean;
     TrainingMode: boolean;
+    TutorialState: number;
     GameState: GameOutComeType;
     BalanceAmount: number;
     KeepGoingDisabled: boolean;
@@ -15,6 +16,7 @@ interface Props {
     GameLog: GameLog[];
     handleClickKeepGoing: () => void;
     handleClickCashOut: () => void;
+    handleClickTutorialEnd: () => void;
     handleClickStartOver: () => void;
     onChange: (action: Screens) => void;
 }
@@ -24,6 +26,7 @@ const OutCome: React.FC<Props> = ({
                                       PlayerHandIndex,
                                       ChipAnimationOver,
                                       TrainingMode,
+                                      TutorialState,
                                       GameState,
                                       BalanceAmount,
                                       KeepGoingDisabled,
@@ -31,6 +34,7 @@ const OutCome: React.FC<Props> = ({
                                       GameLog,
                                       handleClickKeepGoing,
                                       handleClickCashOut,
+                                      handleClickTutorialEnd,
                                       handleClickStartOver,
                                       onChange
                                   }) => {
@@ -40,7 +44,8 @@ const OutCome: React.FC<Props> = ({
         button1Action: () => void,
         button2Text: string,
         button2Action: () => void,
-        showLeaderboard: boolean = false
+        showLeaderboard: boolean = false,
+        TutorialState: number
     ) => (
         <div className="flex flex-row items-center justify-center space-x-2">
             {showLeaderboard ? (
@@ -63,21 +68,25 @@ const OutCome: React.FC<Props> = ({
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-row justify-center items-center space-x-4">
+                <div className="flex flex-row justify-center w-64 items-center space-x-4">
+                    {TutorialState < 13 &&
                     <button
-                        className="btn btn-sm items-center justify-center w-28 animate-none"
+                        className="flex-1 btn btn-sm items-center justify-center animate-none"
                         onClick={button1Action}
                         disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
                     >
                         {button1Text}
                     </button>
+                    }
+                    {![6, 8, 11].includes(TutorialState) &&
                     <button
-                        className="btn btn-sm items-center justify-center w-28 animate-none btn-success text-white"
+                        className="flex-1 btn btn-sm items-center justify-center animate-none btn-success text-white"
                         onClick={button2Action}
                         disabled={button2Text === "Cash Out!" ? CashOutDisabled : false}
                     >
                         {button2Text}
                     </button>
+                    }
                 </div>
             )}
         </div>
@@ -87,7 +96,7 @@ const OutCome: React.FC<Props> = ({
 
     useEffect(() => {
         if (TrainingMode && ChipAnimationOver) {
-            setTimeout(handleClickKeepGoing, animationTime/2);
+            setTimeout(handleClickKeepGoing, animationTime / 2);
         }
     }, [ChipAnimationOver]);
 
@@ -100,53 +109,17 @@ const OutCome: React.FC<Props> = ({
             {(() => {
                 if (!TrainingMode) {
                     if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
-                        return renderOutcomeButtons("Keep Going", handleClickKeepGoing, "Cash Out!", handleClickCashOut);
+                        return renderOutcomeButtons("Keep Going", handleClickKeepGoing, [14].includes(TutorialState) ? "Tutorial Complete!" : "Cash Out!", [14].includes(TutorialState) ? handleClickTutorialEnd : handleClickCashOut, false, TutorialState);
                     } else if (PlayerHand[PlayerHandIndex].betDisplay > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
-                        return renderOutcomeButtons("Keep Going", handleClickKeepGoing, "Cash Out!", handleClickCashOut);
+                        return renderOutcomeButtons("Keep Going", handleClickKeepGoing, [14].includes(TutorialState) ? "Tutorial Complete!" : "Cash Out!", [14].includes(TutorialState) ? handleClickTutorialEnd : handleClickCashOut, false, TutorialState);
                     } else if (BalanceAmount <= 0 && PlayerHandIndex === 0 && totalBet <= 0) {
-                        return renderOutcomeButtons("Start Over?", handleClickStartOver, "Leaderboard", () => onChange('START'), true);
+                        return renderOutcomeButtons("Start Over?", handleClickStartOver, "Leaderboard", () => onChange('START'), true, TutorialState);
                     }
                 }
             })()}
 
         </div>
     );
-    //
-    // if (TrainingMode) {
-    //     return (
-    //         <div className="flex-col items-center justify-center mx-auto space-y-2">
-    //             <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
-    //
-    //         </div>
-    //     );
-    // } else if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
-    //     return (
-    //         <div className="flex-col items-center justify-center mx-auto space-y-2">
-    //             <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
-    //             {renderOutcomeButtons("Keep Going", handleClickKeepGoing, "Cash Out!", handleClickCashOut)}
-    //         </div>
-    //     );
-    // } else if (PlayerHand[PlayerHandIndex].betDisplay > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
-    //     return (
-    //         <div className="flex-col items-center justify-center mx-auto space-y-2">
-    //             <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
-    //             {renderOutcomeButtons("Keep Going", handleClickKeepGoing, "Cash Out!", handleClickCashOut)}
-    //         </div>
-    //     );
-    // } else if (BalanceAmount <= 0 && PlayerHandIndex === 0 && totalBet <= 0) {
-    //     return (
-    //         <div className={`flex-col items-center justify-center mx-auto space-y-2 ${isGameOver && "flex pt-5 px-0 bg-info-content/80 rounded-lg pb-5"}`}>
-    //             <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
-    //             {renderOutcomeButtons("Start Over?", handleClickStartOver, "Leaderboard", () => onChange('START'), true)}
-    //         </div>
-    //     );
-    // } else {
-    //     return (
-    //         <div className="flex-col items-center justify-center mx-auto space-y-2">
-    //             <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
-    //         </div>
-    //     );
-    // }
 };
 
 export default OutCome;
