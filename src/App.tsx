@@ -143,7 +143,7 @@ function App() {
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col w-full overflow-x-hidden items-center space-y-8 pt-[25vh] pb-50">
+                return <div className="flex flex-col w-full h-full items-center space-y-8 pt-[25vh] pb-50">
 
                     {/*<div className="flex flex-col space-y-2 pb-6">*/}
                     {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}>Play</button>*/}

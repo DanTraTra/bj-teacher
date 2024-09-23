@@ -2271,7 +2271,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         },
         {
             label: "Exit",
-            icon: <MdExitToApp size={18} fill="gray-800"/>,
+            icon: <MdExitToApp className="rotate-180" size={18} fill="gray-800"/>,
             onClick: () => changeScreenTo("START"),
             isChecked: false,
         },
@@ -2292,8 +2292,25 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         },
         {
             label: GameLog.length ? "Cash Out" : "Exit",
-            icon: <MdExitToApp size={18} fill="gray-800"/>,
+            icon: <MdExitToApp className="rotate-180" size={18} fill="gray-800"/>,
             onClick: () => handleClickCashOutEarly(false),
+            isChecked: false,
+        },
+    ];
+    const tutorialMenuButtons = [
+        {
+            label: GameStatsOpen ? GameStats() : "Game Stats",
+            icon: <IoStatsChart size={18} fill="gray-800"/>,
+            onClick: () => setGameStatsOpen(currentState => !currentState),
+            isChecked: GameStatsOpen,
+        },
+        {
+            label: GameLog.length ? "Cash Out" : "Exit",
+            icon: <MdExitToApp className="rotate-180" size={18} fill="gray-800"/>,
+            onClick: () => {
+                changeScreenTo("START")
+                setTutorialState(-1)
+            },
             isChecked: false,
         },
     ];
@@ -2312,9 +2329,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         <div className="overflow-hidden" id="MC">
             <div className="absolute z-30"><WarningBanner visible={WarningVisible}/></div>
             <div ref={menuRef}
-                 className="absolute flex flex-row justify-end items-start top-8 right-0 pr-4 pl-6 z-10">
+                 className="absolute flex flex-row justify-between items-start top-8 right-0 pr-4 pl-6 z-10">
                 <div>
-                    <div className="flex flex-row justify-end space-x-1">
+                    <div className="flex flex-row justify-end items-center space-x-1">
 
                         {TrainingMode ? <div
                                 className="flex flex-row justify-center items-center space-x-1.5 bg-gray-200 pl-2.5 pr-4 py-1 rounded-badge">
@@ -2341,14 +2358,15 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     className="flex flex-col h-full justify-center items-center font-bold text-18px">{TrainingMode ?
                                     <IoInfiniteSharp size={24}/> : BalanceAmount}</div>
                             </div>}
-                        <BiDotsVerticalRounded className="fill-gray-800 size-8"
+                        <BiDotsVerticalRounded className={`size-8 ${TutorialState >= 0  ? "z-20 fill-white" : "fill-gray-800"}`}
                                                onClick={() => setMenuOpen(currentState => !currentState)}
                         />
                     </div>
                     <div>
-                        {MenuOpen && <MenuTopRight buttons={TrainingMode ? trainMenuButtons : playMenuButtons}/>}
+                        {MenuOpen && <MenuTopRight buttons={TrainingMode ? trainMenuButtons : TutorialState >= 0 ? tutorialMenuButtons : playMenuButtons}/>}
                     </div>
                 </div>
+
             </div>
 
             {CardCountingMode &&

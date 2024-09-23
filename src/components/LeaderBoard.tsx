@@ -5,6 +5,7 @@ import {Accordion} from 'flowbite';
 import type {AccordionOptions, AccordionItem, AccordionInterface} from 'flowbite';
 import PerformanceGraph from "./PerformanceGraph";
 import {AiFillCaretLeft, AiOutlineDown, AiOutlineUp, AiOutlineLineChart, AiOutlineLeft} from 'react-icons/ai'; // Import icons
+import {fetchLeaderboardData} from '../services/leaderboardService';
 
 
 export interface GameLogDataEntries {
@@ -39,49 +40,69 @@ function LeaderBoard() {
     useEffect(() => {
 
         const fetchData = async () => {
-            try {
+            setLoading(true);
+            const data = await fetchLeaderboardData();
+            setLeaderboardData(data);
 
-                setLoading(false);
+            const updatedBoard: LeaderboardRow[] = data.map((d, index) => ({
+                rank: 1,
+                player: d.username,
+                cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
+                hands: d.game_log_data.length,
+                win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.some(hand => hand.winMultiplier > 1)).length / d.game_log_data.length) * 100).toFixed(0)),
+                db_index: index,
+            }));
 
-                const {data, error} = await supabase
-                    .from('userscore') // Replace 'your_table_name' with the actual table name
-                    .select('*');
+            updatedBoard.sort((a, b) => b.cashOut - a.cashOut).forEach((row, index) => {
+                row.rank = index + 1;
+            });
 
-                if (error) {
-                    throw new Error(`SupaBase error: ${error.message}`);
-                }
-
-                ////console.log("data", data)
-                setLeaderboardData(data)
-
-                let entry: LeaderboardRow = {rank: 0, player: "", cashOut: 0, win: 0, hands: 0, db_index: 0}
-                const updatedBoard: LeaderboardRow[] = []
-
-                data.map((d: GameLogDataEntries, index) => {
-                    entry = {
-                        rank: 1,
-                        player: d.username,
-                        cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
-                        hands: d.game_log_data.length,
-                        win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length) * 100).toFixed(0)),
-                        db_index: index,
-                    }
-                    updatedBoard.push(entry)
-                })
-
-                updatedBoard.sort((a, b) => b.cashOut - a.cashOut)
-                    .forEach((row, index) => {
-                            row.rank = index + 1;  // +1 because array indexes start at 0, but ranks should start at 1
-                        }
-                    )
-
-                setLeaderboard(updatedBoard);
-                setLoading(false)
-
-            } catch (error) {
-                console.error('Error fetching Leaderboard:', error)
-                setLoading(false)
-            }
+            setLeaderboard(updatedBoard);
+            setLoading(false);
+            //
+            // try {
+            //
+            //     setLoading(false);
+            //
+            //     const {data, error} = await supabase
+            //         .from('userscore') // Replace 'your_table_name' with the actual table name
+            //         .select('*');
+            //
+            //     if (error) {
+            //         throw new Error(`SupaBase error: ${error.message}`);
+            //     }
+            //
+            //     ////console.log("data", data)
+            //     setLeaderboardData(data)
+            //
+            //     let entry: LeaderboardRow = {rank: 0, player: "", cashOut: 0, win: 0, hands: 0, db_index: 0}
+            //     const updatedBoard: LeaderboardRow[] = []
+            //
+            //     data.map((d: GameLogDataEntries, index) => {
+            //         entry = {
+            //             rank: 1,
+            //             player: d.username,
+            //             cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
+            //             hands: d.game_log_data.length,
+            //             win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.filter(hand => hand.winMultiplier > 1).length).length / d.game_log_data.length) * 100).toFixed(0)),
+            //             db_index: index,
+            //         }
+            //         updatedBoard.push(entry)
+            //     })
+            //
+            //     updatedBoard.sort((a, b) => b.cashOut - a.cashOut)
+            //         .forEach((row, index) => {
+            //                 row.rank = index + 1;  // +1 because array indexes start at 0, but ranks should start at 1
+            //             }
+            //         )
+            //
+            //     setLeaderboard(updatedBoard);
+            //     setLoading(false)
+            //
+            // } catch (error) {
+            //     console.error('Error fetching Leaderboard:', error)
+            //     setLoading(false)
+            // }
         };
 
         fetchData();
