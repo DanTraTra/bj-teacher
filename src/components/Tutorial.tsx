@@ -558,7 +558,6 @@ const Tutorial: React.FC<TutorialProps> = ({
                     // className={`flex flex-col justify-center items-center bottom-0 left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[150px]' : 'transform translate-y-full'}`}
                     className="absolute flex items-center justify-center h-screen w-screen overflow-hidden pt-[20px]"
                     // className={`flex flex-col justify-center items-center -mb-[80px] left-0 right-0 z-10 space-y-4 transition-transform duration-500 ease-in-out z-10 ${isExpanded ? 'transform -translate-y-[10vh]' : 'transform translate-y-full'}`}
-                    {...handlers}
                 >
                     {annotations()}
                     <div
