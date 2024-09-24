@@ -355,14 +355,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
             Outcome: "PLAYER BLACKJACK",
         }
         , {
-            PlayerHand: [1, 1],
-            DealerHand: [10, 10],
-            Deck: [10, 10],
+            PlayerHand: [10, 10],
+            DealerHand: [10, 1],
+            Deck: [1, 10, 10],
             Outcome: "PLAYER BLACKJACK",
         }
         , {
             PlayerHand: [1, 1],
-            DealerHand: [4, 2],
+            DealerHand: [10, 1],
             Deck: null,
             Outcome: "IN PLAY",
         }
@@ -1356,8 +1356,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                         // Dealer hand is less than the Player's
                         hand.winMultiplier = 2;
                     } else if (DealerHandSumState == hand.sum) {
-                        // Dealer hand is equal to the Player's
-                        hand.winMultiplier = 1;
+                        if ((hand.sum == 21 && hand.cards.length > 2) && (DealerHandSumState == 21 && DealerHand.length == 2)) {
+                            // Dealer hand is equal to the Player's
+                            hand.winMultiplier = 0;
+                        } else {
+                            // Dealer hand is equal to the Player's
+                            hand.winMultiplier = 1;
+                        }
                     } else if (DealerHandSumState > hand.sum) {
                         hand.winMultiplier = 0;
                     }
@@ -2358,12 +2363,14 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     className="flex flex-col h-full justify-center items-center font-bold text-18px">{TrainingMode ?
                                     <IoInfiniteSharp size={24}/> : BalanceAmount}</div>
                             </div>}
-                        <BiDotsVerticalRounded className={`size-8 ${TutorialState >= 0  ? "z-20 fill-white" : "fill-gray-800"}`}
-                                               onClick={() => setMenuOpen(currentState => !currentState)}
+                        <BiDotsVerticalRounded
+                            className={`size-8 ${TutorialState >= 0 ? "z-20 fill-white" : "fill-gray-800"}`}
+                            onClick={() => setMenuOpen(currentState => !currentState)}
                         />
                     </div>
                     <div>
-                        {MenuOpen && <MenuTopRight buttons={TrainingMode ? trainMenuButtons : TutorialState >= 0 ? tutorialMenuButtons : playMenuButtons}/>}
+                        {MenuOpen && <MenuTopRight
+                            buttons={TrainingMode ? trainMenuButtons : TutorialState >= 0 ? tutorialMenuButtons : playMenuButtons}/>}
                     </div>
                 </div>
 
