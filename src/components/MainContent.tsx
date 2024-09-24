@@ -1821,7 +1821,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
     }
     const PlaceBets = () => {
         return (
-            <div className={`flex flex-row space-x-2 pl-20`}>
+            <div className="flex flex-row justify-start items-start space-x-2 px-2">
                 {randomOn ?
                     <>
                         <button className={chipClass + (BalanceAmount < 1 ? " opacity-30" : "")}
@@ -2458,7 +2458,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     }
                     <div
                         className={`flex items-center justify-center ${[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(TutorialState) ? "z-20" : ""}`}>
-                        <div className="relative max-w-[480px] overflow-hidden">
+                        <div className="relative w-full max-w-[480px] overflow-x-scroll">
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
                             {/*<div*/}
@@ -2466,12 +2466,12 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -right-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-l to-info-content/80 from-transparent"}`}/>*/}
 
-                            <div
-                                className={`absolute inset-y-0 left-0 right-0 w-auto rounded-lg  ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}/>
+                            {/*<div*/}
+                            {/*    className={`absolute inset-y-0 left-0 right-0 w-full rounded-lg ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}/>*/}
 
 
                             <div
-                                className="flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10"
+                                className={`flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10 min-w-max rounded-lg ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}
                                 // ref={scrollContainerRef}
                             >
                                 <div className="flex px-0 z-0">
