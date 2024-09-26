@@ -54,30 +54,21 @@ const OutCome: React.FC<Props> = ({
                     <div className="flex flex-row justify-center items-center space-x-4">
                         <button
                             className="btn btn-sm items-center justify-center w-28 animate-none"
+                            onClick={button2Action}
+                        >
+                            {button2Text}
+                        </button>
+                        <button
+                            className="btn btn-sm items-center justify-center w-28 animate-none"
                             onClick={button1Action}
                             disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
                         >
                             {button1Text}
                         </button>
-                        <button
-                            className="btn btn-sm items-center justify-center w-28 animate-none"
-                            onClick={button2Action}
-                        >
-                            {button2Text}
-                        </button>
                     </div>
                 </div>
             ) : (
                 <div className="flex flex-row justify-center w-64 items-center space-x-4">
-                    {TutorialState < 13 &&
-                    <button
-                        className="flex-1 btn btn-sm items-center justify-center animate-none"
-                        onClick={button1Action}
-                        disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
-                    >
-                        {button1Text}
-                    </button>
-                    }
                     {![6, 8, 11].includes(TutorialState) &&
                     <button
                         className="flex-1 btn btn-sm items-center justify-center animate-none btn-success text-white"
@@ -85,6 +76,15 @@ const OutCome: React.FC<Props> = ({
                         disabled={button2Text === "Cash Out!" ? CashOutDisabled : false}
                     >
                         {button2Text}
+                    </button>
+                    }
+                    {TutorialState < 13 &&
+                    <button
+                        className="flex-1 btn btn-sm items-center justify-center animate-none"
+                        onClick={button1Action}
+                        disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
+                    >
+                        {button1Text}
                     </button>
                     }
                 </div>

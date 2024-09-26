@@ -2458,7 +2458,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                     }
                     <div
                         className={`flex items-center justify-center ${[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(TutorialState) ? "z-20" : ""}`}>
-                        <div className="relative w-full max-w-[480px] overflow-x-scroll">
+                        <div className="relative max-w-[480px] overflow-x-scroll">
                             {/*<div*/}
                             {/*    className={`absolute inset-y-0 -left-12 w-36 ${(["IN PLAY", "PLACING BET"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-gradient-to-r to-info-content/80 from-transparent"}`}/>*/}
                             {/*<div*/}

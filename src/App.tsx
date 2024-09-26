@@ -242,7 +242,7 @@ function App() {
 
     return (
         <>
-            <div className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto bg-pastelBlue">
+            <div className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto overflow-x-hidden bg-pastelBlue">
 
                 {renderScreen()}
 
