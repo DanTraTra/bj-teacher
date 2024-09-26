@@ -10,6 +10,7 @@ interface Props {
     TrainingMode: boolean;
     TutorialState: number;
     GameState: GameOutComeType;
+    // TotalWinnings: number;
     BalanceAmount: number;
     KeepGoingDisabled: boolean;
     CashOutDisabled: boolean;
@@ -29,6 +30,7 @@ const OutCome: React.FC<Props> = ({
                                       TutorialState,
                                       GameState,
                                       BalanceAmount,
+                                      // TotalWinnings,
                                       KeepGoingDisabled,
                                       CashOutDisabled,
                                       GameLog,
@@ -45,7 +47,7 @@ const OutCome: React.FC<Props> = ({
         button2Text: string,
         button2Action: () => void,
         showLeaderboard: boolean = false,
-        TutorialState: number
+        TutorialState: number,
     ) => (
         <div className="flex flex-row items-center justify-center space-x-2">
             {showLeaderboard ? (
@@ -101,11 +103,14 @@ const OutCome: React.FC<Props> = ({
     }, [ChipAnimationOver]);
 
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
-
+    const totalWinnings = totalBet - PlayerHand.reduce((acc, hand) => (hand.maxBet) + acc, 0);
+    console.log("totalBet", totalBet)
+    console.log("totalWinnings", totalWinnings)
     return (
         <div className="flex flex-col items-center justify-center mx-auto space-y-2">
 
-            <div className="flex items-center justify-center text-white font-bold w-72 text-3xl font-tech">{GameState}</div>
+            <div
+                className="flex items-center justify-center text-white font-bold w-72 text-3xl text-center font-tech">{`${GameState} ${ totalWinnings > 0 ? (`\$${totalWinnings}`) : ""}`}</div>
             {(() => {
                 if (!TrainingMode) {
                     if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {

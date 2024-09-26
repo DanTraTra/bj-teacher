@@ -1054,7 +1054,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
     const setUpGame = () => {
         // AUTO CALLED WHEN GAMECOUNT CHANGES DON'T CALL
-        // TODO: BUG FIX double black jack with split hands and the second bet goes from 15->17 and then winnings are given based on $17
         // TODO: BUG FIX Sometimes the cards don't flip over in trainingmode - not card counting
         // TODO: Animate coins going to balance
 
@@ -1574,7 +1573,6 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
         // ////console.log("WinAmount", WinAmount)
         // ////console.log("BetChange", BetChange)
 
-        // TODO:
         ////console.log("GameState", GameState)
         ////console.log("DealerTurnEnded", DealerTurnEnded)
         if (HANDOVER.includes(GameState) && DealerTurnEnded) {
@@ -2106,6 +2104,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     GameState={GameState}
                                     ChipAnimationOver={ChipAnimationOver}
                                     BalanceAmount={BalanceAmount}
+                                    // TotalWinnings={}
                                     KeepGoingDisabled={KeepGoingDisabled}
                                     CashOutDisabled={CashOutDisabled}
                                     GameLog={GameLog}
