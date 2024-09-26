@@ -42,9 +42,9 @@ export const PlayingCard = ({value, suit, display, visible}: CardProps) => {
                     <div
                         className="relative w-14 h-20 bg-white rounded-lg flex items-center justify-center shadow-xl overflow-hidden">
 
-                        <div className={"absolute top-0 left-0.5 p-1 " + color}>{display}</div>
+                        <div className={"absolute top-0 left-0.5 p-1 font-tech " + color}>{display}</div>
                         <div className={"absolute text-3xl " + color}>{icon}</div>
-                        <div className={"absolute bottom-0 right-0.5 p-1 " + color}>{display}</div>
+                        <div className={"absolute bottom-0 right-0.5 p-1 font-tech " + color}>{display}</div>
 
                     </div>
                 </div>

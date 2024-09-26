@@ -2471,7 +2471,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
 
 
                             <div
-                                className={`flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10 min-w-max rounded-lg ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/70"}`}
+                                className={`flex h-full min-h-[100px] justify-center overflow-x-auto py-4 px-2 z-10 min-w-max rounded-lg ${(["IN PLAY", "PLACING BET", "GAME OVER"].includes(GameState) || !(BalanceAmount <= 0 && PlayerHandIndex == 0 && TotalMaxBet <= 0) && !["SAVING GAME"].includes(GameState)) && "bg-info-content/80"}`}
                                 // ref={scrollContainerRef}
                             >
                                 <div className="flex px-0 z-0">

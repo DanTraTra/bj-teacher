@@ -53,13 +53,13 @@ const OutCome: React.FC<Props> = ({
                     <PerformanceGraph game_log_data={GameLog} dark_bg={true}/>
                     <div className="flex flex-row justify-center items-center space-x-4">
                         <button
-                            className="btn btn-sm items-center justify-center w-28 animate-none"
+                            className="btn btn-sm items-center justify-center px-4 animate-none font-tech"
                             onClick={button2Action}
                         >
                             {button2Text}
                         </button>
                         <button
-                            className="btn btn-sm items-center justify-center w-28 animate-none"
+                            className="btn btn-sm items-center justify-center px-4 animate-none btn-success text-white font-tech"
                             onClick={button1Action}
                             disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
                         >
@@ -71,7 +71,7 @@ const OutCome: React.FC<Props> = ({
                 <div className="flex flex-row justify-center w-64 items-center space-x-4">
                     {![6, 8, 11].includes(TutorialState) &&
                     <button
-                        className="flex-1 btn btn-sm items-center justify-center animate-none btn-success text-white"
+                        className="flex-1 btn btn-sm items-center justify-center animate-none font-tech"
                         onClick={button2Action}
                         disabled={button2Text === "Cash Out!" ? CashOutDisabled : false}
                     >
@@ -80,7 +80,7 @@ const OutCome: React.FC<Props> = ({
                     }
                     {TutorialState < 13 &&
                     <button
-                        className="flex-1 btn btn-sm items-center justify-center animate-none"
+                        className="flex-1 btn btn-sm items-center justify-center animate-none btn-success text-white font-tech"
                         onClick={button1Action}
                         disabled={button1Text === "Keep Going" ? KeepGoingDisabled : false}
                     >
@@ -105,7 +105,7 @@ const OutCome: React.FC<Props> = ({
     return (
         <div className="flex flex-col items-center justify-center mx-auto space-y-2">
 
-            <div className="flex items-center justify-center text-white font-bold w-72">{GameState}</div>
+            <div className="flex items-center justify-center text-white font-bold w-72 text-3xl font-tech">{GameState}</div>
             {(() => {
                 if (!TrainingMode) {
                     if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
@@ -113,7 +113,7 @@ const OutCome: React.FC<Props> = ({
                     } else if (PlayerHand[PlayerHandIndex].betDisplay > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {
                         return renderOutcomeButtons("Keep Going", handleClickKeepGoing, [14].includes(TutorialState) ? "Tutorial Complete!" : "Cash Out!", [14].includes(TutorialState) ? handleClickTutorialEnd : handleClickCashOut, false, TutorialState);
                     } else if (BalanceAmount <= 0 && PlayerHandIndex === 0 && totalBet <= 0) {
-                        return renderOutcomeButtons("Start Over?", handleClickStartOver, "Leaderboard", () => onChange('START'), true, TutorialState);
+                        return renderOutcomeButtons("Start over?", handleClickStartOver, "Leaderboard", () => onChange('START'), true, TutorialState);
                     }
                 }
             })()}
