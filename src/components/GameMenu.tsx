@@ -12,10 +12,13 @@ import SVGThree from '../assets/Option2.svg?react';
 import {FiArrowLeft, FiArrowRight} from 'react-icons/fi';
 import {MdChevronLeft, MdChevronRight} from "react-icons/md";
 import {Screens} from "../App";
+import {fetchLeaderboardData} from '../services/leaderboardService';
+import {LeaderboardRow, GameLogDataEntries} from './LeaderBoard'
 
 interface MenuItem {
     id: number;
     label: Screens;
+    text: string;
     svg: JSX.Element;
 }
 
@@ -26,9 +29,9 @@ interface GameMenuProps {
 
 const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) => {
     const menuItems: MenuItem[] = [
-        {id: 0, label: 'LEARN', svg: <SVGOne/>},
-        {id: 1, label: 'PLAY', svg: <SVGTwo/>},
-        {id: 2, label: 'TRAIN', svg: <SVGThree/>},
+        {id: 0, label: 'LEARN', text: 'Step-by-step guide on how to play Black Jack', svg: <SVGOne/>},
+        {id: 1, label: 'PLAY', text: 'How much can you make with $20?', svg: <SVGTwo/>},
+        {id: 2, label: 'TRAIN', text: 'Increase your odds with basic Black Jack strategy', svg: <SVGThree/>},
     ];
 
 
@@ -88,24 +91,29 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
                         return (
                             <div
                                 key={item.id}
-                                className={`flex flex-col items-center justify-center space-y-8 transition-transform duration-300 -mx-6 ${
+                                className={`flex flex-col items-center justify-center space-y-2 transition-transform duration-300 -mx-6 ${
                                     isSelected ? 'scale-100 opacity-100' : `scale-50 opacity-50`
                                 }`}
                             >
                                 <button
                                     onClick={() => handleModeClick(isSelected, item.label, index)}
-                                    className={`btn btn-sm font-tech flex items-center justify-center text-lg border-0 px-8 flex-shrink-0 transition-all ${
+                                    className={`btn btn-sm font-tech flex items-center justify-center text-lg border-0 px-6 flex-shrink-0 transition-all ${
                                         isSelected ? 'text-lg' : 'text-sm'
                                     }`}
                                 >
                                     {item.label}
                                 </button>
+                                {isSelected &&
+                                <div className="flex flex-row justify-center text-center text-xs w-48 font-tech text-gray-600 pb-5">
+                                    {item.text}
+                                </div>}
                                 <div className="mt-2 transition-transform duration-300"
                                      onClick={() => handleModeClick(isSelected, item.label, index)}
                                      style={{
                                          // transformOrigin: `${transformOrigin} center`,
                                          transform: isSelected ? 'scale(1)' : 'scale(0.8)',
-                                     }}>{item.svg}</div>
+                                     }}>{item.svg}
+                                </div>
                             </div>
                         );
                     })}

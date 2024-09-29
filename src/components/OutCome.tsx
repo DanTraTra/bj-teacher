@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {animationTime, dealerAnimationTime, GameLog, GameOutComeType, PlayerHandProps} from "./MainContent";
 import PerformanceGraph from "./PerformanceGraph";
 import {Screens} from "../App";
+import {GameLogDataEntries, LeaderboardRow} from "./LeaderBoard";
 
 interface Props {
     PlayerHand: PlayerHandProps[];
@@ -10,7 +11,7 @@ interface Props {
     TrainingMode: boolean;
     TutorialState: number;
     GameState: GameOutComeType;
-    // TotalWinnings: number;
+    leaderboardStats: LeaderboardRow[];
     BalanceAmount: number;
     KeepGoingDisabled: boolean;
     CashOutDisabled: boolean;
@@ -30,7 +31,7 @@ const OutCome: React.FC<Props> = ({
                                       TutorialState,
                                       GameState,
                                       BalanceAmount,
-                                      // TotalWinnings,
+                                      leaderboardStats,
                                       KeepGoingDisabled,
                                       CashOutDisabled,
                                       GameLog,
@@ -40,6 +41,22 @@ const OutCome: React.FC<Props> = ({
                                       handleClickStartOver,
                                       onChange
                                   }) => {
+
+    function getRanking(leaderboardStats: LeaderboardRow[], BalanceAmount: number) {
+        // Determine where your EndingBalance would fit in the sorted leaderboard
+        let yourRank = leaderboardStats.findIndex(player => {
+            const playerEndingBalance = player.game_log_data[player.game_log_data.length - 1].EndingBalance;
+            return playerEndingBalance <= BalanceAmount; // Find the first balance lower or equal to yours
+        });
+
+        // If your EndingBalance is higher than all existing ones, it should be rank 1
+        if (yourRank === -1) {
+            yourRank = leaderboardStats.length; // You would be placed at the last rank
+        }
+
+        // Return 1-based rank
+        return yourRank + 1;
+    }
 
     const renderOutcomeButtons = (
         button1Text: string,
@@ -104,13 +121,56 @@ const OutCome: React.FC<Props> = ({
 
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
     const totalWinnings = totalBet - PlayerHand.reduce((acc, hand) => (hand.maxBet) + acc, 0);
-    console.log("totalBet", totalBet)
-    console.log("totalWinnings", totalWinnings)
+    const ranking = getRanking(leaderboardStats, totalBet + BalanceAmount)
+    console.log("GameLog", GameLog)
+    const maxBalance = GameLog.length >= 2 ?  GameLog.reduce((prev, current) => {
+        return prev.EndingBalance > current.EndingBalance ? prev : current;
+    }).EndingBalance : GameLog.length ? GameLog[0].EndingBalance : 0
+
+    const maxRanking = getRanking(leaderboardStats, maxBalance)
+
+    // console.log("totalBet", totalBet)
+    // console.log("totalWinnings", totalWinnings)
     return (
         <div className="flex flex-col items-center justify-center mx-auto space-y-2">
 
             <div
-                className="flex items-center justify-center text-white font-bold w-72 text-3xl text-center font-tech">{`${GameState} ${ totalWinnings > 0 ? (`\$${totalWinnings}`) : ""}`}</div>
+                className="flex flex-col items-center justify-center text-white font-bold w-72 text-3xl text-center font-tech">{`${GameState} ${totalWinnings > 0 ? (`\$${totalWinnings}`) : ""}`}
+
+                <div
+                    className="flex space-x-1.5 items-center justify-center text-xs text-center font-tech">
+                    {/*<span className="text-gray-400">Currently</span>*/}
+
+                    {(() => {
+                        if (!TrainingMode) {
+                            if ((BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) ||
+                                (PlayerHand[PlayerHandIndex].betDisplay > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0)) {
+                                if (ranking <= 20) {
+                                    return <>
+                                        <span className="text-gray-300">Currently</span>
+                                        <span className="text-white">{ranking}th </span>
+                                        <span className="text-gray-300">on the leaderboard</span>
+                                    </>
+                                } else {
+                                    return <>
+                                        <span className="text-gray-300">Win</span>
+                                        <span
+                                            className="text-white">${leaderboardStats[leaderboardStats.length - 1].cashOut - totalBet + BalanceAmount} more</span>
+                                        <span className="text-gray-300">to get on the leaderboard</span>
+                                    </>
+                                }
+
+                            } else if (BalanceAmount <= 0 && PlayerHandIndex === 0 && totalBet <= 0 && maxRanking <= 20) {
+                                return <>
+                                    <span className="text-gray-300">Could've came</span>
+                                    <span className="text-white">{maxRanking}th </span>
+                                    <span className="text-gray-300">on the leaderboard</span>
+                                </>
+                            }
+                        }
+                    })()}
+                </div>
+            </div>
             {(() => {
                 if (!TrainingMode) {
                     if (BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) {

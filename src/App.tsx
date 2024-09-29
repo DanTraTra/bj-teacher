@@ -21,7 +21,7 @@ import Arrow1 from "./assets/arrow1.svg?react";
 import React, {useEffect, useRef, useState} from "react";
 import {useSpring, animated} from 'react-spring';
 import MainContent, {PlayerHandProps} from "./components/MainContent";
-import LeaderBoard from "./components/LeaderBoard";
+import LeaderBoard, {GameLogDataEntries, LeaderboardRow} from "./components/LeaderBoard";
 import {FaDumbbell} from "react-icons/fa6";
 import ScrollableButtonContainer from "./components/ScrollableButtons";
 import GameMenu from "./components/GameMenu";
@@ -32,6 +32,7 @@ import SVGAnimator from "./components/SVGAnimator";
 import SVGInterpolator from "./components/SVGAnimator";
 import {CardProps, PlayingCard} from "./components/PlayingCard";
 import SwipeablePager from "./components/SwipeablePager";
+import {fetchLeaderboardData} from "./services/leaderboardService";
 
 export type Screens =
     "START"
@@ -48,13 +49,49 @@ function App() {
     const [showButton, setShowButton] = useState(true)
     const [ScreenState, setScreenState] = useState<Screens>("START")
     const [TutorialState, setTutorialState] = useState<number>(-1)
+    const [Loading, setLoading] = useState(true);
+    const [LeaderboardData, setLeaderboardData] = useState<GameLogDataEntries[]>([]);
+    const [SortedLeaderboard, setSortedLeaderboard] = useState<LeaderboardRow[]>([]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        const data = await fetchLeaderboardData();
+        setLeaderboardData(data);
+        setLoading(false);
+    };
 
     useEffect(() => {
+
         const timeoutId = setTimeout(() => {
             setTimeout(() => setShowMessage(false), 500);
         }, 500); // Change text after 2 seconds
+        fetchData();
+
         return () => clearTimeout(timeoutId);
     }, [])
+
+    useEffect(() => {
+        console.log("LeaderboardData", LeaderboardData)
+        let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => ({
+            rank: 1,
+            player: d.username,
+            cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
+            hands: d.game_log_data.length,
+            win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.some(hand => hand.winMultiplier > 1)).length / d.game_log_data.length) * 100).toFixed(0)),
+            db_index: index,
+            game_log_data: d.game_log_data,
+        }));
+
+        updatedBoard.sort((a, b) => b.cashOut - a.cashOut).forEach((row, index) => {
+            row.rank = index + 1;
+        });
+
+        updatedBoard = updatedBoard.splice(0, 20)
+
+        setSortedLeaderboard(updatedBoard);
+        console.log("sortedLeaderBoard")
+
+    }, [LeaderboardData])
 
     useEffect(() => {
         console.log("TutorialState", TutorialState)
@@ -143,7 +180,7 @@ function App() {
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col w-full h-full items-center space-y-8 pt-[25vh] pb-50">
+                return <div className="flex flex-col w-full items-center space-y-8 pt-[25vh] pb-32">
 
                     {/*<div className="flex flex-col space-y-2 pb-6">*/}
                     {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}>Play</button>*/}
@@ -154,7 +191,7 @@ function App() {
                     {/*<GameMenu1/>*/}
                     {/*<SVGOne/>*/}
                     {/*<button className="btn" onClick={handleShowLeaderboard}>See Leader Board</button>*/}
-                    <LeaderBoard/>
+                    <LeaderBoard LeaderboardData={SortedLeaderboard} Loading={Loading}/>
                 </div>
 
             case 'PLAY':
@@ -163,7 +200,7 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} trainingMode={false} setTutorialState={() => {
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={false} setTutorialState={() => {
                             }} TutorialState={TutorialState}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
@@ -177,7 +214,7 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} trainingMode={true} setTutorialState={() => {
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={true} setTutorialState={() => {
                             }} TutorialState={TutorialState}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
@@ -200,7 +237,7 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} trainingMode={false}
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={false}
                                 // TutorialState={7}
                                          TutorialState={TutorialState}
                                          setTutorialState={setTutorialState}/>
@@ -242,7 +279,8 @@ function App() {
 
     return (
         <>
-            <div className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto overflow-x-hidden bg-pastelBlue">
+            <div
+                className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto overflow-x-hidden bg-pastelBlue">
 
                 {renderScreen()}
 

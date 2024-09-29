@@ -63,6 +63,7 @@ import CountQuiz from "./CountQuiz";
 import WarningBanner from "./Warning";
 import {FaAngleDown, FaAngleLeft} from "react-icons/fa";
 import Tutorial from "./Tutorial";
+import {GameLogDataEntries, LeaderboardRow} from "./LeaderBoard";
 
 const buttonClass = "btn btn-sm btn-circle text-white size-8 w-12 h-12"
 const chipClass = "flex flex-col p-0 m-0 size-16 hover:bg-transparent hover:border-transparent bg-transparent border-transparent transition duration-100 ease-in-out hover:brightness-125"
@@ -73,13 +74,6 @@ export const dealerAnimationTime = animationTime + 300
 
 interface UserNameProps {
     onSave: (UserName: string) => Promise<{ success: boolean }>;
-}
-
-interface MainContentProps {
-    changeScreenTo: (screen: Screens) => void;
-    trainingMode: boolean;
-    TutorialState: number;
-    setTutorialState: (arg0: number) => void;
 }
 
 export type GameOutComeType =
@@ -167,7 +161,15 @@ export const initializeSpecificHand = (testCards: number[]): CardProps[] => {
     return deck
 }
 
-const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, TutorialState, setTutorialState}) => {
+interface MainContentProps {
+    changeScreenTo: (screen: Screens) => void;
+    leaderboardStats: LeaderboardRow[];
+    trainingMode: boolean;
+    TutorialState: number;
+    setTutorialState: (arg0: number) => void;
+}
+
+const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardStats, trainingMode, TutorialState, setTutorialState}) => {
 
     const initialBalance = trainingMode ? Infinity : 20
 
@@ -2104,7 +2106,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, trainingMode, 
                                     GameState={GameState}
                                     ChipAnimationOver={ChipAnimationOver}
                                     BalanceAmount={BalanceAmount}
-                                    // TotalWinnings={}
+                                    leaderboardStats={leaderboardStats}
                                     KeepGoingDisabled={KeepGoingDisabled}
                                     CashOutDisabled={CashOutDisabled}
                                     GameLog={GameLog}
