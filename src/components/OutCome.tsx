@@ -122,15 +122,15 @@ const OutCome: React.FC<Props> = ({
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
     const totalWinnings = totalBet - PlayerHand.reduce((acc, hand) => (hand.maxBet) + acc, 0);
     const ranking = getRanking(leaderboardStats, totalBet + BalanceAmount)
-    console.log("GameLog", GameLog)
+    // // console.log("GameLog", GameLog)
     const maxBalance = GameLog.length >= 2 ?  GameLog.reduce((prev, current) => {
         return prev.EndingBalance > current.EndingBalance ? prev : current;
     }).EndingBalance : GameLog.length ? GameLog[0].EndingBalance : 0
 
     const maxRanking = getRanking(leaderboardStats, maxBalance)
 
-    // console.log("totalBet", totalBet)
-    // console.log("totalWinnings", totalWinnings)
+    // // console.log("totalBet", totalBet)
+    // // console.log("totalWinnings", totalWinnings)
     return (
         <div className="flex flex-col items-center justify-center mx-auto space-y-2">
 

@@ -45,7 +45,7 @@ const SwipeablePopup: React.FC<SwipeablePagerProps> = ({
             dealerHandIndex: 0,
             tableIndex: 0
         }
-        // console.log("peaking", peaking)
+        // // console.log("peaking", peaking)
         const cheatSheetBGRef = useRef<HTMLDivElement>(null);
 
         const [currentPage, setCurrentPage] = useState(tableIndex);

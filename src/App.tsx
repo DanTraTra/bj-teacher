@@ -71,7 +71,7 @@ function App() {
     }, [])
 
     useEffect(() => {
-        console.log("LeaderboardData", LeaderboardData)
+        // // // console.log("LeaderboardData", LeaderboardData)
         let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => ({
             rank: 1,
             player: d.username,
@@ -89,20 +89,20 @@ function App() {
         updatedBoard = updatedBoard.splice(0, 20)
 
         setSortedLeaderboard(updatedBoard);
-        console.log("sortedLeaderBoard")
+        // // // console.log("sortedLeaderBoard")
 
     }, [LeaderboardData])
 
     useEffect(() => {
-        console.log("TutorialState", TutorialState)
+        // // // console.log("TutorialState", TutorialState)
     }, [TutorialState])
 
     useEffect(() => {
         // if (ScreenState == "LEARN") {
-        //     console.log("setting to learn")
+        //     // // console.log("setting to learn")
         //     setTutorialState(0)
         // }
-        console.log("ScreenState", ScreenState)
+        // // // console.log("ScreenState", ScreenState)
     }, [ScreenState])
 
 
@@ -172,9 +172,9 @@ function App() {
             "src/assets/Teacher3.svg",
             "src/assets/Teacher4.svg",
         ]
-        ////console.log("ScreenState", ScreenState)
+        ////// // console.log("ScreenState", ScreenState)
         const changeScreen = (screen: Screens) => {
-            console.log(`Changing screens to ${screen}`)
+            // // // console.log(`Changing screens to ${screen}`)
             setScreenState(screen)
         }
 
@@ -280,7 +280,7 @@ function App() {
     return (
         <>
             <div
-                className="flex flex-col flex-start items-center h-[100vh] overflow-y-auto overflow-x-hidden bg-pastelBlue">
+                className="flex flex-col flex-start items-center absolute top-0 bottom-0 right-0 left-0 overflow-y-auto overflow-x-hidden bg-pastelBlue">
 
                 {renderScreen()}
 

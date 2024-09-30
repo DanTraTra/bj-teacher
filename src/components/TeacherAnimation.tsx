@@ -51,7 +51,7 @@ const TeacherAnimation = () => {
     };
 
     useEffect(() => {
-        console.log(index)
+        // console.log(index)
     }, [index])
 
     return (
@@ -267,7 +267,7 @@ export default TeacherAnimation;
 //     return (
 //         <svg width="61" height="187" viewBox="0 0 61 187" fill="none" xmlns="http://www.w3.org/2000/svg"
 //              onClick={() => {
-//                  console.log("click")
+//                  // console.log("click")
 //                  setIndex((index + 1) % paths.length)
 //              }}>
 //             {interpolator.map(({interpolate, attributes}, i) => {

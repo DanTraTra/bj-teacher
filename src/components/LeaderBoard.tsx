@@ -62,7 +62,7 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({LeaderboardData, Loading}) => 
         // setLeaderboard(updatedBoard);
         //
         // if (Leaderboard.length) {
-        //     ////console.log("Leaderboard", Leaderboard)
+        //     ////// console.log("Leaderboard", Leaderboard)
         // }
     }, [LeaderboardData, Loading])
 
