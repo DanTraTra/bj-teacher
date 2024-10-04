@@ -33,6 +33,7 @@ import SVGInterpolator from "./components/SVGAnimator";
 import {CardProps, PlayingCard} from "./components/PlayingCard";
 import SwipeablePager from "./components/SwipeablePager";
 import {fetchLeaderboardData} from "./services/leaderboardService";
+import CameraRecorder from "./components/CameraRecorder";
 
 export type Screens =
     "START"
@@ -165,16 +166,8 @@ function App() {
     ]
 
     function renderScreen() {
-        const svgFilePaths = [
-            "src/assets/Teacher.svg",
-            "src/assets/Teacher1.svg",
-            "src/assets/Teacher2.svg",
-            "src/assets/Teacher3.svg",
-            "src/assets/Teacher4.svg",
-        ]
         ////// // console.log("ScreenState", ScreenState)
         const changeScreen = (screen: Screens) => {
-            // // // console.log(`Changing screens to ${screen}`)
             setScreenState(screen)
         }
 
@@ -200,12 +193,16 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={false} setTutorialState={() => {
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard}
+                                         trainingMode={false} setTutorialState={() => {
                             }} TutorialState={TutorialState}/>
                         </div>
-                        <div className="flex flex-1 justify-center items-center">
+                        <div className="flex flex-1 justify-center items-center pb-[60px]">
                             <SVGTwo className="max-w-sm max-h-sm"/>
                         </div>
+                        {/*<div className="absolute top-0 right-0 left-0 bottom-0 z-0">*/}
+                        {/*    /!*<CameraRecorder/>*!/*/}
+                        {/*</div>*/}
                     </div>
                 </>
             case 'TRAIN':
@@ -214,7 +211,8 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={true} setTutorialState={() => {
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard}
+                                         trainingMode={true} setTutorialState={() => {
                             }} TutorialState={TutorialState}/>
                         </div>
                         <div className="flex flex-1 justify-center items-center">
@@ -237,7 +235,8 @@ function App() {
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
-                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard} trainingMode={false}
+                            <MainContent changeScreenTo={changeScreen} leaderboardStats={SortedLeaderboard}
+                                         trainingMode={false}
                                 // TutorialState={7}
                                          TutorialState={TutorialState}
                                          setTutorialState={setTutorialState}/>

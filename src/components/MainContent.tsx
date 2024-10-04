@@ -2408,7 +2408,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
             }
 
             <div className="flex flex-col pt-4 space-y-0 overflow-y-auto w-full">
-                <div className="flex flex-col pt-44 justify-center space-y-4 w-full">
+                <div className="flex flex-col pt-[130px] justify-center space-y-4 w-full">
                     {GameState != 'SAVING GAME' &&
                     <div
                         className={`flex h-[6rem] space-x-8 mx-auto`}

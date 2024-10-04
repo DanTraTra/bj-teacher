@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect, useRef, useMemo} from "react";
 import {useSwipeable} from 'react-swipeable';
 
 import {Transition} from "@headlessui/react";
 // @ts-ignore
 import SVGOne from '../assets/Option3.svg?react';
 // @ts-ignore
-import SVGTwo from '../assets/Option1.svg?react';
+import SVGTwo from '../assets/Option1_sm.svg?react';
 // @ts-ignore
 import SVGThree from '../assets/Option2.svg?react';
 
@@ -27,23 +27,42 @@ interface GameMenuProps {
     setTutorialState: (arg0: number) => void;
 }
 
+const menuItems: MenuItem[] = [
+    {id: 0, label: 'LEARN', text: 'Step-by-step guide on how to play Black Jack', svg: <SVGOne/>},
+    {id: 1, label: 'PLAY', text: 'How much can you make with $20?', svg: <SVGTwo/>},
+    {id: 2, label: 'TRAIN', text: 'Increase your odds with basic Black Jack strategy', svg: <SVGThree/>},
+];
+
+
 const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) => {
-    const menuItems: MenuItem[] = [
-        {id: 0, label: 'LEARN', text: 'Step-by-step guide on how to play Black Jack', svg: <SVGOne/>},
-        {id: 1, label: 'PLAY', text: 'How much can you make with $20?', svg: <SVGTwo/>},
-        {id: 2, label: 'TRAIN', text: 'Increase your odds with basic Black Jack strategy', svg: <SVGThree/>},
-    ];
-
-
     const [selectedIndex, setSelectedIndex] = useState(1);
 
+    const debounce = (func: (...args: any[]) => void, delay: number) => {
+        let timeout: NodeJS.Timeout;
+        return (...args: any[]) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
+
+    // const handleNext = debounce(() => {
+    //     setSelectedIndex((prevIndex) => (prevIndex + 1) % menuItems.length);
+    // }, 300);
+    //
+    // const handlePrev = debounce(() => {
+    //     setSelectedIndex((prevIndex) =>
+    //         prevIndex === 0 ? menuItems.length - 1 : prevIndex - 1
+    //     );
+    // }, 300);
+
+    //
     const handleNext = () => {
-        // console.log("clicked right")
-        setSelectedIndex((prevIndex) => (prevIndex + 1) % menuItems.length);
+        console.log("clicked right")
+        setSelectedIndex(prevIndex => (prevIndex + 1) % menuItems.length);
     };
 
     const handlePrev = () => {
-        // console.log("clicked left")
+        console.log("clicked left")
         setSelectedIndex((prevIndex) =>
             prevIndex === 0 ? menuItems.length - 1 : prevIndex - 1
         );
@@ -57,7 +76,11 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
     const handleSelect = (index: number) => {
         setSelectedIndex(index);
     };
-    const translateX = `-${selectedIndex * 160}px`;
+
+    // Memoized translateX value to avoid recalculating on every render
+    const translateX = useMemo(() => `-${selectedIndex * 160}px`, [selectedIndex]);
+
+    // const translateX = `-${selectedIndex * 160}px`;
 
 
     const handleModeClick = (isSelected: boolean, label: Screens, index: number) => {
@@ -67,7 +90,7 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
                 setTutorialState(0)
             }
         } else {
-            handleSelect(index)
+            setSelectedIndex(index);
         }
     }
 
@@ -91,12 +114,13 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
                         return (
                             <div
                                 key={item.id}
-                                className={`flex flex-col items-center justify-center space-y-2 transition-transform duration-300 -mx-6 ${
+                                className={`flex flex-col items-center justify-center space-y-2 transition-transform duration-300 -mx-6 
+                                ${
                                     isSelected ? 'scale-100 opacity-100' : `scale-50 opacity-50`
                                 }`}
                             >
                                 <button
-                                    onClick={() => handleModeClick(isSelected, item.label, index)}
+                                    onClick={() => handleModeClick(selectedIndex === index, item.label, index)}
                                     className={`btn btn-sm font-tech flex items-center justify-center text-lg border-0 px-6 flex-shrink-0 transition-all ${
                                         isSelected ? 'text-lg' : 'text-sm'
                                     }`}
@@ -104,11 +128,12 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
                                     {item.label}
                                 </button>
                                 {isSelected &&
-                                <div className="flex flex-row justify-center text-center text-xs w-48 font-tech text-gray-600 pb-5">
+                                <div
+                                    className="flex flex-row justify-center text-center text-xs w-48 font-tech text-gray-600 pb-5">
                                     {item.text}
                                 </div>}
                                 <div className="mt-2 transition-transform duration-300"
-                                     onClick={() => handleModeClick(isSelected, item.label, index)}
+                                     onClick={() => handleModeClick(selectedIndex === index, item.label, index)}
                                      style={{
                                          // transformOrigin: `${transformOrigin} center`,
                                          transform: isSelected ? 'scale(1)' : 'scale(0.8)',
