@@ -84,7 +84,7 @@ export type GameOutComeType =
     | "DEALER BUST"
     | "HOUSE WINS"
     | "YOU WIN"
-    | "PLAYER BLACKJACK"
+    | "BLACKJACK"
     | "GAME OVER"
     | "SAVING GAME"
     | "CARD COUNT QUIZ"
@@ -169,7 +169,13 @@ interface MainContentProps {
     setTutorialState: (arg0: number) => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardStats, trainingMode, TutorialState, setTutorialState}) => {
+const MainContent: React.FC<MainContentProps> = ({
+                                                     changeScreenTo,
+                                                     leaderboardStats,
+                                                     trainingMode,
+                                                     TutorialState,
+                                                     setTutorialState
+                                                 }) => {
 
     const initialBalance = trainingMode ? Infinity : 20
 
@@ -342,7 +348,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
             PlayerHand: [1, 10],
             DealerHand: [10, 10],
             Deck: null,
-            Outcome: "PLAYER BLACKJACK",
+            Outcome: "BLACKJACK",
         }
         , {
             PlayerHand: [10, 10, 10],
@@ -354,13 +360,13 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
             PlayerHand: [10, 10],
             DealerHand: [10, 1],
             Deck: null,
-            Outcome: "PLAYER BLACKJACK",
+            Outcome: "BLACKJACK",
         }
         , {
             PlayerHand: [10, 10],
             DealerHand: [10, 1],
             Deck: [1, 10, 10],
-            Outcome: "PLAYER BLACKJACK",
+            Outcome: "BLACKJACK",
         }
         , {
             PlayerHand: [1, 1],
@@ -524,7 +530,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
     const [HitDisabled, setHitDisabled] = useState(false);
     const handleClickHit = (doubleDownHit: boolean) => {
         // // console.log("CLICKED HIT")
-        if ([5, 8, 9].includes(TutorialState)) {
+        if ([5, 8, 9, 13].includes(TutorialState) || !doubleDownHit && [10].includes(TutorialState)) {
             setIsShakingHitButton(true);
             setTimeout(() => {
                 setIsShakingHitButton(false);
@@ -580,7 +586,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
     const [standDisabled, setStandDisabled] = useState(false);
     const handleClickStand = (doubleDownStand: boolean) => {
 
-        if ([4, 8].includes(TutorialState)) {
+        if ([4, 8, 13].includes(TutorialState) || !doubleDownStand && [10].includes(TutorialState)) {
             setIsShakingStandButton(true);
             setTimeout(() => {
                 setIsShakingStandButton(false);
@@ -671,7 +677,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                 setStandDisabled(false)
                 setHitDisabled(false)
                 setDoubleDownDisabled(false) //After Clicking Split
-            }, animationTime + 100)
+            }, dealerAnimationTime)
         } else {
             setStreakAmount(0)
             setBeginStreak(false)
@@ -681,7 +687,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
 
     const [doubleDownDisabled, setDoubleDownDisabled] = useState(false);
     const handleClickDoubleDown = () => {
-        if ([4, 8].includes(TutorialState)) {
+        if ([4, 8, 13].includes(TutorialState)) {
             setIsShakingDDButton(true);
             setTimeout(() => {
                 setIsShakingDDButton(false);
@@ -734,9 +740,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
     const [StartOverDisabled, setStartOverDisabled] = useState(false);
     const handleClickStartOver = (deckCount: number) => {
         // // console.log("handleClickStartOver")
-        const newDeck = TutorialState >= 0 ? initializeTutorialDeck() : initializeDeck(DeckCount)
+        const newDeck = TutorialState >= 0 ? initializeTutorialDeck() : initializeDeck(deckCount)
         setGlobalDeck(newDeck)
-        setIsDeckSet(true); // Indicate that the deck has been set
+        setIsDeckSet(true); // Indicate that the deck has been set - calls setGame [isDeckSet]
         setBalanceAmount(initialBalance)
         setGameLog([])
         setGameCount(0)
@@ -748,6 +754,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
         if (isDeckSet) {
             setUpGame();
             setIsDeckSet(false); // Reset the flag after setup
+            // console.log("In [isDeckSet], current GlobalDeck", GlobalDeck)
         }
     }, [isDeckSet]);
 
@@ -1059,7 +1066,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
         // TODO: BUG FIX Sometimes the cards don't flip over in trainingmode - not card counting
         // TODO: Animate coins going to balance
 
-        // // console.log("Setting Up Game")
+        console.log("Setting Up Game")
         // // console.log("PlayerHand[PlayerHandIndex].betDisplay", PlayerHand[PlayerHandIndex].betDisplay)
         if (GlobalDeck.length < (DeckCount * 26) && randomOn && (TutorialState < 0)) {
             // console.log("Needs Shuffling")
@@ -1182,9 +1189,9 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
             updatedBabyChipClickPlayerHand[PlayerHandIndex].betDisplay = 0
             setPlayerHand(updatedBabyChipClickPlayerHand)
 
-            // console.log("starting over4")
+            console.log("starting over4")
             handleClickStartOver(6)
-            setUpGame()
+            // setUpGame()
 
         }
         if (!randomOn && TrainingMode) {
@@ -1228,7 +1235,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                             const updatedList = [...CardShift]
                             updatedList.push((PlayerHandIndex * 128) + (ExtraCardCount * 24))
                             setCardShift(updatedList)
-                        }, dealerAnimationTime)
+                        }, animationTime)
                     }
 
                 }
@@ -1385,7 +1392,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                         setGameState("PUSH")
                         break
                     case 2.5:
-                        setGameState("PLAYER BLACKJACK")
+                        setGameState("BLACKJACK")
                         break
                     case 0:
                         setGameState("HOUSE WINS")
@@ -1431,7 +1438,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
         // ////// console.log("DealerHandSumState - PD", DealerHandSumState)
         ////// console.log("PlayerStand - PD", PlayerStand)
         // ////// console.log("DealerHand", DealerHand)
-        // ////// console.log("PlayerHand", PlayerHand)
+        // console.log("PlayerHand", PlayerHand)
         if (GameState == "SAVING GAME") {
             return
         }
@@ -1513,7 +1520,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
 
     useEffect(() => {
         // // console.log("-------inside useEffect dep [GameState]", GameState)
-        if ((GameState == 'PLAYER BUST' || GameState == 'PLAYER BLACKJACK') && (PlayerHandIndex == PlayerHand.length - 1)) {
+        if ((GameState == 'PLAYER BUST' || GameState == "BLACKJACK") && (PlayerHandIndex == PlayerHand.length - 1)) {
             //Reveal dealers card if isn't turned over
             //// console.log("-------inside useEffect dep [GameState]")
             revealDealerCard(1)
@@ -1559,11 +1566,11 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
     //     | "DEALER BUST"
     //     | "HOUSE WINS"
     //     | "YOU WIN"
-    //     | "PLAYER BLACKJACK"
+    //     | "BLACKJACK"
     // const WIN: GameOutComeType[] = ['YOU WIN', "DEALER BUST"]
-    const WIN: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST"]
+    const WIN: GameOutComeType[] = ['BLACKJACK', 'YOU WIN', "DEALER BUST"]
     const LOSE: GameOutComeType[] = ['HOUSE WINS', 'PLAYER BUST']
-    const HANDOVER: GameOutComeType[] = ['PLAYER BLACKJACK', 'YOU WIN', "DEALER BUST", 'HOUSE WINS', 'PLAYER BUST', "GAME OVER", "PUSH",]
+    const HANDOVER: GameOutComeType[] = ["BLACKJACK", 'YOU WIN', "DEALER BUST", 'HOUSE WINS', 'PLAYER BUST', "GAME OVER", "PUSH",]
 
     const [ChipAnimationOver, setChipAnimationOver] = useState<boolean>(false)
     useEffect(() => {
@@ -1591,7 +1598,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                     updatedPlayerHandBetDisplay.map((hand, index) => index == 0 ? (hand) : (hand.betDisplay = 0))
                     setPlayerHand(updatedPlayerHandBetDisplay)
                 }
-                // ////// console.log("PlayerHand", PlayerHand)
+                // console.log("PlayerHand", PlayerHand)
                 // ////// console.log("winAmount", winAmount)
                 // ////// console.log("PlayerHandIndex", PlayerHandIndex)
 
@@ -2106,6 +2113,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                                     GameState={GameState}
                                     ChipAnimationOver={ChipAnimationOver}
                                     BalanceAmount={BalanceAmount}
+                                    DealerTurnEnded={DealerTurnEnded}
                                     leaderboardStats={leaderboardStats}
                                     KeepGoingDisabled={KeepGoingDisabled}
                                     CashOutDisabled={CashOutDisabled}
@@ -2115,7 +2123,7 @@ const MainContent: React.FC<MainContentProps> = ({changeScreenTo, leaderboardSta
                                     }}
                                     handleClickTutorialEnd={() => {
                                         setTutorialState(-1)
-                                        changeScreenTo("PLAY")
+                                        changeScreenTo("START")
                                     }}
                                     handleClickCashOut={handleClickCashOut}
                                     handleClickStartOver={() => handleClickStartOver(DeckCount)}

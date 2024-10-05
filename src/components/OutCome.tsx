@@ -10,6 +10,7 @@ interface Props {
     ChipAnimationOver: boolean;
     TrainingMode: boolean;
     TutorialState: number;
+    DealerTurnEnded: boolean;
     GameState: GameOutComeType;
     leaderboardStats: LeaderboardRow[];
     BalanceAmount: number;
@@ -29,6 +30,7 @@ const OutCome: React.FC<Props> = ({
                                       ChipAnimationOver,
                                       TrainingMode,
                                       TutorialState,
+                                      DealerTurnEnded,
                                       GameState,
                                       BalanceAmount,
                                       leaderboardStats,
@@ -119,11 +121,18 @@ const OutCome: React.FC<Props> = ({
         }
     }, [ChipAnimationOver]);
 
+    // let totalWinnings = 0
+    // useEffect(() => {
+    //     totalWinnings = totalBet - PlayerHand.reduce((acc, hand) => ((hand.maxBet * hand.winMultiplier) - hand.maxBet) + acc, 0);
+    // }, [DealerTurnEnded])
+
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
-    const totalWinnings = totalBet - PlayerHand.reduce((acc, hand) => (hand.maxBet) + acc, 0);
+    console.log("PlayerHand[0].betDisplay, PlayerHand[0].maxBet", PlayerHand[0].betDisplay, PlayerHand[0].maxBet)
+    const totalWinnings = PlayerHand.reduce((acc, hand) => ((-1 * hand.maxBet) + hand.betDisplay) + acc, 0);
+
     const ranking = getRanking(leaderboardStats, totalBet + BalanceAmount)
     // // console.log("GameLog", GameLog)
-    const maxBalance = GameLog.length >= 2 ?  GameLog.reduce((prev, current) => {
+    const maxBalance = GameLog.length >= 2 ? GameLog.reduce((prev, current) => {
         return prev.EndingBalance > current.EndingBalance ? prev : current;
     }).EndingBalance : GameLog.length ? GameLog[0].EndingBalance : 0
 
@@ -142,7 +151,7 @@ const OutCome: React.FC<Props> = ({
                     {/*<span className="text-gray-400">Currently</span>*/}
 
                     {(() => {
-                        if (!TrainingMode) {
+                        if (!TrainingMode && TutorialState < 0) {
                             if ((BalanceAmount > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0) ||
                                 (PlayerHand[PlayerHandIndex].betDisplay > 0 && PlayerHand[PlayerHandIndex].betDisplay === totalBet && PlayerHandIndex === 0)) {
                                 if (ranking <= 20) {

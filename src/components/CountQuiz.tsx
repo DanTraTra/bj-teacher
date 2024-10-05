@@ -38,7 +38,7 @@ const CountQuiz: React.FC<Props> = ({Count, handleClickCorrectAnswer, handleClic
 
     return (
         <div
-            className={`flex-col items-center justify-center mx-auto space-y-2`}>
+            className={`flex-col items-center justify-center mx-auto space-y-2 px-6`}>
             <div className="flex items-center justify-center text-white font-bold">What's the count?</div>
             <div className="flex flex-row justify-center items-center space-x-4 px-0">
                 {

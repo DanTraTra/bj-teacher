@@ -173,7 +173,7 @@ function App() {
 
         switch (ScreenState) {
             case 'START':
-                return <div className="flex flex-col w-full items-center space-y-8 pt-[25vh] pb-32">
+                return <div className="flex flex-col w-full h-full overflow-x-hidden items-center space-y-8 pt-[25vh] pb-32">
 
                     {/*<div className="flex flex-col space-y-2 pb-6">*/}
                     {/*    <button className="btn font-tech px-5 text-lg" onClick={handlePlay}>Play</button>*/}
@@ -215,7 +215,7 @@ function App() {
                                          trainingMode={true} setTutorialState={() => {
                             }} TutorialState={TutorialState}/>
                         </div>
-                        <div className="flex flex-1 justify-center items-center">
+                        <div className="flex flex-1 justify-center items-center pb-12">
                             <SVGTrain className="max-w-sm max-h-sm"/>
                         </div>
                     </div>
@@ -224,14 +224,6 @@ function App() {
             case 'LEARN' :
                 return <>
                     <div className="flex flex-1 justify-center items-center overflow-hidden">
-                        {/*<div*/}
-                        {/*    className="absolute z-50 flex flex-row items-center justify-start w-[65%] max-w-[400px] bottom-0">*/}
-                        {/*    /!*<SVGAnimator svgPaths={svgUrls}/>*!/*/}
-                        {/*    /!*<TeacherAnimation/>*!/*/}
-                        {/*    /!*  <SVGInterpolator filePaths={svgFilePaths} duration={2000} />,/!**!/*!/*/}
-
-                        {/*    <SVGTeacher className="transform scale-[300%]"/>*/}
-                        {/*</div>*/}
                         <div
                             className="absolute inset-0 flex items-center pb-20 justify-center h-screen w-screen overflow-hidden"
                         >
@@ -241,13 +233,6 @@ function App() {
                                          TutorialState={TutorialState}
                                          setTutorialState={setTutorialState}/>
                         </div>
-                        {/*<div*/}
-                        {/*    // className="absolute flex items-end justify-center pb-12 h-screen w-screen overflow-hidden"*/}
-                        {/*    className="absolute flex items-end justify-center bottom-[40px] h-screen w-screen overflow-hidden"*/}
-                        {/*>*/}
-                        {/*    /!*<Tutorial changeScreenTo={changeScreen} setTutorialState={setTutorialState}*!/*/}
-                        {/*    /!*          TutorialState={TutorialState} playerHand={PlayerHandState} dealerHand={DealerHandState}/>*!/*/}
-                        {/*</div>*/}
                         <div className={`flex flex-1 justify-center items-center`}>
                             <SVGTwo className="max-w-sm max-h-sm"/>
                         </div>
@@ -279,7 +264,7 @@ function App() {
     return (
         <>
             <div
-                className="flex flex-col flex-start items-center absolute top-0 bottom-0 right-0 left-0 overflow-y-auto overflow-x-hidden bg-pastelBlue">
+                className="flex flex-col flex-start items-center absolute top-0 bottom-0 right-0 left-0 overflow-y-hidden overflow-x-hidden bg-pastelBlue">
 
                 {renderScreen()}
 
