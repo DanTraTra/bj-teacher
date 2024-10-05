@@ -141,7 +141,7 @@ const OutCome: React.FC<Props> = ({
     // // console.log("totalBet", totalBet)
     // // console.log("totalWinnings", totalWinnings)
     return (
-        <div className="flex flex-col items-center justify-center mx-auto space-y-2">
+        <div className="flex flex-col items-center justify-center mx-auto space-y-2 py-2">
 
             <div
                 className="flex flex-col items-center justify-center text-white font-bold w-72 text-3xl text-center font-tech">{`${GameState} ${totalWinnings > 0 ? (`\$${totalWinnings}`) : ""}`}
