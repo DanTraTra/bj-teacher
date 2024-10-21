@@ -1,39 +1,38 @@
-import './App.css'
-import './components/MainContent'
+import './Blackjack.css'
+import '../components/MainContent'
 // @ts-ignore
-import SVGOne from './assets/Dealer1.svg?react';
+import SVGOne from '../assets/Dealer1.svg?react';
 // @ts-ignore
-import SVGTwo from "./assets/Dealer3.svg?react";
+import SVGTwo from "../assets/Dealer3.svg?react";
 // @ts-ignore
-import SVGTrain from "./assets/TRAIN.svg?react";
+import SVGTrain from "../assets/TRAIN.svg?react";
 // @ts-ignore
-import SVGTeacher from "./assets/Teacher.svg?react";
+import SVGTeacher from "../assets/Teacher.svg?react";
 // @ts-ignore
-import SVGTeacherPoint from "./assets/Teacher1.svg?react";
+import SVGTeacherPoint from "../assets/Teacher1.svg?react";
 // @ts-ignore
-import SVGTeacherPoint1 from "./assets/Teacher2.svg?react";
+import SVGTeacherPoint1 from "../assets/Teacher2.svg?react";
 // @ts-ignore
-import SVGTeacherPoint2 from "./assets/Teacher3.svg?react";
+import SVGTeacherPoint2 from "../assets/Teacher3.svg?react";
 // @ts-ignore
-import Arrow1 from "./assets/arrow1.svg?react";
+import Arrow1 from "../assets/arrow1.svg?react";
 
 
 import React, {useEffect, useRef, useState} from "react";
 import {useSpring, animated} from 'react-spring';
-import MainContent, {PlayerHandProps} from "./components/MainContent";
-import LeaderBoard, {GameLogDataEntries, LeaderboardRow} from "./components/LeaderBoard";
+import MainContent, {PlayerHandProps} from "../components/MainContent";
+import LeaderBoard, {GameLogDataEntries, LeaderboardRow} from "../components/LeaderBoard";
 import {FaDumbbell} from "react-icons/fa6";
-import ScrollableButtonContainer from "./components/ScrollableButtons";
-import GameMenu from "./components/GameMenu";
-import GameMenu1 from "./components/GameMenu1";
-import Tutorial from "./components/Tutorial";
-import TeacherAnimation from "./components/TeacherAnimation";
-import SVGAnimator from "./components/SVGAnimator";
-import SVGInterpolator from "./components/SVGAnimator";
-import {CardProps, PlayingCard} from "./components/PlayingCard";
-import SwipeablePager from "./components/SwipeablePager";
-import {fetchLeaderboardData} from "./services/leaderboardService";
-import CameraRecorder from "./components/CameraRecorder";
+import ScrollableButtonContainer from "../components/ScrollableButtons";
+import GameMenu from "../components/GameMenu";
+import Tutorial from "../components/Tutorial";
+import TeacherAnimation from "../components/TeacherAnimation";
+import SVGAnimator from "../components/SVGAnimator";
+import SVGInterpolator from "../components/SVGAnimator";
+import {CardProps, PlayingCard} from "../components/PlayingCard";
+import SwipeablePager from "../components/SwipeablePager";
+import {fetchLeaderboardData} from "../services/leaderboardService";
+import CameraRecorder from "../components/CameraRecorder";
 
 export type Screens =
     "START"
@@ -42,7 +41,7 @@ export type Screens =
     | "LEADER BOARD"
     | "LEARN"
 
-function App() {
+function Blackjack() {
 
 
     const [showMessage, setShowMessage] = useState(true)
@@ -273,4 +272,4 @@ function App() {
 
 }
 
-export default App
+export default Blackjack

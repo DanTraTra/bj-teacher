@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {animationTime, dealerAnimationTime, GameLog, GameOutComeType, PlayerHandProps} from "./MainContent";
 import PerformanceGraph from "./PerformanceGraph";
-import {Screens} from "../App";
+import {Screens} from "../pages/Blackjack";
 import {GameLogDataEntries, LeaderboardRow} from "./LeaderBoard";
 
 interface Props {

@@ -4,7 +4,7 @@ import SVGTeacher from "/src/assets/Teacher.svg?react";
 // @ts-ignore
 import SVGTeacherPoint from "/src/assets/Teacher5.svg?react";
 import MainContent, {initializeSpecificHand, PlayerHandProps} from "./MainContent";
-import {Screens} from "../App";
+import {Screens} from "../pages/Blackjack";
 import {useSwipeable} from "react-swipeable";
 import CheatSheet, {action2iconDict, cheatSheetDataLogic} from "./CheatSheet";
 import {CardProps, PlayingCard} from "./PlayingCard";
@@ -166,6 +166,7 @@ const Tutorial: React.FC<TutorialProps> = ({
             text: React.ReactNode;
             spaceHeight: number;
         }
+
         const pages: tutorialPage[] = [
             {
                 header: "",
@@ -204,12 +205,13 @@ const Tutorial: React.FC<TutorialProps> = ({
             },
             {   //7
                 header: "Place another bet",
-                text: '',
+                text: <span>Choose as much or as little to bet and press <span className="text-black">Place Bet</span></span>,
                 spaceHeight: 310,
             },
             {   //8
                 header: "Blackjack!",
-                text: <span>Blackjack is when you have 21 with two cards. <span className="text-black">You win 2.5x your bet</span> (unless the dealer gets Blackjack too)</span>,
+                text: <span>Blackjack is when you have 21 with two cards. <span
+                    className="text-black">You win 2.5x your bet</span> (unless the dealer gets Blackjack too)</span>,
                 spaceHeight: 310,
             },
             {   //9
@@ -259,7 +261,7 @@ const Tutorial: React.FC<TutorialProps> = ({
                             className="flex flex-row w-full justify-center items-start text-center text-sm font-semibold pb-2">
                             {pages[TutorialState].text}
                         </div>
-                        <div className={`h-[${pages[TutorialState].spaceHeight}px]`}/>
+                        <div className="" style={{height: `${pages[TutorialState].spaceHeight}px`}}/>
                     </div>
                 </div>
             )

@@ -3,7 +3,7 @@ import supabase from '../services/supabaseClient';
 import './PlayingCard'
 import 'tailwindcss/tailwind.css'
 import {CardProps, PlayingCard} from "./PlayingCard"
-import {Screens} from "../App"
+import {Screens} from "../pages/Blackjack"
 // @ts-ignore
 import C1 from "/src/assets/C1.svg?react"
 // @ts-ignore

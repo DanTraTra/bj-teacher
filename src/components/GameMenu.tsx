@@ -11,7 +11,7 @@ import SVGThree from '../assets/Option2.svg?react';
 
 import {FiArrowLeft, FiArrowRight} from 'react-icons/fi';
 import {MdChevronLeft, MdChevronRight} from "react-icons/md";
-import {Screens} from "../App";
+import {Screens} from "../pages/Blackjack";
 import {fetchLeaderboardData} from '../services/leaderboardService';
 import {LeaderboardRow, GameLogDataEntries} from './LeaderBoard'
 
