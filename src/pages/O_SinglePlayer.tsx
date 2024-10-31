@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Tile from '../components/comp_orangagrams/tile'
 import GameBoard, {is2DArrayEmpty} from "./Gameboard";
 import {TileProps} from "../components/comp_orangagrams/tile";
 import {
+    IoArrowBackCircleOutline,
     IoArrowDownCircleOutline,
     IoArrowForwardCircleOutline,
     IoCheckmarkCircleOutline,
@@ -35,7 +36,7 @@ export interface DisplayGrid {
 
 function SinglePLayer() {
     const navigate = useNavigate();
-    const gridSize = 49
+    const gridSize = 19
 
     interface loc {
         x: number,
@@ -54,6 +55,7 @@ function SinglePLayer() {
     const [displayTileGrid, setDisplayTileGrid] = useState<DisplayGrid>(initialGrid)
     const [selectedTileIds, setSelectedTileIds] = useState<Set<number>>(new Set([]))
     const [confirmedTileIds, setConfirmedTileIds] = useState<Set<number>>(new Set([]))
+    const [xTileId, setXTileId] = useState<number>(-1)
     const allLettersDict = {
         A: 13,
         B: 3,
@@ -104,18 +106,13 @@ function SinglePLayer() {
             visible: true,
             selected: false,
             pale: false,
-            handleClickTile: () => handleTileClick(key),
-            handleTilePop: () => handleTilePop(key),
+            xState: false,
+            handleClickLLTile: () => handleLLTileClick(key),
+            handleClickGridTile: () => handleGridTileClick(key),
+            handleClickGridTilePop: () => handleGridTilePop(key),
         }
         return tile
     }))
-
-
-    const getTileFromGrid = (id: number) =>
-    {
-        const tile =  displayTileGrid.grid.map(row => row.filter((tile) => tile?.id == id))
-        return tile
-    }
 
 
     // useEffect(() => {
@@ -134,10 +131,13 @@ function SinglePLayer() {
             }
             return {...col}
         }))
+        // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile => tile))
+        // console.log("displayTileGrid.grid", displayTileGrid.grid)
+
     }, [displayTileGrid])
 
     useEffect(() => {
-        console.log("displayTileGrid.direction", displayTileGrid.direction)
+        // console.log("displayTileGrid.direction", displayTileGrid.direction)
     }, [displayTileGrid.direction])
 
     useEffect(() => {
@@ -148,7 +148,7 @@ function SinglePLayer() {
 
     useEffect(() => {
 
-        // console.log("confirmedTileIds", confirmedTileIds)
+        console.log("confirmedTileIds", confirmedTileIds)
 
     }, [confirmedTileIds])
 
@@ -159,64 +159,108 @@ function SinglePLayer() {
     }, [selectedTileIds])
 
 
-    const handleTileClick = (id: number) => {
+    const handleLLTileClick = useCallback((id: number) => {
         // console.log("confirmedTileIds", confirmedTileIds)
         // console.log("selectedTileIds in handledClick", selectedTileIds)
-        const tileFromGrid = displayTileGrid.grid.flat().filter(tile=>tile?.id == id)
-        const tile = tileFromGrid.length ? tileFromGrid[0] : lettersList.filter(tile => tile.id == id && !tile.pale)[0]
+        // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile=>tile != null))
 
-        console.log("tile clicked ", tile)
-        console.log("direction?", displayTileGrid.direction)
+        const tile = lettersList.find(tile => tile.id == id && !tile.pale)
 
-        if (!tile!.onGridTile) {
-            console.log("!tile.onGridTile", !tile!.onGridTile)
-            const paleTile = {...tile!, pale: true, onGridTile: true}
-            setDisplayTileGrid((prevGrid) => {
-                const newGrid = {...prevGrid}
-                console.log("newGrid", newGrid);
-                // console.log("nextTileLoc", x, y);
-                newGrid.grid[newGrid.nextLoc.y!][newGrid.nextLoc.x!] = paleTile
-                newGrid.nextLoc = newGrid.direction == "RIGHT" ?
-                    {
+        const paleTile = {...tile!, pale: true, onGridTile: true}
+        setDisplayTileGrid((prevGrid) => {
+            const newGrid = {...prevGrid}
+            console.log("newGrid", newGrid);
+            // console.log("nextTileLoc", x, y);
+            newGrid.grid[newGrid.nextLoc.y!][newGrid.nextLoc.x!] = paleTile
+            switch (newGrid.direction) {
+                case "TOP":
+                    newGrid.nextLoc = {
+                        ...prevGrid.nextLoc,
+                        y: (prevGrid.nextLoc.y - 1)
+                    }
+                    break;
+
+                case "BOTTOM":
+                    newGrid.nextLoc = {
+                        ...prevGrid.nextLoc,
+                        y: (prevGrid.nextLoc.y + 1)
+                    }
+                    break;
+
+                case "LEFT":
+                    newGrid.nextLoc = {
+                        ...prevGrid.nextLoc,
+                        x: (prevGrid.nextLoc.x - 1)
+                    }
+                    break;
+
+                default:
+                    newGrid.nextLoc = {
                         ...prevGrid.nextLoc,
                         x: (prevGrid.nextLoc.x + 1)
-                    } : newGrid.direction == "BOTTOM" ?
-                        {
-                            ...prevGrid.nextLoc,
-                            y: (prevGrid.nextLoc.y + 1)
-                        } : newGrid.direction == "LEFT" ?
-                            {
-                                ...prevGrid.nextLoc,
-                                x: (prevGrid.nextLoc.x - 1)
-                            } : {
-                                ...prevGrid.nextLoc,
-                                y: (prevGrid.nextLoc.y - 1)
-                            }
-                // newGrid.nextLoc = nextTileRight ? {...prevGrid.nextLoc, x: (prevGrid.nextLoc.x + 1)} : {...prevGrid.nextLoc, y: (prevGrid.nextLoc.y + 1)}
+                    }
+                    break;
 
-                return newGrid; // Return the updated grid
-            });
+            }
+            return newGrid; // Return the updated grid
+        });
 
-            setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
+        setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
 
-        } else {
-            setDisplayTileGrid((prevGrid) => {
-                return {...prevGrid,
-                grid: prevGrid.grid.map(row=>row.filter(tile => tile?.id != id))}
-            })
-        }
-    };
+    }, [displayTileGrid.grid]);
 
-    const handleTileX = (tile: TileProps) => {
 
+    const handleGridTileClick = useCallback((id: number) => {
+
+        console.log("Gird Tile Clicked id:", id)
+        setDisplayTileGrid((prevGrid) => {
+            return {
+                ...prevGrid,
+                // grid: prevGrid.grid.map(row => row.map(tile => tile?.id == id ? xTileId == id ? null : ({setXTileId(id); return tile}) : tile))
+                grid: prevGrid.grid.map(row => row.map(tile => {
+                    // tile?.id == id ? null : tile
+                    console.log("tile?.id == id", tile?.id == id)
+                    return tile?.id == id ? {...tile, xState: true} : tile
+                }))
+            }
+        })
+        // setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
+
+    }, [displayTileGrid.grid]);
+
+    const handleTileX = (id: number) => {
+        setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
     }
 
-    const handleTilePop = (id: number) => {
+    const handleGridTilePop = (id: number) => {
 
-        console.log("in handleTilePop")
-        console.log("selectedTileIds", selectedTileIds)
-        console.log("confirmedTileIds", confirmedTileIds)
-        console.log("oldGrid", displayTileGrid)
+        console.log("Gird Tile Removed id:", id)
+        setDisplayTileGrid((prevGrid) => {
+            let colIndex = prevGrid.nextLoc.x
+            let rowIndex = prevGrid.nextLoc.y
+
+            const newGrid = prevGrid.grid.map((row, rowI) => row.map((tile, colI) => {
+                // tile?.id == id ? null : tile
+                console.log("tile?.id == id", tile?.id == id)
+                if (tile?.id == id) {
+                    colIndex = colI
+                    rowIndex = rowI
+                    return null
+                } else {
+                    return tile
+                }
+            }))
+
+            return {
+                ...prevGrid,
+                // grid: prevGrid.grid.map(row => row.map(tile => tile?.id == id ? xTileId == id ? null : ({setXTileId(id); return tile}) : tile))
+                grid: newGrid,
+                nextLoc: {x: colIndex, y: rowIndex},
+                prevLoc: {x: colIndex, y: rowIndex},
+            }
+        })
+        setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
+
         // const newGrid = displayTileGrid.grid.map(row => row.map(currentTile => {
         //     return currentTile?.id == tile.id ? null : currentTile
         // }))
@@ -268,30 +312,37 @@ function SinglePLayer() {
 
     }
 
+    const handleBackSpace = () => {
+
+        const newSelectedTilesIdsArray = Array.from(selectedTileIds)
+        const tileToRemove = newSelectedTilesIdsArray.pop()
+
+        const newGrid = displayTileGrid.grid.map(row => row.map(tile => {
+            if (tile && tileToRemove == tile.id) {
+                return null
+            } else {
+                return {...tile} as TileProps
+            }
+        }))
+        console.log("newGrid", newGrid)
+
+        setDisplayTileGrid((prev): DisplayGrid => {
+            return {
+                ...prev, grid: newGrid,
+                nextLoc: prev.direction == 'LEFT' ? {...prev.nextLoc, x: prev.nextLoc.x + 1} :
+                    prev.direction == 'BOTTOM' ? {...prev.nextLoc, y: prev.nextLoc.y - 1} :
+                        prev.direction == 'TOP' ? {...prev.nextLoc, y: prev.nextLoc.y + 1} :
+                            {...prev.nextLoc, x: prev.nextLoc.x - 1}
+            }
+        });
+
+        setSelectedTileIds(new Set<number>(newSelectedTilesIdsArray))
+
+    }
+
     const handleDirectionClick = () => {
         console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
         console.log("displayTileGrid.prevLoc", displayTileGrid.prevLoc)
-        // if (is2DArrayEmpty(displayTileGrid.grid) // No tiles on board
-        //     // || (displayTileGrid.nextLoc.x == displayTileGrid.prevLoc.x && displayTileGrid.nextLoc.y == displayTileGrid.prevLoc.y) // At least one word confirmed and no incomplete words
-        // ) {
-        //     // TODO: IMPLEMENT NEW DIRECTION
-        //     setDisplayTileGrid((prevGrid) => (prevGrid.direction == 'RIGHT' ?
-        //         {
-        //             ...prevGrid,
-        //             direction: 'BOTTOM',
-        //         } : prevGrid.direction == 'BOTTOM' ?
-        //             {
-        //                 ...prevGrid,
-        //                 direction: 'RIGHT',
-        //             } :
-        //             {
-        //                 ...prevGrid,
-        //                 direction: 'RIGHT',
-        //             }
-        //             )
-        //     )
-        // }
-
         // Incomplete word
         setDisplayTileGrid((prevDisplayGrid) => {
             const newGrid = prevDisplayGrid.grid
@@ -337,25 +388,30 @@ function SinglePLayer() {
     }
 
     const handleEmptyTileClick = (row: number, col: number) => {
-        console.log("empty tile clicked")
-        setDisplayTileGrid((currentGrid) => {
-            // console.log("tileToLeft", currentGrid.grid[row][col - 1])
-            // console.log("tileAbove", currentGrid.grid[row - 1][col])
-            // console.log("tileToRight", currentGrid.grid[row][col + 1])
-            // console.log("tileBelow", currentGrid.grid[row + 1][col])
+        // handleWordConfirm()
 
-            const tileToLeft: boolean = !!currentGrid.grid[row][col - 1]
-            const tileAbove: boolean = !!currentGrid.grid[row - 1][col]
-            const tileToRight: boolean = !!currentGrid.grid[row][col + 1]
-            const tileBelow: boolean = !!currentGrid.grid[row + 1][col]
+        if (!displayTileGrid.grid[row][col]?.letter) {
+            console.log("empty tile clicked")
+            handleWordConfirm()
+            setDisplayTileGrid((currentGrid) => {
+                // console.log("tileToLeft", currentGrid.grid[row][col - 1]?.id)
+                // console.log("tileAbove", currentGrid.grid[row - 1][col]?.id)
+                // console.log("tileToRight", currentGrid.grid[row][col + 1]?.id)
+                // console.log("tileBelow", currentGrid.grid[row + 1][col]?.id)
 
-            return {
-                ...currentGrid,
-                nextLoc: {x: col, y: row},
-                prevLoc: {x: col, y: row},
-                direction: tileToLeft ? 'RIGHT' : tileAbove ? 'BOTTOM' : tileToRight ? 'LEFT' : 'TOP'
-            }
-        })
+                const tileToLeft: boolean = !!currentGrid.grid[row][col - 1]?.id
+                const tileAbove: boolean = !!currentGrid.grid[row - 1][col]?.id
+                const tileToRight: boolean = !!currentGrid.grid[row][col + 1]?.id
+                const tileBelow: boolean = !!currentGrid.grid[row + 1][col]?.id
+
+                return {
+                    ...currentGrid,
+                    nextLoc: {x: col, y: row},
+                    prevLoc: {x: col, y: row},
+                    direction: tileBelow ? 'TOP' : tileAbove ? 'BOTTOM' : tileToRight ? 'LEFT' : tileToLeft ? 'RIGHT' : 'RIGHT'
+                }
+            })
+        }
     }
 
 
@@ -371,6 +427,7 @@ function SinglePLayer() {
                                 {...tile}
                                 selected={selectedTileIds.has(tile.id)}
                                 pale={confirmedTileIds.has(tile.id)}
+                                onGridTile={false}
                                 key={key}
                             />
                         ))}
@@ -385,11 +442,14 @@ function SinglePLayer() {
                         {/*<button onClick={handleDirectionClick}>*/}
                         {/*    <FaArrowRotateLeft size={"24px"}/>*/}
                         {/*</button>*/}
-                        <button className="size-9" onClick={handleWordConfirm}>
-                            <IoCheckmarkCircleOutline className="m-auto" size={"34px"}/>
+                        <button className="size-9" onClick={handleBackSpace}>
+                            <IoArrowBackCircleOutline className="m-auto" size={"34px"}/>
                         </button>
                         <button className="size-9" onClick={handleWordCancel}>
                             <IoIosCloseCircleOutline className="m-auto" size={"34px"}/>
+                        </button>
+                        <button className="size-9" onClick={handleWordConfirm}>
+                            <IoCheckmarkCircleOutline className="m-auto" size={"34px"}/>
                         </button>
                     </div>
                 </div>
