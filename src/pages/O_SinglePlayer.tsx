@@ -107,6 +107,7 @@ function SinglePLayer() {
             selected: false,
             pale: false,
             xState: false,
+            draggable:false,
             handleClickLLTile: () => handleLLTileClick(key),
             handleClickGridTile: () => handleGridTileClick(key),
             handleClickGridTilePop: () => handleGridTilePop(key),
@@ -245,11 +246,11 @@ function SinglePLayer() {
 
     }, [displayTileGrid.grid]);
 
-    const handleTileClickDown = (row: number, col: number) => {
-        const timeout = setTimeout(() => setIsDraggable(true), 500)
-        setHoldTimeout(timeout);
-        setDraggableTile({row, col});
-    }
+    // const handleTileClickDown = (row: number, col: number) => {
+    //     const timeout = setTimeout(() => setIsDraggable(true), 500)
+    //     setHoldTimeout(timeout);
+    //     setDraggableTile({row, col});
+    // }
 
     const handleGridTilePop = (id: number) => {
 
@@ -464,7 +465,8 @@ function SinglePLayer() {
         <>
             <div>
                 <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
-                           onTileClickDown={handleTileClickDown}/>
+                           onTileClickDown={()=>{}}
+                />
                 <div className="flex flex-row p-3">
                     <div className="flex flex-row flex-wrap">
                         {lettersList.map((tile, key) => (
