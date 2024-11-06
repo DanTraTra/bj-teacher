@@ -10,9 +10,11 @@ export interface TileProps {
     selected: boolean;
     pale: boolean;
     xState: boolean;
+    draggable: boolean;
     handleClickLLTile: () => void;
     handleClickGridTile: () => void;
     handleClickGridTilePop: () => void;
+    handleMouseDown: () => void;
 }
 
 const Tile: React.FC<TileProps> = ({
@@ -23,8 +25,10 @@ const Tile: React.FC<TileProps> = ({
                                        handleClickGridTile,
                                        handleClickLLTile,
                                        handleClickGridTilePop,
+                                       handleMouseDown,
                                        pale,
-                                       xState
+                                       xState,
+                                       draggable,
                                    }) => {
     const [visibleState, setVisibleState] = useState(visible)
 
@@ -56,7 +60,9 @@ const Tile: React.FC<TileProps> = ({
                 <button
                     className="flip-tile m-0.5"
                     onClick={handleTileClick}
+                    onMouseDown={handleMouseDown}
                     disabled={selected || pale}
+                    draggable={draggable}
                 >
                     <div
                         className={`flex justify-center items-center size-10 rounded-lg flip-tile-inner shadow hover:text-black
@@ -70,9 +76,9 @@ const Tile: React.FC<TileProps> = ({
                                 {letter}
                             </div>
                             {xState &&
-                                <div className="absolute flex justify-end items-start w-full h-full opacity-80">
-                                    <IoCloseCircleSharp color="grey" size="24px" className="-m-1.5"/>
-                                </div>
+                            <div className="absolute flex justify-end items-start w-full h-full opacity-80">
+                                <IoCloseCircleSharp color="grey" size="24px" className="-m-1.5"/>
+                            </div>
                             }
                         </div>
                         <div className="flip-tile-back bg-white overflow-hidden rounded-lg shadow-lg"/>

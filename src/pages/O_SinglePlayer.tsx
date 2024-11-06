@@ -110,10 +110,15 @@ function SinglePLayer() {
             handleClickLLTile: () => handleLLTileClick(key),
             handleClickGridTile: () => handleGridTileClick(key),
             handleClickGridTilePop: () => handleGridTilePop(key),
+            handleMouseDown: () => {
+            },
         }
         return tile
     }))
 
+    const [isDraggable, setIsDraggable] = useState<boolean>(false)
+    const [holdDownTimer, setHoldDownTimer] = useState <NodeJS.Timeout | null>(null)
+    const [draggableTile, setDraggableTile] = useState<{row:number; col: number}| null>(null)
 
     // useEffect(() => {
     //     console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
@@ -166,8 +171,9 @@ function SinglePLayer() {
 
         const tile = lettersList.find(tile => tile.id == id && !tile.pale)
 
-        const paleTile = {...tile!, pale: true, onGridTile: true}
+        const paleTile: TileProps = {...tile!, onGridTile: true}
         setDisplayTileGrid((prevGrid) => {
+            let nextPost
             const newGrid = {...prevGrid}
             console.log("newGrid", newGrid);
             // console.log("nextTileLoc", x, y);
@@ -181,9 +187,14 @@ function SinglePLayer() {
                     break;
 
                 case "BOTTOM":
+                    nextPost = newGrid.nextLoc.y + 1
+                    while (newGrid.grid[nextPost][newGrid.nextLoc.x]?.letter) {
+                        nextPost++
+                    }
+
                     newGrid.nextLoc = {
                         ...prevGrid.nextLoc,
-                        y: (prevGrid.nextLoc.y + 1)
+                        y: (nextPost)
                     }
                     break;
 
@@ -195,9 +206,14 @@ function SinglePLayer() {
                     break;
 
                 default:
+                    nextPost = newGrid.nextLoc.x + 1
+                    while (newGrid.grid[newGrid.nextLoc.y][nextPost]?.letter) {
+                        nextPost++
+                    }
+
                     newGrid.nextLoc = {
                         ...prevGrid.nextLoc,
-                        x: (prevGrid.nextLoc.x + 1)
+                        x: (nextPost)
                     }
                     break;
 
@@ -205,7 +221,8 @@ function SinglePLayer() {
             return newGrid; // Return the updated grid
         });
 
-        setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
+        // setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
+        setConfirmedTileIds((prevSet) => new Set<number>([...prevSet, tile!.id]))
 
     }, [displayTileGrid.grid]);
 
@@ -228,8 +245,10 @@ function SinglePLayer() {
 
     }, [displayTileGrid.grid]);
 
-    const handleTileX = (id: number) => {
-        setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
+    const handleTileClickDown = (row: number, col: number) => {
+        const timeout = setTimeout(() => setIsDraggable(true), 500)
+        setHoldTimeout(timeout);
+        setDraggableTile({row, col});
     }
 
     const handleGridTilePop = (id: number) => {
@@ -260,23 +279,6 @@ function SinglePLayer() {
             }
         })
         setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
-
-        // const newGrid = displayTileGrid.grid.map(row => row.map(currentTile => {
-        //     return currentTile?.id == tile.id ? null : currentTile
-        // }))
-        // console.log("newGrid", newGrid)
-        // setDisplayTileGrid((prevGrid) => ({...prevGrid, grid: newGrid}))
-
-        // setConfirmedTileIds(prevIds => {
-        //     const newIds = new Set<number>(prevIds)
-        //     newIds.delete(tile.id)
-        //     return newIds
-        // })
-        // setSelectedTileIds(prevIds => {
-        //     const newIds = new Set<number>(prevIds)
-        //     newIds.delete(tile.id)
-        //     return newIds
-        // })
     }
 
     const handleWordConfirm = () => {
@@ -313,6 +315,48 @@ function SinglePLayer() {
     }
 
     const handleBackSpace = () => {
+        // switch (displayTileGrid.direction) {
+        //     case "RIGHT":
+        //         xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x - 1}
+        //         break
+        // }
+
+        console.log("displayTileGrid", displayTileGrid)
+
+        setDisplayTileGrid(prev => {
+            const newGrid = prev.grid
+            let xyToRemove = displayTileGrid.nextLoc
+            let idToRemove = displayTileGrid.grid[xyToRemove.x][xyToRemove.y]?.id
+
+            switch (displayTileGrid.direction) {
+                case "RIGHT":
+                    xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x - 1}
+                    break
+                case "LEFT":
+                    xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x + 1}
+                    break
+                case "BOTTOM":
+                    xyToRemove = {...displayTileGrid.nextLoc, y: displayTileGrid.nextLoc.y - 1}
+                    break
+                case "TOP":
+                    xyToRemove = {...displayTileGrid.nextLoc, y: displayTileGrid.nextLoc.y + 1}
+                    break
+            }
+
+            idToRemove = newGrid[xyToRemove.y][xyToRemove.x]?.id
+            newGrid[xyToRemove.y][xyToRemove.x] = null
+            setConfirmedTileIds((prevIds) => {
+                const newIds = prevIds
+                newIds.delete(idToRemove!)
+                return newIds
+            })
+
+            return ({...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}})
+        })
+
+    }
+
+    const handleBackSpaceOld = () => {
 
         const newSelectedTilesIdsArray = Array.from(selectedTileIds)
         const tileToRemove = newSelectedTilesIdsArray.pop()
@@ -408,7 +452,7 @@ function SinglePLayer() {
                     ...currentGrid,
                     nextLoc: {x: col, y: row},
                     prevLoc: {x: col, y: row},
-                    direction: tileBelow ? 'TOP' : tileAbove ? 'BOTTOM' : tileToRight ? 'LEFT' : tileToLeft ? 'RIGHT' : 'RIGHT'
+                    direction: tileAbove ? 'BOTTOM' : 'RIGHT'
                 }
             })
         }
@@ -419,7 +463,8 @@ function SinglePLayer() {
 
         <>
             <div>
-                <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}/>
+                <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
+                           onTileClickDown={handleTileClickDown}/>
                 <div className="flex flex-row p-3">
                     <div className="flex flex-row flex-wrap">
                         {lettersList.map((tile, key) => (
@@ -445,12 +490,12 @@ function SinglePLayer() {
                         <button className="size-9" onClick={handleBackSpace}>
                             <IoArrowBackCircleOutline className="m-auto" size={"34px"}/>
                         </button>
-                        <button className="size-9" onClick={handleWordCancel}>
-                            <IoIosCloseCircleOutline className="m-auto" size={"34px"}/>
-                        </button>
-                        <button className="size-9" onClick={handleWordConfirm}>
-                            <IoCheckmarkCircleOutline className="m-auto" size={"34px"}/>
-                        </button>
+                        {/*<button className="size-9" onClick={handleWordCancel}>*/}
+                        {/*    <IoIosCloseCircleOutline className="m-auto" size={"34px"}/>*/}
+                        {/*</button>*/}
+                        {/*<button className="size-9" onClick={handleWordConfirm}>*/}
+                        {/*    <IoCheckmarkCircleOutline className="m-auto" size={"34px"}/>*/}
+                        {/*</button>*/}
                     </div>
                 </div>
 

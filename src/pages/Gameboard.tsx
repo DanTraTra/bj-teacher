@@ -12,8 +12,9 @@ import {
 } from "react-icons/pi";
 
 interface GameBoardProps {
-    grid:DisplayGrid;
+    grid: DisplayGrid;
     onEmptyTileClick: (row: number, col: number) => void;
+    onTileClickDown: (row: number, col: number) => void
 }
 
 export const is2DArrayEmpty = <T, >(arr: (T | null)[][]): boolean =>
@@ -22,7 +23,8 @@ export const is2DArrayEmpty = <T, >(arr: (T | null)[][]): boolean =>
 
 const GameBoard: React.FC<GameBoardProps> = ({
                                                  grid,
-                                                 onEmptyTileClick
+                                                 onEmptyTileClick,
+                                                 onTileClickDown,
                                              }
 ) => {
     const boardRef = useRef<HTMLDivElement>(null);
@@ -124,18 +126,25 @@ const GameBoard: React.FC<GameBoardProps> = ({
                                 className="size-10 text-center flex flex-col items-center justify-center font-bold rounded-lg cursor-pointer border-gray-300 border-dashed border-2"
                                 onClick={() => onEmptyTileClick(rowIndex, colIndex)}
                             >
-                                {t ? <Tile {...t} key={`${t.letter}-${rowIndex}-${colIndex}`}/> :
+                                {t ?
+                                    <Tile {...t} key={`${t.letter}-${rowIndex}-${colIndex}`}
+                                          handleMouseDown={() => onTileClickDown(rowIndex, colIndex)}
+
+                                    /> :
                                     (rowIndex === Math.floor(grid.grid[0].length / 2) && colIndex === Math.floor(grid.grid[rowIndex].length / 2)) ?
-                                        <div className="text-black opacity-50 pt-0.5" style={{fontSize: "0.5rem"}}>START</div> : ''}
+                                        <div className="text-black opacity-50 pt-0.5"
+                                             style={{fontSize: "0.5rem"}}>START</div> : ''}
                                 {(grid.nextLoc.x == colIndex && grid.nextLoc.y == rowIndex) ?
                                     (grid.direction == 'RIGHT') ?
                                         <div><PiArrowFatLinesRightFill className="fill-black opacity-30"/></div> :
                                         (grid.direction == 'BOTTOM') ?
                                             <div><PiArrowFatLinesDownFill className="fill-black opacity-30"/></div> :
-                                                (grid.direction == 'LEFT') ?
-                                                    <div><PiArrowFatLinesLeftFill className="fill-black opacity-30"/></div> :
-                                                    (grid.direction == 'TOP') ?
-                                                        <div><PiArrowFatLinesUpFill className="fill-black opacity-30"/></div> : '' :''}
+                                            (grid.direction == 'LEFT') ?
+                                                <div><PiArrowFatLinesLeftFill className="fill-black opacity-30"/>
+                                                </div> :
+                                                (grid.direction == 'TOP') ?
+                                                    <div><PiArrowFatLinesUpFill className="fill-black opacity-30"/>
+                                                    </div> : '' : ''}
                             </div>
                         ))
                     )}
