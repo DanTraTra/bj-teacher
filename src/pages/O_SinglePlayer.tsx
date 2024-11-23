@@ -1,20 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import Tile from '../components/comp_orangagrams/tile'
-import GameBoard, {is2DArrayEmpty} from "./Gameboard";
-import {TileProps} from "../components/comp_orangagrams/tile";
-import {
-    IoArrowBackCircleOutline,
-    IoArrowDownCircleOutline,
-    IoArrowForwardCircleOutline,
-    IoCheckmarkCircleOutline,
-    IoRefreshCircleOutline
-} from "react-icons/io5";
-import {FaRegCheckCircle} from "react-icons/fa";
-import {IoIosCheckmarkCircleOutline, IoIosCloseCircleOutline} from "react-icons/io";
-import {round} from "@tensorflow/tfjs";
-import {PiArrowArcLeft, PiArrowArcRight, PiArrowsClockwiseBold} from "react-icons/pi";
-import {FaArrowRotateLeft, FaArrowRotateRight} from "react-icons/fa6";
+import Tile, {TileProps} from '../components/comp_orangagrams/tile'
+import GameBoard from "./Gameboard";
+import {IoArrowBackCircleOutline} from "react-icons/io5";
+import {PiArrowsClockwiseBold} from "react-icons/pi";
 
 const createEmptyGrid = (rows: number, cols: number) =>
     Array.from({length: rows}, () => Array(cols).fill(null));
@@ -55,6 +44,7 @@ function SinglePLayer() {
     const [displayTileGrid, setDisplayTileGrid] = useState<DisplayGrid>(initialGrid)
     const [selectedTileIds, setSelectedTileIds] = useState<Set<number>>(new Set([]))
     const [confirmedTileIds, setConfirmedTileIds] = useState<Set<number>>(new Set([]))
+
     const [xTileId, setXTileId] = useState<number>(-1)
     const allLettersDict = {
         A: 13,
@@ -107,19 +97,21 @@ function SinglePLayer() {
             selected: false,
             pale: false,
             xState: false,
-            draggable:false,
+            draggable: false,
+            row: -1,
+            col: -1,
             handleClickLLTile: () => handleLLTileClick(key),
             handleClickGridTile: () => handleGridTileClick(key),
             handleClickGridTilePop: () => handleGridTilePop(key),
-            handleMouseDown: () => {
+            handleDragStart: () => {
             },
         }
         return tile
     }))
 
     const [isDraggable, setIsDraggable] = useState<boolean>(false)
-    const [holdDownTimer, setHoldDownTimer] = useState <NodeJS.Timeout | null>(null)
-    const [draggableTile, setDraggableTile] = useState<{row:number; col: number}| null>(null)
+    const [holdDownTimer, setHoldDownTimer] = useState<NodeJS.Timeout | null>(null)
+    const [draggableTile, setDraggableTile] = useState<{ row: number; col: number } | null>(null)
 
     // useEffect(() => {
     //     console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
@@ -172,13 +164,18 @@ function SinglePLayer() {
 
         const tile = lettersList.find(tile => tile.id == id && !tile.pale)
 
-        const paleTile: TileProps = {...tile!, onGridTile: true}
+        const addedTile: TileProps = {
+            ...tile!,
+            onGridTile: true,
+            row: displayTileGrid.nextLoc.y!,
+            col: displayTileGrid.nextLoc.x!
+        }
         setDisplayTileGrid((prevGrid) => {
             let nextPost
             const newGrid = {...prevGrid}
             console.log("newGrid", newGrid);
             // console.log("nextTileLoc", x, y);
-            newGrid.grid[newGrid.nextLoc.y!][newGrid.nextLoc.x!] = paleTile
+            newGrid.grid[newGrid.nextLoc.y!][newGrid.nextLoc.x!] = addedTile
             switch (newGrid.direction) {
                 case "TOP":
                     newGrid.nextLoc = {
@@ -223,7 +220,8 @@ function SinglePLayer() {
         });
 
         // setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
-        setConfirmedTileIds((prevSet) => new Set<number>([...prevSet, tile!.id]))
+        // setConfirmedTileIds((prevSet) => new Set<number>([...prevSet, tile!.id]))
+        setLettersList(prevState => [...prevState].filter(tile => tile.id != id!))
 
     }, [displayTileGrid.grid]);
 
@@ -261,7 +259,6 @@ function SinglePLayer() {
 
             const newGrid = prevGrid.grid.map((row, rowI) => row.map((tile, colI) => {
                 // tile?.id == id ? null : tile
-                console.log("tile?.id == id", tile?.id == id)
                 if (tile?.id == id) {
                     colIndex = colI
                     rowIndex = rowI
@@ -279,7 +276,13 @@ function SinglePLayer() {
                 prevLoc: {x: colIndex, y: rowIndex},
             }
         })
-        setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
+
+        const newTile = displayTileGrid.grid.flat().find((tile) => tile !== null && tile.id === id)
+        if (newTile) {
+            setLettersList((prevTiles) => [...prevTiles, newTile])
+        }
+
+        // setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
     }
 
     const handleWordConfirm = () => {
@@ -345,43 +348,18 @@ function SinglePLayer() {
             }
 
             idToRemove = newGrid[xyToRemove.y][xyToRemove.x]?.id
+            const newTile = newGrid.flat().find((tile) => tile !== null && tile.id === idToRemove)
+            console.log("newTile", newTile)
+            console.log("idToRemove", idToRemove)
+
+            if (newTile) {
+                setLettersList((prevTiles) => [...prevTiles, newTile])
+            }
+
             newGrid[xyToRemove.y][xyToRemove.x] = null
-            setConfirmedTileIds((prevIds) => {
-                const newIds = prevIds
-                newIds.delete(idToRemove!)
-                return newIds
-            })
 
             return ({...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}})
         })
-
-    }
-
-    const handleBackSpaceOld = () => {
-
-        const newSelectedTilesIdsArray = Array.from(selectedTileIds)
-        const tileToRemove = newSelectedTilesIdsArray.pop()
-
-        const newGrid = displayTileGrid.grid.map(row => row.map(tile => {
-            if (tile && tileToRemove == tile.id) {
-                return null
-            } else {
-                return {...tile} as TileProps
-            }
-        }))
-        console.log("newGrid", newGrid)
-
-        setDisplayTileGrid((prev): DisplayGrid => {
-            return {
-                ...prev, grid: newGrid,
-                nextLoc: prev.direction == 'LEFT' ? {...prev.nextLoc, x: prev.nextLoc.x + 1} :
-                    prev.direction == 'BOTTOM' ? {...prev.nextLoc, y: prev.nextLoc.y - 1} :
-                        prev.direction == 'TOP' ? {...prev.nextLoc, y: prev.nextLoc.y + 1} :
-                            {...prev.nextLoc, x: prev.nextLoc.x - 1}
-            }
-        });
-
-        setSelectedTileIds(new Set<number>(newSelectedTilesIdsArray))
 
     }
 
@@ -459,21 +437,87 @@ function SinglePLayer() {
         }
     }
 
+    const [draggedTileID, setDraggedTileID] = useState<number | null>(null)
+
+
+    const handleTileDragStart = (id: number) => {
+        setDraggedTileID(id)
+        console.log("handleTileDragStart draggedTileID", id)
+    }
+
+    const handleTileDrop = (rowIndex: number, colIndex: number) => {
+
+        console.log("dropping at", rowIndex, colIndex)
+        console.log("handleTileDrop draggedTileID", draggedTileID)
+        console.log("handleTileDrop lettersList", lettersList)
+        const newGrid = [...displayTileGrid.grid.map(row => [...row])]
+
+        if (lettersList.some((tile) => tile.id == draggedTileID)) {
+            console.log("letter from list")
+            newGrid[rowIndex][colIndex] = {
+                ...lettersList.find((tile) => tile.id == draggedTileID)!,
+                row: rowIndex,
+                col: colIndex,
+                onGridTile: true,
+            }
+            setLettersList(prevState => [...prevState].filter(tile => tile.id != draggedTileID!))
+
+        } else {
+            console.log("letter from grid")
+
+            const tile = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
+            if (tile) {
+                newGrid[rowIndex][colIndex] = {
+                    ...tile,
+                    row: rowIndex,
+                    col: colIndex
+                }
+                newGrid[tile.row][tile.col] = null
+            }
+
+        }
+
+        setDisplayTileGrid(prev => {
+            let xyToRemove = displayTileGrid.nextLoc
+
+            switch (displayTileGrid.direction) {
+                case "RIGHT":
+                    xyToRemove = {y: rowIndex, x: colIndex + 1}
+                    break
+                case "LEFT":
+                    xyToRemove = {y: rowIndex, x: colIndex - 1}
+                    break
+                case "BOTTOM":
+                    xyToRemove = {x: colIndex, y: rowIndex + 1}
+                    break
+                case "TOP":
+                    xyToRemove = {x: colIndex, y: rowIndex - 1}
+                    break
+            }
+            return {...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}}
+        })
+
+        setDraggedTileID(null)
+
+
+    }
 
     return (
 
         <>
             <div>
                 <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
-                           onTileClickDown={()=>{}}
+                           onTileDragStart={handleTileDragStart}
+                           onTileDrop={handleTileDrop}
                 />
                 <div className="flex flex-row p-3">
-                    <div className="flex flex-row flex-wrap">
+                    <div className="flex flex-row flex-wrap w-[90%]">
                         {lettersList.map((tile, key) => (
                             <Tile
                                 {...tile}
                                 selected={selectedTileIds.has(tile.id)}
                                 pale={confirmedTileIds.has(tile.id)}
+                                handleDragStart={handleTileDragStart}
                                 onGridTile={false}
                                 key={key}
                             />

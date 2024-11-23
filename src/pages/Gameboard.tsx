@@ -14,7 +14,8 @@ import {
 interface GameBoardProps {
     grid: DisplayGrid;
     onEmptyTileClick: (row: number, col: number) => void;
-    onTileClickDown: (row: number, col: number) => void
+    onTileDragStart: (id: number) => void;
+    onTileDrop: (row: number, col: number) => void;
 }
 
 export const is2DArrayEmpty = <T, >(arr: (T | null)[][]): boolean =>
@@ -24,12 +25,15 @@ export const is2DArrayEmpty = <T, >(arr: (T | null)[][]): boolean =>
 const GameBoard: React.FC<GameBoardProps> = ({
                                                  grid,
                                                  onEmptyTileClick,
-                                                 onTileClickDown,
+                                                 onTileDragStart,
+                                                 onTileDrop,
                                              }
 ) => {
     const boardRef = useRef<HTMLDivElement>(null);
     const [boardSize, setBoardSize] = useState({width: 0, height: 0});
     const [viewportSize, setViewportSize] = useState({width: 0, height: 0});
+    const [draggingPosition, setDraggingPosition] = useState<{ row: number; col: number } | null>(null);
+
     const gridPos2PixelPos = (gridPos: number): number => {
         return -(gridPos * 16 * 2.75)
     }
@@ -107,6 +111,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
     console.log("grid.dire", grid.direction)
 
 
+    const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
+
+    // const handleDrop = (rowIndex: number, colIndex: number) => {
+    //     if (!draggingPosition || grid.grid[rowIndex][colIndex] !== null) {
+    //         return
+    //     }
+    //
+    //     const newGrid = [...grid.grid.map(row => [...row])]
+    //     const draggedTile = newGrid[draggingPosition.row][draggingPosition.col]
+    //     const targetTile = newGrid[rowIndex][colIndex]
+    //
+    //     newGrid[draggingPosition.row][draggingPosition.col] = targetTile
+    //     set
+    //
+    // }
+
     return (
         <div className="w-[100vw] h-[70vh] overflow-hidden relative">
             <animated.div
@@ -118,22 +140,25 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     touchAction: 'none', // Disable default browser touch gestures
                 }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="grid gap-1 rounded-md"
-                     style={{gridTemplateColumns: `repeat(${grid.grid[0].length}, 2.5rem)`}}>
+                     style={{gridTemplateColumns: `repeat(${grid.grid[0].length}, 2.5rem)`}}
+                     // onDragOver={allowDrop}
+                >
                     {grid.grid.map((row, rowIndex) =>
                         row.map((t, colIndex) => (
                             <div
                                 key={`${rowIndex}-${colIndex}`}
                                 className="size-10 text-center flex flex-col items-center justify-center font-bold rounded-lg cursor-pointer border-gray-300 border-dashed border-2"
                                 onClick={() => onEmptyTileClick(rowIndex, colIndex)}
+                                onDrop={() => onTileDrop(rowIndex, colIndex)}
+                                onDragOver={allowDrop}
                             >
                                 {t ?
                                     <Tile {...t} key={`${t.letter}-${rowIndex}-${colIndex}`}
-                                          handleMouseDown={() => onTileClickDown(rowIndex, colIndex)}
+                                          draggable={true}
+                                          handleDragStart={() => onTileDragStart(t.id!)}
 
-                                    /> :
-                                    (rowIndex === Math.floor(grid.grid[0].length / 2) && colIndex === Math.floor(grid.grid[rowIndex].length / 2)) ?
-                                        <div className="text-black opacity-50 pt-0.5"
-                                             style={{fontSize: "0.5rem"}}>START</div> : ''}
+                                    /> : ''}
+
                                 {(grid.nextLoc.x == colIndex && grid.nextLoc.y == rowIndex) ?
                                     (grid.direction == 'RIGHT') ?
                                         <div><PiArrowFatLinesRightFill className="fill-black opacity-30"/></div> :
@@ -144,7 +169,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
                                                 </div> :
                                                 (grid.direction == 'TOP') ?
                                                     <div><PiArrowFatLinesUpFill className="fill-black opacity-30"/>
-                                                    </div> : '' : ''}
+                                                    </div> : '' : ''
+                                }
                             </div>
                         ))
                     )}
