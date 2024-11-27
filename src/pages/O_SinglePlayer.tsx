@@ -4,6 +4,21 @@ import Tile, {TileProps} from '../components/comp_orangagrams/tile'
 import GameBoard from "./Gameboard";
 import {IoArrowBackCircleOutline} from "react-icons/io5";
 import {PiArrowsClockwiseBold} from "react-icons/pi";
+import {HTML5Backend} from 'react-dnd-html5-backend';
+import {
+    DndContext,
+    DragEndEvent,
+    DragStartEvent,
+    closestCenter,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    useSortable,
+    arrayMove,
+    rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import {Simulate} from "react-dom/test-utils";
+import dragStart = Simulate.dragStart;
 
 const createEmptyGrid = (rows: number, cols: number) =>
     Array.from({length: rows}, () => Array(cols).fill(null));
@@ -25,7 +40,7 @@ export interface DisplayGrid {
 
 function SinglePLayer() {
     const navigate = useNavigate();
-    const gridSize = 19
+    const gridSize: number = 20
 
     interface loc {
         x: number,
@@ -44,6 +59,7 @@ function SinglePLayer() {
     const [displayTileGrid, setDisplayTileGrid] = useState<DisplayGrid>(initialGrid)
     const [selectedTileIds, setSelectedTileIds] = useState<Set<number>>(new Set([]))
     const [confirmedTileIds, setConfirmedTileIds] = useState<Set<number>>(new Set([]))
+    const [gridTileDragStart, setGridTileDragStart] = useState<boolean>(false)
 
     const [xTileId, setXTileId] = useState<number>(-1)
     const allLettersDict = {
@@ -103,29 +119,17 @@ function SinglePLayer() {
             handleClickLLTile: () => handleLLTileClick(key),
             handleClickGridTile: () => handleGridTileClick(key),
             handleClickGridTilePop: () => handleGridTilePop(key),
-            handleDragStart: () => {
+            handleTileDragStart: () => {
             },
         }
         return tile
     }))
 
-    const [isDraggable, setIsDraggable] = useState<boolean>(false)
-    const [holdDownTimer, setHoldDownTimer] = useState<NodeJS.Timeout | null>(null)
-    const [draggableTile, setDraggableTile] = useState<{ row: number; col: number } | null>(null)
-
-    // useEffect(() => {
-    //     console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
-    //     setTileGridPosition({
-    //         x: gridPos2PixelPos(displayTileGrid.nextLoc.x + 0.5),
-    //         y: gridPos2PixelPos(displayTileGrid.nextLoc.y + 0.5)
-    //     })
-    //
-    // }, [displayTileGrid.nextLoc])
 
     useEffect(() => {
         displayTileGrid.grid.map(row => row.map(col => {
             if (col?.onGridTile) {
-                console.log(col)
+                // console.log(col)
             }
             return {...col}
         }))
@@ -438,28 +442,48 @@ function SinglePLayer() {
     }
 
     const [draggedTileID, setDraggedTileID] = useState<number | null>(null)
+    const [draggedTile, setDraggedTile] = useState<TileProps | null>(null)
 
-
-    const handleTileDragStart = (id: number) => {
-        setDraggedTileID(id)
-        console.log("handleTileDragStart draggedTileID", id)
+    const handleTileDragStart = (event: DragStartEvent) => {
+        console.log("handleTileDragStart event", event)
+        setDraggedTileID(Number(event.active.id))
+        setGridTileDragStart(true)
     }
 
-    const handleTileDrop = (rowIndex: number, colIndex: number) => {
 
-        console.log("dropping at", rowIndex, colIndex)
+    const handleTileDragEnd = (event: DragEndEvent) => {
+        const {active, over} = event
+        setGridTileDragStart(false)
+        if (!over) {
+            console.log("missed empty tile")
+            return
+        }
+
+        // if (!over) return;
+        const row: number = Math.floor(Number(over.id) / gridSize)
+        const col: number = Math.floor(Number(over.id) % gridSize)
+
+
+        console.log("dropping at", row, col)
         console.log("handleTileDrop draggedTileID", draggedTileID)
         console.log("handleTileDrop lettersList", lettersList)
         const newGrid = [...displayTileGrid.grid.map(row => [...row])]
+        const draggedTile = lettersList.find((tile) => tile.id == draggedTileID)
 
-        if (lettersList.some((tile) => tile.id == draggedTileID)) {
+        if (draggedTile) {
             console.log("letter from list")
-            newGrid[rowIndex][colIndex] = {
-                ...lettersList.find((tile) => tile.id == draggedTileID)!,
-                row: rowIndex,
-                col: colIndex,
+            console.log(lettersList.find((tile) => tile.id == draggedTileID))
+            // console.log("newGrid", newGrid)
+            // console.log("newGrid[row][col]", newGrid[row][col])
+
+            newGrid[row][col] = {
+                ...draggedTile,
+                row: row,
+                col: col,
                 onGridTile: true,
             }
+
+            console.log("Removing letter from list")
             setLettersList(prevState => [...prevState].filter(tile => tile.id != draggedTileID!))
 
         } else {
@@ -467,13 +491,15 @@ function SinglePLayer() {
 
             const tile = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
             if (tile) {
-                newGrid[rowIndex][colIndex] = {
+                newGrid[row][col] = {
                     ...tile,
-                    row: rowIndex,
-                    col: colIndex
+                    row: row,
+                    col: col
                 }
                 newGrid[tile.row][tile.col] = null
             }
+
+            console.log("Rearranging grid")
 
         }
 
@@ -482,16 +508,16 @@ function SinglePLayer() {
 
             switch (displayTileGrid.direction) {
                 case "RIGHT":
-                    xyToRemove = {y: rowIndex, x: colIndex + 1}
+                    xyToRemove = {y: row, x: col + 1}
                     break
                 case "LEFT":
-                    xyToRemove = {y: rowIndex, x: colIndex - 1}
+                    xyToRemove = {y: row, x: col - 1}
                     break
                 case "BOTTOM":
-                    xyToRemove = {x: colIndex, y: rowIndex + 1}
+                    xyToRemove = {x: col, y: row + 1}
                     break
                 case "TOP":
-                    xyToRemove = {x: colIndex, y: rowIndex - 1}
+                    xyToRemove = {x: col, y: row - 1}
                     break
             }
             return {...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}}
@@ -505,10 +531,12 @@ function SinglePLayer() {
     return (
 
         <>
-            <div>
+            <DndContext onDragEnd={handleTileDragEnd} collisionDetection={closestCenter}
+                        onDragStart={handleTileDragStart}>
                 <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
-                           onTileDragStart={handleTileDragStart}
-                           onTileDrop={handleTileDrop}
+                           tileDragStart={gridTileDragStart}
+                           onTileDrop={() => {
+                           }}
                 />
                 <div className="flex flex-row p-3">
                     <div className="flex flex-row flex-wrap w-[90%]">
@@ -517,7 +545,7 @@ function SinglePLayer() {
                                 {...tile}
                                 selected={selectedTileIds.has(tile.id)}
                                 pale={confirmedTileIds.has(tile.id)}
-                                handleDragStart={handleTileDragStart}
+                                // handleTileDragStart={handleTileDragStart}
                                 onGridTile={false}
                                 key={key}
                             />
@@ -545,7 +573,7 @@ function SinglePLayer() {
                     </div>
                 </div>
 
-            </div>
+            </DndContext>
         </>
     )
 }

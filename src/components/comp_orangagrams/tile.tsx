@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import './tile.css';
 import {IoCloseCircleSharp} from "react-icons/io5";
+import {useDraggable} from '@dnd-kit/core';
+import {CSS} from '@dnd-kit/utilities';
 
 export interface TileProps {
     id: number;
@@ -16,7 +18,8 @@ export interface TileProps {
     handleClickLLTile: () => void;
     handleClickGridTile: () => void;
     handleClickGridTilePop: () => void;
-    handleDragStart: (id: number) => void;
+    handleTileDragStart: (id: number) => void;
+    // handleTileDrop: ()
     // handleAllowDrop: () => void;
 }
 
@@ -30,12 +33,20 @@ const Tile: React.FC<TileProps> = ({
                                        handleClickGridTile,
                                        handleClickLLTile,
                                        handleClickGridTilePop,
-                                       handleDragStart,
+                                       handleTileDragStart,
                                        pale,
                                        xState,
                                        draggable,
                                    }) => {
     const [visibleState, setVisibleState] = useState(visible)
+    const [touchStart, setTouchStart] = useState({x: 0, y: 0});
+    const [dragging, setDragging] = useState(false);
+    const {attributes, listeners, setNodeRef, transform} = useDraggable({
+        id: id,
+    });
+    const style = {
+        transform: CSS.Translate.toString(transform),
+    };
 
     const handleTileClick = () => {
         console.log("TILE CLICKED - onGrid Tile?", onGridTile)
@@ -58,21 +69,39 @@ const Tile: React.FC<TileProps> = ({
         // visibleState ? onGridTile ? handleClickGridTile() : handleClickLLTile() : setVisibleState(true)
     }
 
-
-    const allowDrop = (e: React.DragEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-    };
+    // const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
+    //     const touch = e.touches[0]
+    //     setTouchStart({x: touch.clientX, y: touch.clientY})
+    //     console.log("touchClient", {x: touch.clientX, y: touch.clientY})
+    //     handleTileDragStart(id)
+    // }
+    //
+    // const handleTouchEnd= (e: React.TouchEvent<HTMLButtonElement>) => {
+    //     const touch = e.changedTouches[0]
+    //     const releaseX = touch.clientX
+    //     const releaseY = touch.clientY
+    //     console.log("touchEnd", releaseX, releaseY)
+    // }
+    // const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
+    //     handleTileDragStart(id)
+    // }
+    //
+    // const handleTouchMove = (e: React.TouchEvent<HTMLButtonElement>) => {
+    //     handleTileDragStart(id)
+    // }
 
 
     return (
         <>
             {letter ?
-                <button
+                <button ref={setNodeRef} style={style} {...listeners} {...attributes}
                     className="flip-tile m-0.5"
                     onClick={handleTileClick}
                     disabled={selected || pale}
-                    draggable={true}
-                    onDragStart={() => handleDragStart(id)}
+                    // draggable={true}
+                    // onDragStart={handleDragStart}
+                    // onTouchStart={handleTouchStart}
+                    // onTouchEnd={handleTouchEnd}
                     // onDragOver={allowDrop}
                 >
                     <div
