@@ -3,25 +3,28 @@ import {useNavigate} from 'react-router-dom';
 import Tile, {TileProps} from '../components/comp_orangagrams/tile'
 import GameBoard from "./Gameboard";
 import {IoArrowBackCircleOutline} from "react-icons/io5";
-import {PiArrowsClockwiseBold} from "react-icons/pi";
+import {
+    PiArrowFatLinesDownFill,
+    PiArrowFatLinesLeftFill,
+    PiArrowFatLinesRightFill, PiArrowFatLinesUpFill,
+    PiArrowsClockwiseBold
+} from "react-icons/pi";
 import {HTML5Backend} from 'react-dnd-html5-backend';
 import {
     DndContext,
     DragEndEvent,
     DragStartEvent,
-    closestCenter,
+    closestCenter, useDroppable, rectIntersection,
+    PointerSensor, TouchSensor, useSensor, useSensors, Collision
 } from '@dnd-kit/core';
-import {
-    SortableContext,
-    useSortable,
-    arrayMove,
-    rectSortingStrategy,
-} from '@dnd-kit/sortable';
+import {CollisionDescriptor, CollisionDetection, UniqueIdentifier} from '@dnd-kit/core';
+
 import {Simulate} from "react-dom/test-utils";
 import dragStart = Simulate.dragStart;
 
 const createEmptyGrid = (rows: number, cols: number) =>
     Array.from({length: rows}, () => Array(cols).fill(null));
+
 
 type dir = 'TOP' | 'RIGHT' | 'BOTTOM' | 'LEFT'
 
@@ -60,6 +63,7 @@ function SinglePLayer() {
     const [selectedTileIds, setSelectedTileIds] = useState<Set<number>>(new Set([]))
     const [confirmedTileIds, setConfirmedTileIds] = useState<Set<number>>(new Set([]))
     const [gridTileDragStart, setGridTileDragStart] = useState<boolean>(false)
+    const [recentCollisions, setRecentCollisions] = useState<Collision[] | null>([])
 
     const [xTileId, setXTileId] = useState<number>(-1)
     const allLettersDict = {
@@ -91,21 +95,9 @@ function SinglePLayer() {
         Z: 2
     }
 
-    const allLettersList: string[] = Object.entries(allLettersDict).flatMap(([letter, amount]) => Array(amount).fill(letter))
-    const getRandomLetters = (count: number): string[] => {
-        let output: string[] = []
-        for (let i = 0; i < count; i++) {
-            const randomIndex = Math.floor(allLettersList.length * Math.random())
-            // console.log("index", randomIndex)
-            output.push(allLettersList[randomIndex])
-            allLettersList.splice(randomIndex, 1)
-            // console.log(allLettersList.length)
-        }
-        return output
-    }
-
-    const [lettersList, setLettersList] = useState<TileProps[]>((getRandomLetters(21)).map((letter, key) => {
-        const tile: TileProps = {
+    const allLettersList: string[] = Object.entries(allLettersDict).flatMap(([letter, count], id) => Array(count).fill(letter))
+    const [totalLettersPool, setTotalLettersPool] = useState<TileProps[]>(
+        allLettersList.map((letter, key) => ({
             id: key,
             onGridTile: false,
             letter: letter,
@@ -120,10 +112,24 @@ function SinglePLayer() {
             handleClickGridTile: () => handleGridTileClick(key),
             handleClickGridTilePop: () => handleGridTilePop(key),
             handleTileDragStart: () => {
-            },
+            }
+        }))
+    )
+
+
+    const getRandomLetters = (count: number): TileProps[] => {
+        let output: TileProps[] = []
+        for (let i = 0; i < count; i++) {
+            const randomIndex = Math.floor(totalLettersPool.length * Math.random())
+            // console.log("index", randomIndex)
+            output.push(totalLettersPool[randomIndex])
+            totalLettersPool.splice(randomIndex, 1)
+            // console.log(allLettersList.length)
         }
-        return tile
-    }))
+        return output
+    }
+
+    const [lettersList, setLettersList] = useState<TileProps[]>(getRandomLetters(21))
 
 
     useEffect(() => {
@@ -162,6 +168,7 @@ function SinglePLayer() {
 
 
     const handleLLTileClick = useCallback((id: number) => {
+        console.log("tile clicked")
         // console.log("confirmedTileIds", confirmedTileIds)
         // console.log("selectedTileIds in handledClick", selectedTileIds)
         // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile=>tile != null))
@@ -248,15 +255,16 @@ function SinglePLayer() {
 
     }, [displayTileGrid.grid]);
 
-    // const handleTileClickDown = (row: number, col: number) => {
-    //     const timeout = setTimeout(() => setIsDraggable(true), 500)
-    //     setHoldTimeout(timeout);
-    //     setDraggableTile({row, col});
-    // }
+// const handleTileClickDown = (row: number, col: number) => {
+//     const timeout = setTimeout(() => setIsDraggable(true), 500)
+//     setHoldTimeout(timeout);
+//     setDraggableTile({row, col});
+// }
 
     const handleGridTilePop = (id: number) => {
 
         console.log("Gird Tile Removed id:", id)
+        let newTile: TileProps | null = null
         setDisplayTileGrid((prevGrid) => {
             let colIndex = prevGrid.nextLoc.x
             let rowIndex = prevGrid.nextLoc.y
@@ -266,7 +274,17 @@ function SinglePLayer() {
                 if (tile?.id == id) {
                     colIndex = colI
                     rowIndex = rowI
-                    return null
+                    if (tile?.xState) {
+                        // Remove the tile
+                        newTile = {...tile}
+                        // console.log("popping tile", newTile)
+                        // setLettersList((prevTiles) => [...prevTiles, {...newTile!, xState: false}])
+                        return null
+                    } else {
+                        // Add X to tile
+                        newTile = null
+                        return {...tile, xState: true}
+                    }
                 } else {
                     return tile
                 }
@@ -274,17 +292,14 @@ function SinglePLayer() {
 
             return {
                 ...prevGrid,
-                // grid: prevGrid.grid.map(row => row.map(tile => tile?.id == id ? xTileId == id ? null : ({setXTileId(id); return tile}) : tile))
                 grid: newGrid,
-                nextLoc: {x: colIndex, y: rowIndex},
-                prevLoc: {x: colIndex, y: rowIndex},
             }
         })
-
-        const newTile = displayTileGrid.grid.flat().find((tile) => tile !== null && tile.id === id)
-        if (newTile) {
-            setLettersList((prevTiles) => [...prevTiles, newTile])
-        }
+        console.log("Adding tile", newTile)
+        // const newTile = displayTileGrid.grid.flat().find((tile) => tile !== null && tile.id === id)
+        // if (newTile) {
+        //     setLettersList((prevTiles) => [...prevTiles, {...newTile!, xState: false}])
+        // }
 
         // setConfirmedTileIds((prevTileIds => new Set([...prevTileIds].filter((tileId) => tileId != id))))
     }
@@ -454,30 +469,65 @@ function SinglePLayer() {
     const handleTileDragEnd = (event: DragEndEvent) => {
         const {active, over} = event
         setGridTileDragStart(false)
+        console.log("handleTileDrop draggedTileID", draggedTileID)
+        console.log("handleTileDrop lettersList", lettersList)
+        const newGrid = [...displayTileGrid.grid.map(row => [...row])]
+        const draggedTileFromLL = lettersList.find((tile) => tile.id == draggedTileID)
+        const draggedTileFromGrid = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
         if (!over) {
+            // Not dragging but clicking
+            console.log("missed empty tile")
+            console.log("draggedTileFromLL", draggedTileFromLL)
+            console.log("draggedTileFromGrid", draggedTileFromGrid)
+            if (draggedTileFromGrid) {
+                handleGridTilePop(draggedTileFromGrid.id)
+                if (draggedTileFromGrid?.xState) {
+                    setLettersList((prevTiles) => [...prevTiles, {...draggedTileFromGrid!, xState: false}])
+                }
+                // setDisplayTileGrid(prevState => {
+                //     const nextState = {...prevState}
+                //     console.log("prevGrid", prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col])
+                //     console.log("xState", prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]?.xState)
+                //     //
+                //     // if (nextState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]?.xState) {
+                //     //     console.log("setting to null")
+                //     //     handleGridTilePop(draggedTileFromGrid.id)
+                //     //
+                //     // } else {
+                //     //     nextState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col] = {
+                //     //         ...prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]!,
+                //     //         xState: true,
+                //     //     }
+                //     // }
+                //
+                //     // return prevState
+                // })
+            } else if (draggedTileFromLL) {
+                handleLLTileClick(draggedTileFromLL.id)
+            }
+            return
+        }
+
+        const row: number = Math.floor(Number(over.id) / gridSize)
+        const col: number = Math.floor(Number(over.id) % gridSize)
+        console.log("dropping at", row, col)
+
+        console.log("over.id", over.id)
+
+        if (over.id >= 10000 || event.collisions?.some(collision => collision.id >= 10000)) {
+            console.log("over.id", over.id)
             console.log("missed empty tile")
             return
         }
 
-        // if (!over) return;
-        const row: number = Math.floor(Number(over.id) / gridSize)
-        const col: number = Math.floor(Number(over.id) % gridSize)
-
-
-        console.log("dropping at", row, col)
-        console.log("handleTileDrop draggedTileID", draggedTileID)
-        console.log("handleTileDrop lettersList", lettersList)
-        const newGrid = [...displayTileGrid.grid.map(row => [...row])]
-        const draggedTile = lettersList.find((tile) => tile.id == draggedTileID)
-
-        if (draggedTile) {
+        if (draggedTileFromLL) {
             console.log("letter from list")
             console.log(lettersList.find((tile) => tile.id == draggedTileID))
             // console.log("newGrid", newGrid)
             // console.log("newGrid[row][col]", newGrid[row][col])
 
             newGrid[row][col] = {
-                ...draggedTile,
+                ...draggedTileFromLL,
                 row: row,
                 col: col,
                 onGridTile: true,
@@ -486,18 +536,16 @@ function SinglePLayer() {
             console.log("Removing letter from list")
             setLettersList(prevState => [...prevState].filter(tile => tile.id != draggedTileID!))
 
-        } else {
+        } else if (draggedTileFromGrid) {
             console.log("letter from grid")
 
-            const tile = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
-            if (tile) {
-                newGrid[row][col] = {
-                    ...tile,
-                    row: row,
-                    col: col
-                }
-                newGrid[tile.row][tile.col] = null
+            newGrid[row][col] = {
+                ...draggedTileFromGrid,
+                row: row,
+                col: col
             }
+            newGrid[draggedTileFromGrid.row][draggedTileFromGrid.col] = null
+
 
             console.log("Rearranging grid")
 
@@ -525,37 +573,68 @@ function SinglePLayer() {
 
         setDraggedTileID(null)
 
-
     }
 
-    return (
+    interface lettersListTileProps {
+        id: number;
+        t: TileProps | null;
+    }
 
-        <>
-            <DndContext onDragEnd={handleTileDragEnd} collisionDetection={closestCenter}
-                        onDragStart={handleTileDragStart}>
-                <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
-                           tileDragStart={gridTileDragStart}
-                           onTileDrop={() => {
-                           }}
-                />
-                <div className="flex flex-row p-3">
+    function LettersListTile({id, t}: lettersListTileProps) {
+
+        const {setNodeRef} = useDroppable({
+            id: id,
+        });
+
+        return (
+            <div
+                ref={setNodeRef}
+                className="size-10 m-0.5 text-center flex flex-col items-center justify-center"
+            >
+                {t ?
+                    <Tile
+                        {...t}
+                        // selected={selectedTileIds.has(tile.id)}
+                        // pale={confirmedTileIds.has(tile.id)}
+                        // handleTileDragStart={handleTileDragStart}
+                        // xState={true}
+                        onGridTile={false}
+                        key={id}
+                    /> : null}
+
+            </div>
+        )
+    }
+
+
+    interface BottomPanelProps {
+        id: number;
+    }
+
+    function BottomPanel({id}: BottomPanelProps) {
+
+        const {setNodeRef} = useDroppable({
+            id: id,
+        });
+
+        return (
+            <div className="w-full h-full" id={"bottomPanel"}>
+                <div className="flex flex-row h-full p-3 z-50"
+                     ref={setNodeRef}>
                     <div className="flex flex-row flex-wrap w-[90%]">
-                        {lettersList.map((tile, key) => (
-                            <Tile
-                                {...tile}
-                                selected={selectedTileIds.has(tile.id)}
-                                pale={confirmedTileIds.has(tile.id)}
-                                // handleTileDragStart={handleTileDragStart}
-                                onGridTile={false}
-                                key={key}
+                        {lettersList.map((tile, id_tile) => (
+                            <LettersListTile
+                                id={(id * id_tile)}
+                                t={tile}
+                                key={id_tile}
                             />
                         ))}
-
                     </div>
+
                     <div className="flex flex-col justify-center">
                         <button className="size-9" onClick={handleDirectionClick}>
                             <div
-                                className="flex justify-center items-center border border-2 border-black rounded-badge size-7 m-auto">
+                                className="flex justify-center items-center border-2 border-black rounded-badge size-7 m-auto">
                                 <PiArrowsClockwiseBold size={"16px"}/></div>
                         </button>
                         {/*<button onClick={handleDirectionClick}>*/}
@@ -572,9 +651,58 @@ function SinglePLayer() {
                         {/*</button>*/}
                     </div>
                 </div>
+            </div>
+        )
+    }
 
+    //
+    // const prioritizeTopLayer: CollisionDetection = ({
+    //                                                     droppableContainers,
+    //                                                     pointerCoordinates,
+    //                                                 }) => {
+    //     if (!pointerCoordinates) return [];
+    //
+    //     console.log("droppableContainers", droppableContainers[0])
+    //
+    //
+    //     const collisions = droppableContainers
+    //         .filter((container) => container.rect.current !== null)
+    //         .map((container) => {
+    //             const zIndex = parseInt(
+    //                 window
+    //                     .getComputedStyle(container.node.current!)
+    //                     .getPropertyValue('z-index') || '0',
+    //                 10);
+    //
+    //             return {
+    //                 id: container.id,
+    //                 data: {zIndex}, // Add data property as required
+    //             };
+    //
+    //         })
+    //         .sort((a, b) => b.data.zIndex - a.data.zIndex); // Sort by zIndex descending
+    //
+    //     return collisions;
+    // };
+
+    return (
+
+        <div className="overflow-hidden">
+            <DndContext
+                onDragStart={handleTileDragStart}
+                onDragEnd={handleTileDragEnd}
+                // onDragMove={(event) => console.log('onDragMove:', event)}
+                // onDragOver={(event) => setRecentCollisions(event.collisions)}
+                collisionDetection={rectIntersection}
+            >
+                <GameBoard grid={displayTileGrid} onEmptyTileClick={handleEmptyTileClick}
+                           tileDragStart={gridTileDragStart}
+                           onTileDrop={() => {
+                           }}/>
+
+                <BottomPanel id={10000}/>
             </DndContext>
-        </>
+        </div>
     )
 }
 

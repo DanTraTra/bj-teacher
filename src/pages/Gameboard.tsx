@@ -41,6 +41,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const gridPos2PixelPos = (gridPos: number): number => {
         return -(gridPos * 16 * 2.75)
     }
+
     const [tileGridPosition, setTileGridPosition] = useState({
         x: gridPos2PixelPos(grid.grid[0].length / 2),
         y: gridPos2PixelPos(grid.grid.length / 2)
@@ -80,8 +81,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 {t ?
                     <Tile {...t} key={t.id}
                         // draggable={true}
-                          handleTileDragStart={() => {
-                          }}
+                        // handleTileDragStart={() => {}}
 
                     /> : null}
 
@@ -105,19 +105,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     // Calculate the board size and viewport size when the component mounts
     useEffect(() => {
-        // const updateSizes = () => {
-        //     if (boardRef.current) {
-        //         const {offsetWidth, offsetHeight} = boardRef.current;
-        //         setBoardSize({width: offsetWidth, height: offsetHeight});
-        //     }
-        //     setViewportSize({
-        //         width: window.innerWidth,
-        //         height: window.innerHeight,
-        //     });
-        // };
-        // updateSizes();
-        // window.addEventListener('resize', updateSizes);
-        // return () => window.removeEventListener('resize', updateSizes);
+
     }, []);
 
 
@@ -129,15 +117,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
         // })
 
     }, [tileDragStart])
-
-    // // Center the board when dimensions are available
-    // useEffect(() => {
-    //     if (boardSize.width && boardSize.height) {
-    //         const initialX = ((viewportSize.width - boardSize.width) / 2) - viewportSize.width / 2;
-    //         const initialY = ((viewportSize.height - boardSize.height) / 2) - viewportSize.height / 2;
-    //         api.start({x: initialX, y: initialY, scale: 1});
-    //     }
-    // }, [boardSize, viewportSize, api]);
 
     // Update board position when parent x or y changes
     useEffect(() => {
@@ -153,13 +132,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
             ? ({offset: [dx, dy]}) => api.start({x: dx, y: dy, scale: 1}) : ()=> {},
         onPinch: ({offset: [d]}) => api.start({scale: d / 100 + d}),
     };
-    //
-    // //
-    // const gestureHandlers: GestureHandlers = {
-    //     onDrag: ({offset: [dx, dy]}) => api.start({x: dx, y: dy, scale: 1}),
-    //     onPinch: ({offset: [d]}) => api.start({scale: d / 100 + d}),
-    // };
-
 
     // Correct way to apply gestures
     useGesture(gestureHandlers, {

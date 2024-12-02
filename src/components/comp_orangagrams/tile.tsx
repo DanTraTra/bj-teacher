@@ -18,7 +18,7 @@ export interface TileProps {
     handleClickLLTile: () => void;
     handleClickGridTile: () => void;
     handleClickGridTilePop: () => void;
-    handleTileDragStart: (id: number) => void;
+    // handleTileDragStart: (id: number) => void;
     // handleTileDrop: ()
     // handleAllowDrop: () => void;
 }
@@ -33,7 +33,7 @@ const Tile: React.FC<TileProps> = ({
                                        handleClickGridTile,
                                        handleClickLLTile,
                                        handleClickGridTilePop,
-                                       handleTileDragStart,
+                                       // handleTileDragStart,
                                        pale,
                                        xState,
                                        draggable,
@@ -41,11 +41,19 @@ const Tile: React.FC<TileProps> = ({
     const [visibleState, setVisibleState] = useState(visible)
     const [touchStart, setTouchStart] = useState({x: 0, y: 0});
     const [dragging, setDragging] = useState(false);
-    const {attributes, listeners, setNodeRef, transform} = useDraggable({
-        id: id,
-    });
+    const {attributes, listeners, setNodeRef, transform} = useDraggable({id: id});
+    // const style = {
+    //     transform: CSS.Translate.toString(transform),
+    // };
+    // const style = transform ? {
+    //     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    //     // touchAction: 'auto', // Disable touch gestures
+    // } : undefined;
     const style = {
-        transform: CSS.Translate.toString(transform),
+        transform: transform
+            ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+            : undefined,
+        touchAction: "none",
     };
 
     const handleTileClick = () => {
@@ -69,62 +77,35 @@ const Tile: React.FC<TileProps> = ({
         // visibleState ? onGridTile ? handleClickGridTile() : handleClickLLTile() : setVisibleState(true)
     }
 
-    // const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
-    //     const touch = e.touches[0]
-    //     setTouchStart({x: touch.clientX, y: touch.clientY})
-    //     console.log("touchClient", {x: touch.clientX, y: touch.clientY})
-    //     handleTileDragStart(id)
-    // }
-    //
-    // const handleTouchEnd= (e: React.TouchEvent<HTMLButtonElement>) => {
-    //     const touch = e.changedTouches[0]
-    //     const releaseX = touch.clientX
-    //     const releaseY = touch.clientY
-    //     console.log("touchEnd", releaseX, releaseY)
-    // }
-    // const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
-    //     handleTileDragStart(id)
-    // }
-    //
-    // const handleTouchMove = (e: React.TouchEvent<HTMLButtonElement>) => {
-    //     handleTileDragStart(id)
-    // }
-
-
     return (
         <>
-            {letter ?
-                <button ref={setNodeRef} style={style} {...listeners} {...attributes}
-                    className="flip-tile m-0.5"
+            {letter &&
+                <button
+                    ref={setNodeRef} style={style} {...listeners} {...attributes}
+                    className="absolute w-10 h-10 text-black flex items-center justify-center rounded shadow-md cursor-pointer"
                     onClick={handleTileClick}
-                    disabled={selected || pale}
-                    // draggable={true}
-                    // onDragStart={handleDragStart}
-                    // onTouchStart={handleTouchStart}
-                    // onTouchEnd={handleTouchEnd}
-                    // onDragOver={allowDrop}
                 >
                     <div
-                        className={`flex justify-center items-center size-10 rounded-lg flip-tile-inner hover:text-black
+                        className={`flex justify-center items-center size-10 rounded-lg hover:text-black
                         ${visibleState ? '' : 'is-flipped'} 
                         ${pale ? 'opacity-50' : 'opacity-100'} 
-                        ${selected ? 'outline btn-outline' : ''}`}>
+                        ${selected ? 'outline btn-outline' : ''}`}
+                    >
 
-                        <div className="flip-tile-front">
+                        <div className="">
                             <div
                                 className="relative size-10 bg-white rounded-lg flex items-center justify-center overflow-hidden">
                                 {letter}
                             </div>
                             {xState &&
-                                <div className="absolute flex justify-end items-start w-full h-full opacity-80">
+                                <div
+                                    className="absolute top-0 right-0 opacity-80">
                                     <IoCloseCircleSharp color="grey" size="24px" className="-m-1.5"/>
                                 </div>
                             }
                         </div>
-                        <div className="flip-tile-back bg-white overflow-hidden rounded-lg"/>
                     </div>
-                </button> :
-                <></>
+                </button>
             }
 
         </>
