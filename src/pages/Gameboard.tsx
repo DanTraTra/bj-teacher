@@ -86,7 +86,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     /> : null}
 
                 {
-                    (grid.nextLoc.x == colIndex && grid.nextLoc.y == rowIndex) ?
+                    (grid.nextLoc.row == rowIndex && grid.nextLoc.col == colIndex) ?
                         (grid.direction == 'RIGHT') ?
                             <div><PiArrowFatLinesRightFill className="fill-black opacity-30"/></div> :
                             (grid.direction == 'BOTTOM') ?
@@ -119,11 +119,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }, [tileDragStart])
 
     // Update board position when parent x or y changes
-    useEffect(() => {
-        if (!is2DArrayEmpty(grid.grid)) {
-            api.start({x: gridPos2PixelPos(grid.nextLoc.x), y: gridPos2PixelPos(grid.nextLoc.y)});
-        }
-    }, [grid.nextLoc.x, grid.nextLoc.y, api]);
+    // useEffect(() => {
+    //     if (!is2DArrayEmpty(grid.grid)) {
+    //         api.start({x: gridPos2PixelPos(grid.nextLoc.x), y: gridPos2PixelPos(grid.nextLoc.y)});
+    //     }
+    // }, [grid.nextLoc.x, grid.nextLoc.y, api]);
 
 
     // Gesture handlers, disabled when gridTileDragStart is true

@@ -27,17 +27,18 @@ const createEmptyGrid = (rows: number, cols: number) =>
 
 
 type dir = 'TOP' | 'RIGHT' | 'BOTTOM' | 'LEFT'
+const Directions: dir[] = ['TOP', 'RIGHT', 'BOTTOM', 'LEFT']
 
 export interface DisplayGrid {
     grid: (TileProps | null)[][],
     direction: dir
     nextLoc: {
-        x: number,
-        y: number
+        row: number,
+        col: number
     },
     prevLoc: {
-        x: number,
-        y: number
+        row: number,
+        col: number
     },
 }
 
@@ -50,7 +51,7 @@ function SinglePLayer() {
         y: number
     }
 
-    const initialStartingLoc = {x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2)}
+    const initialStartingLoc = {row: Math.floor(gridSize / 2), col: Math.floor(gridSize / 2)}
 
     const initialGrid: DisplayGrid = {
         grid: createEmptyGrid(gridSize, gridSize),
@@ -108,11 +109,6 @@ function SinglePLayer() {
             draggable: false,
             row: -1,
             col: -1,
-            handleClickLLTile: () => handleLLTileClick(key),
-            handleClickGridTile: () => handleGridTileClick(key),
-            handleClickGridTilePop: () => handleGridTilePop(key),
-            handleTileDragStart: () => {
-            }
         }))
     )
 
@@ -154,75 +150,90 @@ function SinglePLayer() {
 
     }, [lettersList])
 
-    useEffect(() => {
-
-        console.log("confirmedTileIds", confirmedTileIds)
-
-    }, [confirmedTileIds])
-
-    useEffect(() => {
-
-        // console.log("selectedTileIds", selectedTileIds)
-
-    }, [selectedTileIds])
 
 
-    const handleLLTileClick = useCallback((id: number) => {
-        console.log("tile clicked")
-        // console.log("confirmedTileIds", confirmedTileIds)
-        // console.log("selectedTileIds in handledClick", selectedTileIds)
-        // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile=>tile != null))
+    const addTileToGrid = (id: number, toGridPos: { row: number, col: number }, fromLettersList: boolean) => {
+        console.log(`Tile ${id} being placed at row: ${toGridPos.row} col: ${toGridPos.col}`)
 
-        const tile = lettersList.find(tile => tile.id == id && !tile.pale)
+        const tile = fromLettersList ? lettersList.find(tile => tile.id == id && !tile.pale) : displayTileGrid.grid.flat().find(tile => tile?.id == id && !tile?.pale)
+        if (!tile) {
+            return
+        }
 
         const addedTile: TileProps = {
-            ...tile!,
+            ...tile,
             onGridTile: true,
-            row: displayTileGrid.nextLoc.y!,
-            col: displayTileGrid.nextLoc.x!
+            row: toGridPos.row!,
+            col: toGridPos.col!
         }
+
+        const tileToReplace = displayTileGrid.grid.flat().find(tile => tile?.row == toGridPos.row && tile?.col == toGridPos.col)
+        console.log("tileToReplace", tileToReplace)
+        if (fromLettersList) {
+            removeTileFromGrid(tileToReplace ? tileToReplace.id : null) // Add tile to letters list if it's been swapped
+            setLettersList(prevState => [...prevState].filter(tile => tile.id != id!))
+        }
+
         setDisplayTileGrid((prevGrid) => {
-            let nextPost
+            let nextPos
             const newGrid = {...prevGrid}
             console.log("newGrid", newGrid);
             // console.log("nextTileLoc", x, y);
-            newGrid.grid[newGrid.nextLoc.y!][newGrid.nextLoc.x!] = addedTile
+            newGrid.grid[toGridPos.row!][toGridPos.col!] = addedTile
+            if (!fromLettersList) {
+                newGrid.grid[tile.row!][tile.col!] = tileToReplace ? {
+                    ...tileToReplace,
+                    row: tile.row,
+                    col: tile.col
+                } : null
+            }
+
             switch (newGrid.direction) {
                 case "TOP":
+                    nextPos = toGridPos.row - 1
+                    while (newGrid.grid[nextPos][toGridPos.col]?.letter) {
+                        nextPos--
+                    }
+
                     newGrid.nextLoc = {
-                        ...prevGrid.nextLoc,
-                        y: (prevGrid.nextLoc.y - 1)
+                        row: (nextPos),
+                        col: toGridPos.col,
                     }
                     break;
 
                 case "BOTTOM":
-                    nextPost = newGrid.nextLoc.y + 1
-                    while (newGrid.grid[nextPost][newGrid.nextLoc.x]?.letter) {
-                        nextPost++
+                    nextPos = toGridPos.row + 1
+                    while (newGrid.grid[nextPos][toGridPos.col]?.letter) {
+                        console.log("direction bottom", newGrid.grid[nextPos][newGrid.nextLoc.col]?.letter)
+                        nextPos++
                     }
 
                     newGrid.nextLoc = {
-                        ...prevGrid.nextLoc,
-                        y: (nextPost)
+                        row: (nextPos),
+                        col: toGridPos.col,
                     }
                     break;
 
                 case "LEFT":
+                    nextPos = toGridPos.col - 1
+                    while (newGrid.grid[toGridPos.row][nextPos]?.letter) {
+                        nextPos--
+                    }
+
                     newGrid.nextLoc = {
-                        ...prevGrid.nextLoc,
-                        x: (prevGrid.nextLoc.x - 1)
+                        row: toGridPos.row,
+                        col: (nextPos)
                     }
                     break;
-
                 default:
-                    nextPost = newGrid.nextLoc.x + 1
-                    while (newGrid.grid[newGrid.nextLoc.y][nextPost]?.letter) {
-                        nextPost++
+                    nextPos = toGridPos.col + 1
+                    while (newGrid.grid[toGridPos.row][nextPos]?.letter) {
+                        nextPos++
                     }
 
                     newGrid.nextLoc = {
-                        ...prevGrid.nextLoc,
-                        x: (nextPost)
+                        row: toGridPos.row,
+                        col: (nextPos)
                     }
                     break;
 
@@ -232,9 +243,8 @@ function SinglePLayer() {
 
         // setSelectedTileIds((prevSet) => new Set([...prevSet, tile!.id]))
         // setConfirmedTileIds((prevSet) => new Set<number>([...prevSet, tile!.id]))
-        setLettersList(prevState => [...prevState].filter(tile => tile.id != id!))
 
-    }, [displayTileGrid.grid]);
+    };
 
 
     const handleGridTileClick = useCallback((id: number) => {
@@ -266,8 +276,8 @@ function SinglePLayer() {
         console.log("Gird Tile Removed id:", id)
         let newTile: TileProps | null = null
         setDisplayTileGrid((prevGrid) => {
-            let colIndex = prevGrid.nextLoc.x
-            let rowIndex = prevGrid.nextLoc.y
+            let colIndex = prevGrid.nextLoc.row
+            let rowIndex = prevGrid.nextLoc.col
 
             const newGrid = prevGrid.grid.map((row, rowI) => row.map((tile, colI) => {
                 // tile?.id == id ? null : tile
@@ -337,49 +347,58 @@ function SinglePLayer() {
 
     }
 
-    const handleBackSpace = () => {
+    const removeTileFromGrid = (id: number | null) => {
         // switch (displayTileGrid.direction) {
         //     case "RIGHT":
         //         xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x - 1}
         //         break
         // }
-
+        if (id == null) {
+            return
+        }
         console.log("displayTileGrid", displayTileGrid)
 
         setDisplayTileGrid(prev => {
             const newGrid = prev.grid
-            let xyToRemove = displayTileGrid.nextLoc
-            let idToRemove = displayTileGrid.grid[xyToRemove.x][xyToRemove.y]?.id
+            let xyToRemove: { row: number, col: number }
+            let idToRemove = id
 
-            switch (displayTileGrid.direction) {
-                case "RIGHT":
-                    xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x - 1}
-                    break
-                case "LEFT":
-                    xyToRemove = {...displayTileGrid.nextLoc, x: displayTileGrid.nextLoc.x + 1}
-                    break
-                case "BOTTOM":
-                    xyToRemove = {...displayTileGrid.nextLoc, y: displayTileGrid.nextLoc.y - 1}
-                    break
-                case "TOP":
-                    xyToRemove = {...displayTileGrid.nextLoc, y: displayTileGrid.nextLoc.y + 1}
-                    break
-            }
-
-            idToRemove = newGrid[xyToRemove.y][xyToRemove.x]?.id
-            const newTile = newGrid.flat().find((tile) => tile !== null && tile.id === idToRemove)
-            console.log("newTile", newTile)
+            const tileToRemove = newGrid.flat().find((tile) => tile !== null && tile.id === idToRemove)
+            console.log("newTile", tileToRemove)
             console.log("idToRemove", idToRemove)
 
-            if (newTile) {
-                setLettersList((prevTiles) => [...prevTiles, newTile])
+            if (tileToRemove) {
+                setLettersList((prevTiles) => [...prevTiles, tileToRemove])
+                newGrid[tileToRemove.row][tileToRemove.col] = null
+
+                return ({...prev, grid: newGrid, nextLoc: {row: tileToRemove.row, col: tileToRemove.col}})
+            } else {
+                return prev
             }
-
-            newGrid[xyToRemove.y][xyToRemove.x] = null
-
-            return ({...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}})
         })
 
+    }
+
+    const handleBackButtonClick = () => {
+
+        let idToRemove
+        switch (displayTileGrid.direction) {
+            case "RIGHT":
+                idToRemove = displayTileGrid.grid[displayTileGrid.nextLoc.row][displayTileGrid.nextLoc.col - 1]?.id
+                break
+            case "LEFT":
+                idToRemove = displayTileGrid.grid[displayTileGrid.nextLoc.row][displayTileGrid.nextLoc.col + 1]?.id
+                break
+            case "BOTTOM":
+                idToRemove = displayTileGrid.grid[displayTileGrid.nextLoc.row - 1][displayTileGrid.nextLoc.col]?.id
+                break
+            case "TOP":
+                idToRemove = displayTileGrid.grid[displayTileGrid.nextLoc.row + 1][displayTileGrid.nextLoc.col]?.id
+                break
+        }
+        if (idToRemove) {
+            removeTileFromGrid(idToRemove)
+        }
     }
 
     const handleDirectionClick = () => {
@@ -416,14 +435,14 @@ function SinglePLayer() {
                 grid: newGrid,
                 // prevLoc: prevDisplayGrid.prevLoc,
                 nextLoc: firstTile ? prevDisplayGrid.direction == "RIGHT" ? {
-                    y: (prevDisplayGrid.nextLoc.x - firstTile.col) + firstTile?.row,
-                    x: firstTile?.col
+                    col: (prevDisplayGrid.nextLoc.row - firstTile.col) + firstTile?.row,
+                    row: firstTile?.col
                 } : {
-                    y: firstTile?.row,
-                    x: (prevDisplayGrid.nextLoc.y - firstTile.row) + firstTile?.col
+                    col: firstTile?.row,
+                    row: (prevDisplayGrid.nextLoc.col - firstTile.row) + firstTile?.col
                 } : prevDisplayGrid.nextLoc,
 
-                direction: prevDisplayGrid.direction == "RIGHT" ? "BOTTOM" : "RIGHT"
+                direction: Directions[(Directions.indexOf(prevDisplayGrid.direction) + 1) % 4]
             })
         })
 
@@ -445,12 +464,24 @@ function SinglePLayer() {
                 const tileAbove: boolean = !!currentGrid.grid[row - 1][col]?.id
                 const tileToRight: boolean = !!currentGrid.grid[row][col + 1]?.id
                 const tileBelow: boolean = !!currentGrid.grid[row + 1][col]?.id
+                let nextDirection: dir
+                if (tileToLeft) {
+                    nextDirection = 'RIGHT'
+                } else if (tileAbove) {
+                    nextDirection = 'BOTTOM'
+                } else if (tileBelow) {
+                    nextDirection = 'TOP'
+                } else if (tileToRight) {
+                    nextDirection = 'LEFT'
+                } else {
+                    nextDirection = 'RIGHT'
+                }
 
                 return {
                     ...currentGrid,
-                    nextLoc: {x: col, y: row},
-                    prevLoc: {x: col, y: row},
-                    direction: tileAbove ? 'BOTTOM' : 'RIGHT'
+                    nextLoc: {row: row, col: col},
+                    prevLoc: {row: row, col: col},
+                    direction: nextDirection
                 }
             })
         }
@@ -471,12 +502,14 @@ function SinglePLayer() {
         setGridTileDragStart(false)
         console.log("handleTileDrop draggedTileID", draggedTileID)
         console.log("handleTileDrop lettersList", lettersList)
-        const newGrid = [...displayTileGrid.grid.map(row => [...row])]
+        const newGrid: (TileProps | null)[][] = [...displayTileGrid.grid.map(row => [...row])]
         const draggedTileFromLL = lettersList.find((tile) => tile.id == draggedTileID)
         const draggedTileFromGrid = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
+        if (!draggedTileFromLL && !draggedTileFromGrid) {
+            return
+        }
         if (!over) {
             // Not dragging but clicking
-            console.log("missed empty tile")
             console.log("draggedTileFromLL", draggedTileFromLL)
             console.log("draggedTileFromGrid", draggedTileFromGrid)
             if (draggedTileFromGrid) {
@@ -484,34 +517,16 @@ function SinglePLayer() {
                 if (draggedTileFromGrid?.xState) {
                     setLettersList((prevTiles) => [...prevTiles, {...draggedTileFromGrid!, xState: false}])
                 }
-                // setDisplayTileGrid(prevState => {
-                //     const nextState = {...prevState}
-                //     console.log("prevGrid", prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col])
-                //     console.log("xState", prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]?.xState)
-                //     //
-                //     // if (nextState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]?.xState) {
-                //     //     console.log("setting to null")
-                //     //     handleGridTilePop(draggedTileFromGrid.id)
-                //     //
-                //     // } else {
-                //     //     nextState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col] = {
-                //     //         ...prevState.grid[draggedTileFromGrid!.row][draggedTileFromGrid!.col]!,
-                //     //         xState: true,
-                //     //     }
-                //     // }
-                //
-                //     // return prevState
-                // })
             } else if (draggedTileFromLL) {
-                handleLLTileClick(draggedTileFromLL.id)
+                addTileToGrid(draggedTileFromLL.id, displayTileGrid.nextLoc, true)
             }
+            console.log("Tile missed drop")
             return
         }
 
-        const row: number = Math.floor(Number(over.id) / gridSize)
-        const col: number = Math.floor(Number(over.id) % gridSize)
-        console.log("dropping at", row, col)
-
+        const overRow: number = Math.floor(Number(over.id) / gridSize)
+        const overCol: number = Math.floor(Number(over.id) % gridSize)
+        console.log("dropping at", overRow, overCol)
         console.log("over.id", over.id)
 
         if (over.id >= 10000 || event.collisions?.some(collision => collision.id >= 10000)) {
@@ -522,56 +537,15 @@ function SinglePLayer() {
 
         if (draggedTileFromLL) {
             console.log("letter from list")
-            console.log(lettersList.find((tile) => tile.id == draggedTileID))
-            // console.log("newGrid", newGrid)
-            // console.log("newGrid[row][col]", newGrid[row][col])
-
-            newGrid[row][col] = {
-                ...draggedTileFromLL,
-                row: row,
-                col: col,
-                onGridTile: true,
-            }
-
-            console.log("Removing letter from list")
-            setLettersList(prevState => [...prevState].filter(tile => tile.id != draggedTileID!))
+            addTileToGrid(draggedTileFromLL.id, {row: overRow, col: overCol}, true)
 
         } else if (draggedTileFromGrid) {
-            console.log("letter from grid")
 
-            newGrid[row][col] = {
-                ...draggedTileFromGrid,
-                row: row,
-                col: col
-            }
-            newGrid[draggedTileFromGrid.row][draggedTileFromGrid.col] = null
-
+            addTileToGrid(draggedTileFromGrid.id, {row: overRow, col: overCol}, false)
 
             console.log("Rearranging grid")
 
         }
-
-        setDisplayTileGrid(prev => {
-            let xyToRemove = displayTileGrid.nextLoc
-
-            switch (displayTileGrid.direction) {
-                case "RIGHT":
-                    xyToRemove = {y: row, x: col + 1}
-                    break
-                case "LEFT":
-                    xyToRemove = {y: row, x: col - 1}
-                    break
-                case "BOTTOM":
-                    xyToRemove = {x: col, y: row + 1}
-                    break
-                case "TOP":
-                    xyToRemove = {x: col, y: row - 1}
-                    break
-            }
-            return {...prev, grid: newGrid, nextLoc: {x: xyToRemove.x, y: xyToRemove.y}}
-        })
-
-        setDraggedTileID(null)
 
     }
 
@@ -640,7 +614,7 @@ function SinglePLayer() {
                         {/*<button onClick={handleDirectionClick}>*/}
                         {/*    <FaArrowRotateLeft size={"24px"}/>*/}
                         {/*</button>*/}
-                        <button className="size-9" onClick={handleBackSpace}>
+                        <button className="size-9" onClick={handleBackButtonClick}>
                             <IoArrowBackCircleOutline className="m-auto" size={"34px"}/>
                         </button>
                         {/*<button className="size-9" onClick={handleWordCancel}>*/}

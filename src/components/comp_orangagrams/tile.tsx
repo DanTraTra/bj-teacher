@@ -15,9 +15,9 @@ export interface TileProps {
     pale: boolean;
     xState: boolean;
     draggable: boolean;
-    handleClickLLTile: () => void;
-    handleClickGridTile: () => void;
-    handleClickGridTilePop: () => void;
+    // handleClickLLTile: () => void;
+    // handleClickGridTile: () => void;
+    // handleClickGridTilePop: () => void;
     // handleTileDragStart: (id: number) => void;
     // handleTileDrop: ()
     // handleAllowDrop: () => void;
@@ -30,9 +30,9 @@ const Tile: React.FC<TileProps> = ({
                                        row, col,
                                        visible,
                                        selected,
-                                       handleClickGridTile,
-                                       handleClickLLTile,
-                                       handleClickGridTilePop,
+                                       // handleClickGridTile,
+                                       // handleClickLLTile,
+                                       // handleClickGridTilePop,
                                        // handleTileDragStart,
                                        pale,
                                        xState,
@@ -59,17 +59,17 @@ const Tile: React.FC<TileProps> = ({
     const handleTileClick = () => {
         console.log("TILE CLICKED - onGrid Tile?", onGridTile)
         if (visibleState) {
-            if (onGridTile) {
-                console.log("Tile on grid")
-                if (xState) {
-                    handleClickGridTilePop()
-                } else {
-                    handleClickGridTile()
-                }
-            } else {
-                console.log("Tile in list")
-                handleClickLLTile()
-            }
+            // if (onGridTile) {
+            //     console.log("Tile on grid")
+            //     if (xState) {
+            //         handleClickGridTilePop()
+            //     } else {
+            //         handleClickGridTile()
+            //     }
+            // } else {
+            //     console.log("Tile in list")
+            //     handleClickLLTile()
+            // }
         } else {
             console.log("Flip tile")
             setVisibleState(true)
