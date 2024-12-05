@@ -127,19 +127,19 @@ const OutCome: React.FC<Props> = ({
     // }, [DealerTurnEnded])
 
     const totalBet = PlayerHand.reduce((acc, hand) => (hand.maxBet * hand.winMultiplier) + acc, 0);
-    console.log("PlayerHand[0].betDisplay, PlayerHand[0].maxBet", PlayerHand[0].betDisplay, PlayerHand[0].maxBet)
+    // console.log("PlayerHand[0].betDisplay, PlayerHand[0].maxBet", PlayerHand[0].betDisplay, PlayerHand[0].maxBet)
     const totalWinnings = PlayerHand.reduce((acc, hand) => ((-1 * hand.maxBet) + hand.betDisplay) + acc, 0);
 
     const ranking = getRanking(leaderboardStats, totalBet + BalanceAmount)
-    // // console.log("GameLog", GameLog)
+    // // // console.log("GameLog", GameLog)
     const maxBalance = GameLog.length >= 2 ? GameLog.reduce((prev, current) => {
         return prev.EndingBalance > current.EndingBalance ? prev : current;
     }).EndingBalance : GameLog.length ? GameLog[0].EndingBalance : 0
 
     const maxRanking = getRanking(leaderboardStats, maxBalance)
 
-    // // console.log("totalBet", totalBet)
-    // // console.log("totalWinnings", totalWinnings)
+    // // // console.log("totalBet", totalBet)
+    // // // console.log("totalWinnings", totalWinnings)
     return (
         <div className="flex flex-col items-center justify-center mx-auto space-y-2 py-2">
 

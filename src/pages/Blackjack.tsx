@@ -71,7 +71,7 @@ function Blackjack() {
     }, [])
 
     useEffect(() => {
-        // // // console.log("LeaderboardData", LeaderboardData)
+        // // // // console.log("LeaderboardData", LeaderboardData)
         let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => ({
             rank: 1,
             player: d.username,
@@ -89,20 +89,20 @@ function Blackjack() {
         updatedBoard = updatedBoard.splice(0, 20)
 
         setSortedLeaderboard(updatedBoard);
-        // // // console.log("sortedLeaderBoard")
+        // // // // console.log("sortedLeaderBoard")
 
     }, [LeaderboardData])
 
     useEffect(() => {
-        // // // console.log("TutorialState", TutorialState)
+        // // // // console.log("TutorialState", TutorialState)
     }, [TutorialState])
 
     useEffect(() => {
         // if (ScreenState == "LEARN") {
-        //     // // console.log("setting to learn")
+        //     // // // console.log("setting to learn")
         //     setTutorialState(0)
         // }
-        // // // console.log("ScreenState", ScreenState)
+        // // // // console.log("ScreenState", ScreenState)
     }, [ScreenState])
 
 
@@ -165,7 +165,7 @@ function Blackjack() {
     ]
 
     function renderScreen() {
-        ////// // console.log("ScreenState", ScreenState)
+        ////// // // console.log("ScreenState", ScreenState)
         const changeScreen = (screen: Screens) => {
             setScreenState(screen)
         }

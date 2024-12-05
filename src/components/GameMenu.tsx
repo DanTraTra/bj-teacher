@@ -57,12 +57,12 @@ const GameMenu: React.FC<GameMenuProps> = ({changeScreenTo, setTutorialState}) =
 
     //
     const handleNext = () => {
-        console.log("clicked right")
+        // console.log("clicked right")
         setSelectedIndex(prevIndex => (prevIndex + 1) % menuItems.length);
     };
 
     const handlePrev = () => {
-        console.log("clicked left")
+        // console.log("clicked left")
         setSelectedIndex((prevIndex) =>
             prevIndex === 0 ? menuItems.length - 1 : prevIndex - 1
         );

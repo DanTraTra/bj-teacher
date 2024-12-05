@@ -35,7 +35,7 @@ const Tutorial: React.FC<TutorialProps> = ({
                                                PlayerHandSum,
                                                DealerHandSum,
                                            }) => {
-        // // console.log("peaking", peaking)
+        // // // console.log("peaking", peaking)
         const cheatSheetBGRef = useRef<HTMLDivElement>(null);
         const [currentPage, setCurrentPage] = useState(0);
         const [CurrentTeacher, setCurrentTeacher] = useState(0);
@@ -67,7 +67,7 @@ const Tutorial: React.FC<TutorialProps> = ({
         // This effect will trigger the timer logic based on whether the number has increased or decreased
         useEffect(() => {
             let delay: number;
-            // console.log("currentPage, PrevPage", currentPage, PrevPage)
+            // // console.log("currentPage, PrevPage", currentPage, PrevPage)
             setTutorialState(currentPage)
 
             if (currentPage > PrevPage) {
@@ -383,7 +383,7 @@ const Tutorial: React.FC<TutorialProps> = ({
                             {(nextButtonText[TutorialState] === "Next" || nextButtonText[TutorialState] === "Back") &&
                             <button
                                 onClick={() => {
-                                    // console.log("next clicked")
+                                    // // console.log("next clicked")
                                     nextButtonText[TutorialState] === "Next" ? setTutorialState(TutorialState + 1) : setTutorialState(TutorialState - 1)
                                 }}
                                 className="btn btn-sm text-base font-tech font-bold z-20 rounded">{nextButtonText[TutorialState]}

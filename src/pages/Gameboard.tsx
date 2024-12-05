@@ -110,7 +110,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
 
     useEffect(() => {
-        console.log("tileDragStart", tileDragStart)
+        // console.log("tileDragStart", tileDragStart)
         // setTileGridPosition({
         //     x: gridPos2PixelPos(grid.nextLoc.x + 0.5),
         //     y: gridPos2PixelPos(grid.nextLoc.y + 0.5)

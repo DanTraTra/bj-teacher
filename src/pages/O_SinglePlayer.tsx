@@ -117,10 +117,10 @@ function SinglePLayer() {
         let output: TileProps[] = []
         for (let i = 0; i < count; i++) {
             const randomIndex = Math.floor(totalLettersPool.length * Math.random())
-            // console.log("index", randomIndex)
+            // // console.log("index", randomIndex)
             output.push(totalLettersPool[randomIndex])
             totalLettersPool.splice(randomIndex, 1)
-            // console.log(allLettersList.length)
+            // // console.log(allLettersList.length)
         }
         return output
     }
@@ -131,29 +131,28 @@ function SinglePLayer() {
     useEffect(() => {
         displayTileGrid.grid.map(row => row.map(col => {
             if (col?.onGridTile) {
-                // console.log(col)
+                // // console.log(col)
             }
             return {...col}
         }))
-        // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile => tile))
-        // console.log("displayTileGrid.grid", displayTileGrid.grid)
+        // // console.log("displayTileGrid.grid.flat()", displayTileGrid.grid.flat().filter(tile => tile))
+        // // console.log("displayTileGrid.grid", displayTileGrid.grid)
 
     }, [displayTileGrid])
 
     useEffect(() => {
-        // console.log("displayTileGrid.direction", displayTileGrid.direction)
+        // // console.log("displayTileGrid.direction", displayTileGrid.direction)
     }, [displayTileGrid.direction])
 
     useEffect(() => {
 
-        // console.log("lettersList", lettersList)
+        // // console.log("lettersList", lettersList)
 
     }, [lettersList])
 
 
-
     const addTileToGrid = (id: number, toGridPos: { row: number, col: number }, fromLettersList: boolean) => {
-        console.log(`Tile ${id} being placed at row: ${toGridPos.row} col: ${toGridPos.col}`)
+        // console.log(`Tile ${id} being placed at row: ${toGridPos.row} col: ${toGridPos.col}`)
 
         const tile = fromLettersList ? lettersList.find(tile => tile.id == id && !tile.pale) : displayTileGrid.grid.flat().find(tile => tile?.id == id && !tile?.pale)
         if (!tile) {
@@ -168,7 +167,7 @@ function SinglePLayer() {
         }
 
         const tileToReplace = displayTileGrid.grid.flat().find(tile => tile?.row == toGridPos.row && tile?.col == toGridPos.col)
-        console.log("tileToReplace", tileToReplace)
+        // console.log("tileToReplace", tileToReplace)
         if (fromLettersList) {
             removeTileFromGrid(tileToReplace ? tileToReplace.id : null) // Add tile to letters list if it's been swapped
             setLettersList(prevState => [...prevState].filter(tile => tile.id != id!))
@@ -177,8 +176,8 @@ function SinglePLayer() {
         setDisplayTileGrid((prevGrid) => {
             let nextPos
             const newGrid = {...prevGrid}
-            console.log("newGrid", newGrid);
-            // console.log("nextTileLoc", x, y);
+            // console.log("newGrid", newGrid);
+            // // console.log("nextTileLoc", x, y);
             newGrid.grid[toGridPos.row!][toGridPos.col!] = addedTile
             if (!fromLettersList) {
                 newGrid.grid[tile.row!][tile.col!] = tileToReplace ? {
@@ -204,7 +203,7 @@ function SinglePLayer() {
                 case "BOTTOM":
                     nextPos = toGridPos.row + 1
                     while (newGrid.grid[nextPos][toGridPos.col]?.letter) {
-                        console.log("direction bottom", newGrid.grid[nextPos][newGrid.nextLoc.col]?.letter)
+                        // console.log("direction bottom", newGrid.grid[nextPos][newGrid.nextLoc.col]?.letter)
                         nextPos++
                     }
 
@@ -249,14 +248,14 @@ function SinglePLayer() {
 
     const handleGridTileClick = useCallback((id: number) => {
 
-        console.log("Gird Tile Clicked id:", id)
+        // console.log("Gird Tile Clicked id:", id)
         setDisplayTileGrid((prevGrid) => {
             return {
                 ...prevGrid,
                 // grid: prevGrid.grid.map(row => row.map(tile => tile?.id == id ? xTileId == id ? null : ({setXTileId(id); return tile}) : tile))
                 grid: prevGrid.grid.map(row => row.map(tile => {
                     // tile?.id == id ? null : tile
-                    console.log("tile?.id == id", tile?.id == id)
+                    // console.log("tile?.id == id", tile?.id == id)
                     return tile?.id == id ? {...tile, xState: true} : tile
                 }))
             }
@@ -273,7 +272,7 @@ function SinglePLayer() {
 
     const handleGridTilePop = (id: number) => {
 
-        console.log("Gird Tile Removed id:", id)
+        // console.log("Gird Tile Removed id:", id)
         let newTile: TileProps | null = null
         setDisplayTileGrid((prevGrid) => {
             let colIndex = prevGrid.nextLoc.row
@@ -287,7 +286,7 @@ function SinglePLayer() {
                     if (tile?.xState) {
                         // Remove the tile
                         newTile = {...tile}
-                        // console.log("popping tile", newTile)
+                        // // console.log("popping tile", newTile)
                         // setLettersList((prevTiles) => [...prevTiles, {...newTile!, xState: false}])
                         return null
                     } else {
@@ -305,7 +304,7 @@ function SinglePLayer() {
                 grid: newGrid,
             }
         })
-        console.log("Adding tile", newTile)
+        // console.log("Adding tile", newTile)
         // const newTile = displayTileGrid.grid.flat().find((tile) => tile !== null && tile.id === id)
         // if (newTile) {
         //     setLettersList((prevTiles) => [...prevTiles, {...newTile!, xState: false}])
@@ -318,7 +317,7 @@ function SinglePLayer() {
         const newGrid = displayTileGrid.grid.map(row => row.map(tile => {
             return tile ? {...tile, pale: false} as TileProps : null
         }))
-        console.log("newGrid", newGrid)
+        // console.log("newGrid", newGrid)
 
         setDisplayTileGrid((prev): DisplayGrid => {
             return {...prev, grid: newGrid, prevLoc: prev.nextLoc}
@@ -337,7 +336,7 @@ function SinglePLayer() {
                 return {...tile} as TileProps
             }
         }))
-        console.log("newGrid", newGrid)
+        // console.log("newGrid", newGrid)
 
         setDisplayTileGrid((prev): DisplayGrid => {
             return {...prev, grid: newGrid, nextLoc: {...prev.prevLoc}}
@@ -356,7 +355,7 @@ function SinglePLayer() {
         if (id == null) {
             return
         }
-        console.log("displayTileGrid", displayTileGrid)
+        // console.log("displayTileGrid", displayTileGrid)
 
         setDisplayTileGrid(prev => {
             const newGrid = prev.grid
@@ -364,8 +363,8 @@ function SinglePLayer() {
             let idToRemove = id
 
             const tileToRemove = newGrid.flat().find((tile) => tile !== null && tile.id === idToRemove)
-            console.log("newTile", tileToRemove)
-            console.log("idToRemove", idToRemove)
+            // console.log("newTile", tileToRemove)
+            // console.log("idToRemove", idToRemove)
 
             if (tileToRemove) {
                 setLettersList((prevTiles) => [...prevTiles, tileToRemove])
@@ -402,8 +401,8 @@ function SinglePLayer() {
     }
 
     const handleDirectionClick = () => {
-        console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
-        console.log("displayTileGrid.prevLoc", displayTileGrid.prevLoc)
+        // console.log("displayTileGrid.nextLoc", displayTileGrid.nextLoc)
+        // console.log("displayTileGrid.prevLoc", displayTileGrid.prevLoc)
         // Incomplete word
         setDisplayTileGrid((prevDisplayGrid) => {
             const newGrid = prevDisplayGrid.grid
@@ -414,20 +413,20 @@ function SinglePLayer() {
                     if (prevDisplayGrid.grid[row][col]?.pale) {
                         if (!firstTile) {
                             firstTile = {row: row, col: col}
-                            // console.log("firstTile", firstTile, prevDisplayGrid.grid[row][col]?.letter)
+                            // // console.log("firstTile", firstTile, prevDisplayGrid.grid[row][col]?.letter)
                         } else if (firstTile.row == row && prevDisplayGrid.direction == 'RIGHT') {
-                            // console.log("found word tile", prevDisplayGrid.grid[row][col]?.letter)
+                            // // console.log("found word tile", prevDisplayGrid.grid[row][col]?.letter)
                             newGrid[(col - firstTile.col) + firstTile.row][firstTile.col] = prevDisplayGrid.grid[row][col]
                             newGrid[row][col] = null
                         } else if (firstTile.col == col && prevDisplayGrid.direction == 'BOTTOM') {
-                            // console.log("found word tile", prevDisplayGrid.grid[row][col]?.letter)
+                            // // console.log("found word tile", prevDisplayGrid.grid[row][col]?.letter)
                             newGrid[firstTile.row][(row - firstTile.row) + firstTile.col] = prevDisplayGrid.grid[row][col]
                             newGrid[row][col] = null
                         }
                     }
                 }
             }
-            // console.log("prevDisplayGrid.nextLoc", prevDisplayGrid.nextLoc)
+            // // console.log("prevDisplayGrid.nextLoc", prevDisplayGrid.nextLoc)
 
             return ({
                 // Set the nextTile placement location
@@ -452,13 +451,13 @@ function SinglePLayer() {
         // handleWordConfirm()
 
         if (!displayTileGrid.grid[row][col]?.letter) {
-            console.log("empty tile clicked")
+            // console.log("empty tile clicked")
             handleWordConfirm()
             setDisplayTileGrid((currentGrid) => {
-                // console.log("tileToLeft", currentGrid.grid[row][col - 1]?.id)
-                // console.log("tileAbove", currentGrid.grid[row - 1][col]?.id)
-                // console.log("tileToRight", currentGrid.grid[row][col + 1]?.id)
-                // console.log("tileBelow", currentGrid.grid[row + 1][col]?.id)
+                // // console.log("tileToLeft", currentGrid.grid[row][col - 1]?.id)
+                // // console.log("tileAbove", currentGrid.grid[row - 1][col]?.id)
+                // // console.log("tileToRight", currentGrid.grid[row][col + 1]?.id)
+                // // console.log("tileBelow", currentGrid.grid[row + 1][col]?.id)
 
                 const tileToLeft: boolean = !!currentGrid.grid[row][col - 1]?.id
                 const tileAbove: boolean = !!currentGrid.grid[row - 1][col]?.id
@@ -491,59 +490,74 @@ function SinglePLayer() {
     const [draggedTile, setDraggedTile] = useState<TileProps | null>(null)
 
     const handleTileDragStart = (event: DragStartEvent) => {
-        console.log("handleTileDragStart event", event)
+        // console.log("handleTileDragStart event", event)
         setDraggedTileID(Number(event.active.id))
         setGridTileDragStart(true)
     }
 
+    const handleTileClick = (tile: TileProps | undefined | null, fromLettersList: boolean) => {
+
+        if (!tile) {
+            return
+        }
+        // Not dragging but clicking
+        // console.log("Tile Clicked")
+        if (!fromLettersList) {
+            handleGridTilePop(tile.id)
+            if (tile?.xState) {
+                setLettersList((prevTiles) => [...prevTiles, {...tile!, xState: false}])
+            }
+        } else {
+            addTileToGrid(tile.id, displayTileGrid.nextLoc, true)
+        }
+
+    }
 
     const handleTileDragEnd = (event: DragEndEvent) => {
         const {active, over} = event
         setGridTileDragStart(false)
-        console.log("handleTileDrop draggedTileID", draggedTileID)
-        console.log("handleTileDrop lettersList", lettersList)
-        const newGrid: (TileProps | null)[][] = [...displayTileGrid.grid.map(row => [...row])]
+        // console.log("handleTileDrop draggedTileID", draggedTileID)
+        // console.log("handleTileDrop lettersList", lettersList)
+
         const draggedTileFromLL = lettersList.find((tile) => tile.id == draggedTileID)
         const draggedTileFromGrid = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
+
         if (!draggedTileFromLL && !draggedTileFromGrid) {
             return
         }
         if (!over) {
             // Not dragging but clicking
-            console.log("draggedTileFromLL", draggedTileFromLL)
-            console.log("draggedTileFromGrid", draggedTileFromGrid)
+            // console.log("draggedTileFromLL", draggedTileFromLL)
+            // console.log("draggedTileFromGrid", draggedTileFromGrid)
             if (draggedTileFromGrid) {
-                handleGridTilePop(draggedTileFromGrid.id)
-                if (draggedTileFromGrid?.xState) {
-                    setLettersList((prevTiles) => [...prevTiles, {...draggedTileFromGrid!, xState: false}])
-                }
+                handleTileClick(draggedTileFromGrid, false)
             } else if (draggedTileFromLL) {
-                addTileToGrid(draggedTileFromLL.id, displayTileGrid.nextLoc, true)
+                handleTileClick(draggedTileFromLL, true)
             }
-            console.log("Tile missed drop")
+            // console.log("Tile missed drop")
             return
         }
 
         const overRow: number = Math.floor(Number(over.id) / gridSize)
         const overCol: number = Math.floor(Number(over.id) % gridSize)
-        console.log("dropping at", overRow, overCol)
-        console.log("over.id", over.id)
+        // console.log("dropping at", overRow, overCol)
+        // console.log("over.id", over.id)
 
         if (over.id >= 10000 || event.collisions?.some(collision => collision.id >= 10000)) {
-            console.log("over.id", over.id)
-            console.log("missed empty tile")
+            // console.log("over.id", over.id)
+            // console.log("missed empty tile")
             return
         }
 
         if (draggedTileFromLL) {
-            console.log("letter from list")
+            // console.log("letter from list")
             addTileToGrid(draggedTileFromLL.id, {row: overRow, col: overCol}, true)
 
         } else if (draggedTileFromGrid) {
 
             addTileToGrid(draggedTileFromGrid.id, {row: overRow, col: overCol}, false)
 
-            console.log("Rearranging grid")
+            // console.log("Rearranging grid")
 
         }
 
@@ -597,11 +611,13 @@ function SinglePLayer() {
                      ref={setNodeRef}>
                     <div className="flex flex-row flex-wrap w-[90%]">
                         {lettersList.map((tile, id_tile) => (
-                            <LettersListTile
-                                id={(id * id_tile)}
-                                t={tile}
-                                key={id_tile}
-                            />
+                            <div onClick={() => handleTileClick(tile, true)} key={id_tile}>
+                                <LettersListTile
+                                    id={(id * id_tile)}
+                                    t={tile}
+                                    key={id_tile}
+                                />
+                            </div>
                         ))}
                     </div>
 
@@ -636,7 +652,7 @@ function SinglePLayer() {
     //                                                 }) => {
     //     if (!pointerCoordinates) return [];
     //
-    //     console.log("droppableContainers", droppableContainers[0])
+    //     // console.log("droppableContainers", droppableContainers[0])
     //
     //
     //     const collisions = droppableContainers
@@ -659,13 +675,22 @@ function SinglePLayer() {
     //     return collisions;
     // };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 1, // Minimum distance in pixels to move before drag starts
+            },
+        })
+    );
+
     return (
 
         <div className="overflow-hidden">
             <DndContext
+                // sensors={sensors}
                 onDragStart={handleTileDragStart}
                 onDragEnd={handleTileDragEnd}
-                // onDragMove={(event) => console.log('onDragMove:', event)}
+                // onDragMove={(event) => // console.log('onDragMove:', event)}
                 // onDragOver={(event) => setRecentCollisions(event.collisions)}
                 collisionDetection={rectIntersection}
             >

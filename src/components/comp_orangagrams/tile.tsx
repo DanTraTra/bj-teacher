@@ -57,21 +57,21 @@ const Tile: React.FC<TileProps> = ({
     };
 
     const handleTileClick = () => {
-        console.log("TILE CLICKED - onGrid Tile?", onGridTile)
+        // console.log("TILE CLICKED - onGrid Tile?", onGridTile)
         if (visibleState) {
             // if (onGridTile) {
-            //     console.log("Tile on grid")
+            //     // console.log("Tile on grid")
             //     if (xState) {
             //         handleClickGridTilePop()
             //     } else {
             //         handleClickGridTile()
             //     }
             // } else {
-            //     console.log("Tile in list")
+            //     // console.log("Tile in list")
             //     handleClickLLTile()
             // }
         } else {
-            console.log("Flip tile")
+            // console.log("Flip tile")
             setVisibleState(true)
         }
         // visibleState ? onGridTile ? handleClickGridTile() : handleClickLLTile() : setVisibleState(true)
@@ -83,7 +83,9 @@ const Tile: React.FC<TileProps> = ({
                 <button
                     ref={setNodeRef} style={style} {...listeners} {...attributes}
                     className="absolute w-10 h-10 text-black flex items-center justify-center rounded shadow-md cursor-pointer"
-                    onClick={handleTileClick}
+                    // onClick={() => handleTileClick}
+                    // onTouchStart={() => {// console.log("Clicked from inside TILE")}}
+                    // onDragStart={() => {// console.log("Dragged from inside TILE")}}
                 >
                     <div
                         className={`flex justify-center items-center size-10 rounded-lg hover:text-black
