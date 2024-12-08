@@ -22,8 +22,41 @@ import {CollisionDescriptor, CollisionDetection, UniqueIdentifier} from '@dnd-ki
 import {Simulate} from "react-dom/test-utils";
 import dragStart = Simulate.dragStart;
 
-const createEmptyGrid = (rows: number, cols: number) =>
-    Array.from({length: rows}, () => Array(cols).fill(null));
+const createEmptyGrid = (rows: number, cols: number) => {
+    // Array.from({length: rows}, () => Array(cols).fill(null));
+    let result: (TileProps|null)[][] = [];
+    let currentNumber = 1;
+
+    for (let i = 0; i < rows; i++) {
+        let row: (TileProps|null)[] = [];
+        for (let j = 0; j < cols; j++) {
+
+            if (j%2) {
+                // row.push({
+                //     id: currentNumber,
+                //     onGridTile: false,
+                //     letter: `${currentNumber}`,
+                //     visible: true,
+                //     selected: false,
+                //     pale: false,
+                //     xState: false,
+                //     draggable: false,
+                //     row: i,
+                //     col: j,
+                // });
+                row.push(null)
+            } else {
+                row.push(null)
+            }
+
+            currentNumber++
+        }
+        result.push(row);
+    }
+
+    return result;
+}
+// Array.from({length: rows}, () => Array(cols).fill(null));
 
 
 type dir = 'TOP' | 'RIGHT' | 'BOTTOM' | 'LEFT'
@@ -44,7 +77,7 @@ export interface DisplayGrid {
 
 function SinglePLayer() {
     const navigate = useNavigate();
-    const gridSize: number = 20
+    const gridSize: number = 100
 
     interface loc {
         x: number,
@@ -64,7 +97,8 @@ function SinglePLayer() {
     const [selectedTileIds, setSelectedTileIds] = useState<Set<number>>(new Set([]))
     const [confirmedTileIds, setConfirmedTileIds] = useState<Set<number>>(new Set([]))
     const [gridTileDragStart, setGridTileDragStart] = useState<boolean>(false)
-    const [recentCollisions, setRecentCollisions] = useState<Collision[] | null>([])
+    const [clicked, setClicked] = useState<boolean>(false)
+
 
     const [xTileId, setXTileId] = useState<number>(-1)
     const allLettersDict = {
@@ -495,8 +529,16 @@ function SinglePLayer() {
         setGridTileDragStart(true)
     }
 
-    const handleTileClick = (tile: TileProps | undefined | null, fromLettersList: boolean) => {
+    useEffect(() => {
+        if (clicked) {
+            setTimeout(() => {
+                setClicked(false)
+            }, 300)
+        }
+    }, [clicked])
 
+    const handleTileClick = (tile: TileProps | undefined | null, fromLettersList: boolean) => {
+        setClicked(true)
         if (!tile) {
             return
         }
@@ -701,6 +743,7 @@ function SinglePLayer() {
 
                 <BottomPanel id={10000}/>
             </DndContext>
+            <div className="font-black">{`${clicked}`}</div>
         </div>
     )
 }
