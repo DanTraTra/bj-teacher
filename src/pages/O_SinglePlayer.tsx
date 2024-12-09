@@ -31,23 +31,20 @@ const createEmptyGrid = (rows: number, cols: number) => {
         let row: (TileProps|null)[] = [];
         for (let j = 0; j < cols; j++) {
 
-            if (j%2) {
-                // row.push({
-                //     id: currentNumber,
-                //     onGridTile: false,
-                //     letter: `${currentNumber}`,
-                //     visible: true,
-                //     selected: false,
-                //     pale: false,
-                //     xState: false,
-                //     draggable: false,
-                //     row: i,
-                //     col: j,
-                // });
-                row.push(null)
-            } else {
-                row.push(null)
-            }
+                row.push({
+                    id: currentNumber,
+                    onGridTile: false,
+                    // letter: `${currentNumber}`,
+                    letter: null,
+                    visible: true,
+                    selected: false,
+                    pale: false,
+                    xState: false,
+                    draggable: false,
+                    row: i,
+                    col: j,
+                });
+                // row.push(null)
 
             currentNumber++
         }
@@ -77,7 +74,7 @@ export interface DisplayGrid {
 
 function SinglePLayer() {
     const navigate = useNavigate();
-    const gridSize: number = 100
+    const gridSize: number = 10
 
     interface loc {
         x: number,
@@ -218,7 +215,12 @@ function SinglePLayer() {
                     ...tileToReplace,
                     row: tile.row,
                     col: tile.col
-                } : null
+                } : {
+                    ...tile,
+                    letter: null,
+                    row: tile.row,
+                    col: tile.col,
+                }
             }
 
             switch (newGrid.direction) {
@@ -322,7 +324,7 @@ function SinglePLayer() {
                         newTile = {...tile}
                         // // console.log("popping tile", newTile)
                         // setLettersList((prevTiles) => [...prevTiles, {...newTile!, xState: false}])
-                        return null
+                        return {...tile, letter: null}
                     } else {
                         // Add X to tile
                         newTile = null
@@ -402,7 +404,7 @@ function SinglePLayer() {
 
             if (tileToRemove) {
                 setLettersList((prevTiles) => [...prevTiles, tileToRemove])
-                newGrid[tileToRemove.row][tileToRemove.col] = null
+                newGrid[tileToRemove.row][tileToRemove.col] = {...tileToRemove, letter: null}
 
                 return ({...prev, grid: newGrid, nextLoc: {row: tileToRemove.row, col: tileToRemove.col}})
             } else {
@@ -486,7 +488,7 @@ function SinglePLayer() {
 
         if (!displayTileGrid.grid[row][col]?.letter) {
             // console.log("empty tile clicked")
-            handleWordConfirm()
+            // handleWordConfirm()
             setDisplayTileGrid((currentGrid) => {
                 // // console.log("tileToLeft", currentGrid.grid[row][col - 1]?.id)
                 // // console.log("tileAbove", currentGrid.grid[row - 1][col]?.id)
@@ -558,7 +560,7 @@ function SinglePLayer() {
     const handleTileDragEnd = (event: DragEndEvent) => {
         const {active, over} = event
         setGridTileDragStart(false)
-        // console.log("handleTileDrop draggedTileID", draggedTileID)
+        console.log("handleTileDrop draggedTileID", draggedTileID)
         // console.log("handleTileDrop lettersList", lettersList)
 
         const draggedTileFromLL = lettersList.find((tile) => tile.id == draggedTileID)
@@ -582,12 +584,12 @@ function SinglePLayer() {
 
         const overRow: number = Math.floor(Number(over.id) / gridSize)
         const overCol: number = Math.floor(Number(over.id) % gridSize)
-        // console.log("dropping at", overRow, overCol)
-        // console.log("over.id", over.id)
+        console.log("dropping at", overRow, overCol)
+        console.log("over.id", over.id)
 
         if (over.id >= 10000 || event.collisions?.some(collision => collision.id >= 10000)) {
             // console.log("over.id", over.id)
-            // console.log("missed empty tile")
+            console.log("missed empty tile")
             return
         }
 

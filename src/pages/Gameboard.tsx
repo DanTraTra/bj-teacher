@@ -76,7 +76,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             .slice(visibleBoardBounds.startRow, visibleBoardBounds.endRow)
             .map(row => row.slice(visibleBoardBounds.startCol, visibleBoardBounds.endCol));
 
-    }, [grid.grid, visibleBoardBounds])
+    }, [grid, visibleBoardBounds])
 
     const boardOffset = useMemo(() => {
         const offsetX = visibleBoardBounds.startCol * tileSize;
@@ -159,8 +159,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
         return (
             <div
                 key={`emptyTile-${rowIndex}-${colIndex}`}
-                className="size-10 text-center flex flex-col items-center justify-center font-bold rounded-lg cursor-pointer border-gray-300 border-dashed border-2"
-                onClick={() => onEmptyTileClick(rowIndex, colIndex)}
+                className="size-10 text-center flex flex-col items-center justify-center font-bold rounded-lg cursor-pointer border-gray-300 border-dashed border-2 z-20"
+                onClick={() => {
+                    console.log("clicked empty tile id:", id)
+                    console.log("clicked empty tile row, col:", t?.row, t?.col)
+                    onEmptyTileClick(rowIndex, colIndex)
+                }}
                 ref={setNodeRef}
 
                 // onDrop={() => onTileDrop(rowIndex, colIndex)}
@@ -243,21 +247,23 @@ const GameBoard: React.FC<GameBoardProps> = ({
             } : () => {
             },
 
-        onPinch: ({offset: [d, a], origin}) => {
-            console.log("pinch distance:", d)
-            const scale = d
-            setTouchOrigin({ x: origin[0], y: origin[1] });
-            console.log("touchOrigin:", origin[0], origin[1])
-
-            return api.start({scale: scale })
-        },
+        // onPinch: ({offset: [d, a], origin}) => {
+        //     console.log("pinch distance:", d)
+        //     const scale = Math.max(0.5, d)
+        //     setTouchOrigin({x: origin[0], y: origin[1]});
+        //     console.log("scale:", scale)
+        //     console.log("touchOrigin:", origin[0], origin[1])
+        //
+        //     return api.start({scale: scale})
+        // },
     };
     // Apply gestures
     useGesture(gestureHandlers, {
         target: boardRef,
         drag: {from: () => [x.get(), y.get()] as [number, number]},
-        pinch: {from: () => [scale.get(), scale.get()] as [number, number]},
+        // pinch: {from: () => [scale.get(), scale.get()] as [number, number]},
     });
+
 
     return (
         <div className="w-[100vw] h-[70vh] overflow-hidden relative"
@@ -268,36 +274,38 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 style={{
                     x,
                     y,
-                    scale,
-                    transformOrigin: `${touchOrigin.x}px ${touchOrigin.y}px`,
+                    // scale,
+                    // transformOrigin: `${touchOrigin.x}px ${touchOrigin.y}px`,
                     touchAction: 'none', // Disable default browser touch gestures
 
-                // }} className="absolute"
+                    // }} className="absolute"
                 }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            //}} className="absolute"
             >
-                    {grid.grid.map((row, rowIndex) =>
-                        (
-                            row.map((t, colIndex) => (
-                                visibleBoardBounds.startRow <= rowIndex && visibleBoardBounds.endRow >= rowIndex &&
-                                visibleBoardBounds.startCol <= colIndex && visibleBoardBounds.endCol >= colIndex &&
-                                <div className="absolute"
-                                     key={`cell-${rowIndex * (row.length) + colIndex}`}
-                                     style={{
-                                         left: `${colIndex * 2.75}rem`,
-                                         top: `${rowIndex * 2.75}rem`,
-                                         // gridTemplateColumns: `repeat(${visibleBoard[rowIndex].length}, 2.5rem)`
-                                     }}>
-                                    <EmptyTile key={`empty-${rowIndex * (row.length) + colIndex}`}
-                                               id={rowIndex * (row.length) + colIndex}
-                                               t={t} rowIndex={rowIndex} colIndex={colIndex}></EmptyTile>
-                                </div>
-                            ))
-                        )
-                    )}
-            </animated.div>
-        </div>
-    )
-        ;
+            {visibleBoard.map((row, rowIndex) =>
+                (
+                    row.map((t, colIndex) => (
+                        <div className="absolute"
+                             key={`cell-${rowIndex * (row.length) + colIndex}`}
+                             style={{
+                                 left: `${t!.col * 2.75}rem`,
+                                 top: `${t!.row * 2.75}rem`,
+                                 // gridTemplateColumns: `repeat(${visibleBoard[rowIndex].length}, 2.5rem)`
+                             }}>
+                            <EmptyTile key={`empty-${t!.row * (grid.grid[0].length) + t!.col}`}
+                                       // id={rowIndex * (row.length) + colIndex}
+                                       id={t!.row * (grid.grid[0].length) + t!.col}
+                                       t={t} rowIndex={rowIndex} colIndex={colIndex}></EmptyTile>
+                        </div>
+                    ))
+                )
+            )}
+        </animated.div>
+
+
+</div>
+)
+    ;
 };
 
 export default GameBoard;
