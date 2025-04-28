@@ -5,7 +5,7 @@ import { GameLogDataEntries } from '../components/LeaderBoard';
 export const fetchLeaderboardData = async (): Promise<GameLogDataEntries[]> => {
   try {
     const { data, error } = await supabase
-      .from('userscore') // Replace 'userscore' with your actual table name
+      .from('userscore') // Replace 'userscore' is table name
       .select('*');
 
     if (error) {
