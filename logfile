@@ -1,0 +1,2545 @@
+2025-04-24 13:07:58.293 NZST [9498] LOG:  starting PostgreSQL 15.12 (Homebrew) on aarch64-apple-darwin22.6.0, compiled by Apple clang version 15.0.0 (clang-1500.1.0.2.5), 64-bit
+2025-04-24 13:07:58.294 NZST [9498] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-04-24 13:07:58.294 NZST [9498] LOG:  listening on IPv6 address "::1", port 5432
+2025-04-24 13:07:58.295 NZST [9498] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2025-04-24 13:07:58.296 NZST [9498] FATAL:  postmaster became multithreaded during startup
+2025-04-24 13:07:58.296 NZST [9498] HINT:  Set the LC_ALL environment variable to a valid locale.
+2025-04-24 13:07:58.296 NZST [9498] LOG:  database system is shut down
+2025-04-24 13:13:49.909 NZST [9991] LOG:  starting PostgreSQL 15.12 (Homebrew) on aarch64-apple-darwin22.6.0, compiled by Apple clang version 15.0.0 (clang-1500.1.0.2.5), 64-bit
+2025-04-24 13:13:49.911 NZST [9991] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-04-24 13:13:49.911 NZST [9991] LOG:  listening on IPv6 address "::1", port 5432
+2025-04-24 13:13:49.911 NZST [9991] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2025-04-24 13:13:49.913 NZST [9994] LOG:  database system was shut down at 2025-04-24 13:13:41 NZST
+2025-04-24 13:13:49.915 NZST [9991] LOG:  database system is ready to accept connections
+2025-04-24 13:16:09.617 NZST [10054] ERROR:  database "supabase_restore" already exists
+2025-04-24 13:16:09.617 NZST [10054] STATEMENT:  CREATE DATABASE supabase_restore;
+2025-04-24 13:18:49.911 NZST [9992] LOG:  checkpoint starting: time
+2025-04-24 13:19:41.204 NZST [10149] ERROR:  extension "pgsodium" is not available
+2025-04-24 13:19:41.204 NZST [10149] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pgsodium.control": No such file or directory.
+2025-04-24 13:19:41.204 NZST [10149] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-24 13:19:41.204 NZST [10149] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pgsodium WITH SCHEMA pgsodium;
+2025-04-24 13:19:41.205 NZST [10149] ERROR:  extension "pgsodium" does not exist
+2025-04-24 13:19:41.205 NZST [10149] STATEMENT:  COMMENT ON EXTENSION pgsodium IS 'Pgsodium is a modern cryptography library for Postgres.';
+2025-04-24 13:19:41.206 NZST [10149] ERROR:  extension "pg_graphql" is not available
+2025-04-24 13:19:41.206 NZST [10149] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pg_graphql.control": No such file or directory.
+2025-04-24 13:19:41.206 NZST [10149] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-24 13:19:41.206 NZST [10149] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pg_graphql WITH SCHEMA graphql;
+2025-04-24 13:19:41.206 NZST [10149] ERROR:  extension "pg_graphql" does not exist
+2025-04-24 13:19:41.206 NZST [10149] STATEMENT:  COMMENT ON EXTENSION pg_graphql IS 'pg_graphql: GraphQL support';
+2025-04-24 13:19:41.763 NZST [10149] ERROR:  extension "pgjwt" is not available
+2025-04-24 13:19:41.763 NZST [10149] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pgjwt.control": No such file or directory.
+2025-04-24 13:19:41.763 NZST [10149] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-24 13:19:41.763 NZST [10149] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pgjwt WITH SCHEMA extensions;
+2025-04-24 13:19:41.763 NZST [10149] ERROR:  extension "pgjwt" does not exist
+2025-04-24 13:19:41.763 NZST [10149] STATEMENT:  COMMENT ON EXTENSION pgjwt IS 'JSON Web Token API for Postgresql';
+2025-04-24 13:19:41.763 NZST [10149] ERROR:  extension "supabase_vault" is not available
+2025-04-24 13:19:41.763 NZST [10149] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/supabase_vault.control": No such file or directory.
+2025-04-24 13:19:41.763 NZST [10149] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-24 13:19:41.763 NZST [10149] STATEMENT:  CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
+2025-04-24 13:19:41.763 NZST [10149] ERROR:  extension "supabase_vault" does not exist
+2025-04-24 13:19:41.763 NZST [10149] STATEMENT:  COMMENT ON EXTENSION supabase_vault IS 'Supabase Vault Extension';
+2025-04-24 13:19:42.168 NZST [10149] ERROR:  relation "vault.secrets" does not exist at character 721
+2025-04-24 13:19:42.168 NZST [10149] STATEMENT:  CREATE VIEW vault.decrypted_secrets AS
+	 SELECT secrets.id,
+	    secrets.name,
+	    secrets.description,
+	    secrets.secret,
+	        CASE
+	            WHEN (secrets.secret IS NULL) THEN NULL::text
+	            ELSE
+	            CASE
+	                WHEN (secrets.key_id IS NULL) THEN NULL::text
+	                ELSE convert_from(pgsodium.crypto_aead_det_decrypt(decode(secrets.secret, 'base64'::text), convert_to(((((secrets.id)::text || secrets.description) || (secrets.created_at)::text) || (secrets.updated_at)::text), 'utf8'::name), secrets.key_id, secrets.nonce), 'utf8'::name)
+	            END
+	        END AS decrypted_secret,
+	    secrets.key_id,
+	    secrets.nonce,
+	    secrets.created_at,
+	    secrets.updated_at
+	   FROM vault.secrets;
+2025-04-24 13:19:42.168 NZST [10149] ERROR:  relation "vault.decrypted_secrets" does not exist
+2025-04-24 13:19:42.168 NZST [10149] STATEMENT:  ALTER TABLE vault.decrypted_secrets OWNER TO supabase_admin;
+2025-04-24 13:19:42.172 NZST [10149] ERROR:  relation "pgsodium.key" does not exist
+2025-04-24 13:19:42.172 NZST [10149] STATEMENT:  COPY pgsodium.key (id, status, created, expires, key_type, key_id, key_context, name, associated_data, raw_key, raw_key_nonce, parent_key, comment, user_data) FROM stdin;
+2025-04-24 13:19:42.180 NZST [10149] ERROR:  relation "vault.secrets" does not exist
+2025-04-24 13:19:42.180 NZST [10149] STATEMENT:  COPY vault.secrets (id, name, description, secret, key_id, nonce, created_at, updated_at) FROM stdin;
+2025-04-24 13:19:42.180 NZST [10149] ERROR:  relation "pgsodium.key_key_id_seq" does not exist at character 26
+2025-04-24 13:19:42.180 NZST [10149] STATEMENT:  SELECT pg_catalog.setval('pgsodium.key_key_id_seq', 1, false);
+2025-04-24 13:19:42.248 NZST [10149] WARNING:  wal_level is insufficient to publish logical changes
+2025-04-24 13:19:42.248 NZST [10149] HINT:  Set wal_level to "logical" before creating subscriptions.
+2025-04-24 13:19:42.253 NZST [10149] ERROR:  function extensions.algorithm_sign(text, text, text) does not exist
+2025-04-24 13:19:42.253 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.algorithm_sign(signables text, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.253 NZST [10149] ERROR:  function extensions.algorithm_sign(text, text, text) does not exist
+2025-04-24 13:19:42.253 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.algorithm_sign(signables text, secret text, algorithm text) TO dashboard_user;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.sign(json, text, text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.sign(payload json, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.sign(json, text, text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.sign(payload json, secret text, algorithm text) TO dashboard_user;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.try_cast_double(text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.try_cast_double(inp text) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.try_cast_double(text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.try_cast_double(inp text) TO dashboard_user;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.url_decode(text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_decode(data text) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.url_decode(text) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_decode(data text) TO dashboard_user;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.url_encode(bytea) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_encode(data bytea) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.263 NZST [10149] ERROR:  function extensions.url_encode(bytea) does not exist
+2025-04-24 13:19:42.263 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_encode(data bytea) TO dashboard_user;
+2025-04-24 13:19:42.265 NZST [10149] ERROR:  function extensions.verify(text, text, text) does not exist
+2025-04-24 13:19:42.265 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.verify(token text, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-24 13:19:42.265 NZST [10149] ERROR:  function extensions.verify(text, text, text) does not exist
+2025-04-24 13:19:42.265 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION extensions.verify(token text, secret text, algorithm text) TO dashboard_user;
+2025-04-24 13:19:42.265 NZST [10149] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-24 13:19:42.265 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO postgres;
+2025-04-24 13:19:42.265 NZST [10149] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-24 13:19:42.265 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO anon;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO authenticated;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.exception(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO postgres;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.exception(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO anon;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.exception(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO authenticated;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.exception(text) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO postgres;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO anon;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO authenticated;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO postgres;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO anon;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO authenticated;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO postgres;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO anon;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO authenticated;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function pgsodium.crypto_aead_det_decrypt(bytea, bytea, uuid, bytea) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_decrypt(message bytea, additional bytea, key_uuid uuid, nonce bytea) TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function pgsodium.crypto_aead_det_encrypt(bytea, bytea, uuid, bytea) does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_encrypt(message bytea, additional bytea, key_uuid uuid, nonce bytea) TO service_role;
+2025-04-24 13:19:42.266 NZST [10149] ERROR:  function pgsodium.crypto_aead_det_keygen() does not exist
+2025-04-24 13:19:42.266 NZST [10149] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_keygen() TO service_role;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO postgres;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO anon;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO authenticated;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO service_role;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "pgsodium.decrypted_key" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON TABLE pgsodium.decrypted_key TO pgsodium_keyholder;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "pgsodium.masking_rule" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON TABLE pgsodium.masking_rule TO pgsodium_keyholder;
+2025-04-24 13:19:42.277 NZST [10149] ERROR:  relation "pgsodium.mask_columns" does not exist
+2025-04-24 13:19:42.277 NZST [10149] STATEMENT:  GRANT ALL ON TABLE pgsodium.mask_columns TO pgsodium_keyholder;
+2025-04-24 13:19:42.285 NZST [10149] ERROR:  schema "pgsodium_masks" does not exist
+2025-04-24 13:19:42.285 NZST [10149] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON SEQUENCES  TO pgsodium_keyiduser;
+2025-04-24 13:19:42.285 NZST [10149] ERROR:  schema "pgsodium_masks" does not exist
+2025-04-24 13:19:42.285 NZST [10149] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON FUNCTIONS  TO pgsodium_keyiduser;
+2025-04-24 13:19:42.285 NZST [10149] ERROR:  schema "pgsodium_masks" does not exist
+2025-04-24 13:19:42.285 NZST [10149] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON TABLES  TO pgsodium_keyiduser;
+2025-04-24 13:19:42.290 NZST [10149] ERROR:  permission denied to change owner of event trigger "issue_pg_net_access"
+2025-04-24 13:19:42.290 NZST [10149] HINT:  The owner of an event trigger must be a superuser.
+2025-04-24 13:19:42.290 NZST [10149] STATEMENT:  ALTER EVENT TRIGGER issue_pg_net_access OWNER TO postgres;
+2025-04-24 13:20:27.825 NZST [9992] LOG:  checkpoint complete: wrote 971 buffers (5.9%); 0 WAL file(s) added, 0 removed, 0 recycled; write=97.892 s, sync=0.020 s, total=97.915 s; sync files=521, longest=0.001 s, average=0.001 s; distance=4547 kB, estimate=4547 kB
+2025-04-25 08:11:56.817 NZST [9992] LOG:  checkpoint starting: time
+2025-04-25 08:12:37.930 NZST [9992] LOG:  checkpoint complete: wrote 407 buffers (2.5%); 0 WAL file(s) added, 0 removed, 0 recycled; write=41.104 s, sync=0.005 s, total=41.114 s; sync files=137, longest=0.001 s, average=0.001 s; distance=2387 kB, estimate=4331 kB
+2025-04-27 08:40:33.231 NZST [18951] ERROR:  role "anon" already exists
+2025-04-27 08:40:33.231 NZST [18951] STATEMENT:  CREATE ROLE anon;
+2025-04-27 08:40:33.232 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.232 NZST [18951] STATEMENT:  ALTER ROLE anon WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.232 NZST [18951] ERROR:  role "authenticated" already exists
+2025-04-27 08:40:33.232 NZST [18951] STATEMENT:  CREATE ROLE authenticated;
+2025-04-27 08:40:33.232 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.232 NZST [18951] STATEMENT:  ALTER ROLE authenticated WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  role "authenticator" already exists
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  CREATE ROLE authenticator;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  ALTER ROLE authenticator WITH NOSUPERUSER NOINHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  role "dashboard_user" already exists
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  CREATE ROLE dashboard_user;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  ALTER ROLE dashboard_user WITH NOSUPERUSER INHERIT CREATEROLE CREATEDB NOLOGIN REPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  role "pgbouncer" already exists
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  CREATE ROLE pgbouncer;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  ALTER ROLE pgbouncer WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.233 NZST [18951] ERROR:  role "pgsodium_keyholder" already exists
+2025-04-27 08:40:33.233 NZST [18951] STATEMENT:  CREATE ROLE pgsodium_keyholder;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  ALTER ROLE pgsodium_keyholder WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  role "pgsodium_keyiduser" already exists
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  CREATE ROLE pgsodium_keyiduser;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  ALTER ROLE pgsodium_keyiduser WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  role "pgsodium_keymaker" already exists
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  CREATE ROLE pgsodium_keymaker;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  ALTER ROLE pgsodium_keymaker WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  role "postgres" already exists
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  CREATE ROLE postgres;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  ALTER ROLE postgres WITH NOSUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  role "service_role" already exists
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  CREATE ROLE service_role;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  ALTER ROLE service_role WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION BYPASSRLS;
+2025-04-27 08:40:33.234 NZST [18951] ERROR:  role "supabase_admin" already exists
+2025-04-27 08:40:33.234 NZST [18951] STATEMENT:  CREATE ROLE supabase_admin;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_admin WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  role "supabase_auth_admin" already exists
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  CREATE ROLE supabase_auth_admin;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_auth_admin WITH NOSUPERUSER NOINHERIT CREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  role "supabase_read_only_user" already exists
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  CREATE ROLE supabase_read_only_user;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_read_only_user WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION BYPASSRLS;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  role "supabase_realtime_admin" already exists
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  CREATE ROLE supabase_realtime_admin;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_realtime_admin WITH NOSUPERUSER NOINHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  role "supabase_replication_admin" already exists
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  CREATE ROLE supabase_replication_admin;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_replication_admin WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN REPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  role "supabase_storage_admin" already exists
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  CREATE ROLE supabase_storage_admin;
+2025-04-27 08:40:33.235 NZST [18951] ERROR:  must be superuser to alter superuser roles or change superuser attribute
+2025-04-27 08:40:33.235 NZST [18951] STATEMENT:  ALTER ROLE supabase_storage_admin WITH NOSUPERUSER NOINHERIT CREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+2025-04-27 08:40:33.241 NZST [18951] ERROR:  permission denied to set parameter "session_preload_libraries"
+2025-04-27 08:40:33.241 NZST [18951] STATEMENT:  ALTER ROLE authenticator SET session_preload_libraries TO 'safeupdate';
+2025-04-27 08:40:33.242 NZST [18951] ERROR:  must be superuser to alter superusers
+2025-04-27 08:40:33.242 NZST [18951] STATEMENT:  ALTER ROLE supabase_admin SET search_path TO '$user', 'public', 'auth', 'extensions';
+2025-04-27 08:40:33.243 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.243 NZST [18951] STATEMENT:  GRANT anon TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.243 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.243 NZST [18951] STATEMENT:  GRANT authenticated TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.243 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.243 NZST [18951] STATEMENT:  GRANT authenticator TO supabase_storage_admin GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pg_monitor TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pg_read_all_data TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pg_signal_backend TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyholder TO pgsodium_keymaker GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyholder TO postgres WITH ADMIN OPTION GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyholder TO service_role GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyiduser TO pgsodium_keyholder GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyiduser TO pgsodium_keymaker GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keyiduser TO postgres WITH ADMIN OPTION GRANTED BY supabase_admin;
+2025-04-27 08:40:33.244 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.244 NZST [18951] STATEMENT:  GRANT pgsodium_keymaker TO postgres WITH ADMIN OPTION GRANTED BY supabase_admin;
+2025-04-27 08:40:33.245 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.245 NZST [18951] STATEMENT:  GRANT service_role TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.245 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.245 NZST [18951] STATEMENT:  GRANT supabase_auth_admin TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.245 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.245 NZST [18951] STATEMENT:  GRANT supabase_realtime_admin TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.245 NZST [18951] ERROR:  must be superuser to set grantor
+2025-04-27 08:40:33.245 NZST [18951] STATEMENT:  GRANT supabase_storage_admin TO postgres GRANTED BY supabase_admin;
+2025-04-27 08:40:33.259 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.259 NZST [18954] STATEMENT:  CREATE SCHEMA auth;
+2025-04-27 08:40:33.308 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.308 NZST [18954] STATEMENT:  CREATE SCHEMA extensions;
+2025-04-27 08:40:33.308 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.308 NZST [18954] STATEMENT:  CREATE SCHEMA graphql;
+2025-04-27 08:40:33.308 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.308 NZST [18954] STATEMENT:  CREATE SCHEMA graphql_public;
+2025-04-27 08:40:33.308 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.308 NZST [18954] STATEMENT:  CREATE SCHEMA pgbouncer;
+2025-04-27 08:40:33.309 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.309 NZST [18954] STATEMENT:  CREATE SCHEMA pgsodium;
+2025-04-27 08:40:33.310 NZST [18954] ERROR:  extension "pgsodium" is not available
+2025-04-27 08:40:33.310 NZST [18954] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pgsodium.control": No such file or directory.
+2025-04-27 08:40:33.310 NZST [18954] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-27 08:40:33.310 NZST [18954] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pgsodium WITH SCHEMA pgsodium;
+2025-04-27 08:40:33.310 NZST [18954] ERROR:  extension "pgsodium" does not exist
+2025-04-27 08:40:33.310 NZST [18954] STATEMENT:  COMMENT ON EXTENSION pgsodium IS 'Pgsodium is a modern cryptography library for Postgres.';
+2025-04-27 08:40:33.310 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.310 NZST [18954] STATEMENT:  CREATE SCHEMA realtime;
+2025-04-27 08:40:33.311 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.311 NZST [18954] STATEMENT:  CREATE SCHEMA storage;
+2025-04-27 08:40:33.311 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.311 NZST [18954] STATEMENT:  CREATE SCHEMA supabase_migrations;
+2025-04-27 08:40:33.311 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.311 NZST [18954] STATEMENT:  CREATE SCHEMA vault;
+2025-04-27 08:40:33.311 NZST [18954] ERROR:  extension "pg_graphql" is not available
+2025-04-27 08:40:33.311 NZST [18954] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pg_graphql.control": No such file or directory.
+2025-04-27 08:40:33.311 NZST [18954] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-27 08:40:33.311 NZST [18954] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pg_graphql WITH SCHEMA graphql;
+2025-04-27 08:40:33.311 NZST [18954] ERROR:  extension "pg_graphql" does not exist
+2025-04-27 08:40:33.311 NZST [18954] STATEMENT:  COMMENT ON EXTENSION pg_graphql IS 'pg_graphql: GraphQL support';
+2025-04-27 08:40:33.316 NZST [18954] ERROR:  must be owner of extension pg_stat_statements
+2025-04-27 08:40:33.316 NZST [18954] STATEMENT:  COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+2025-04-27 08:40:33.316 NZST [18954] ERROR:  must be owner of extension pgcrypto
+2025-04-27 08:40:33.316 NZST [18954] STATEMENT:  COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+2025-04-27 08:40:33.316 NZST [18954] ERROR:  extension "pgjwt" is not available
+2025-04-27 08:40:33.316 NZST [18954] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/pgjwt.control": No such file or directory.
+2025-04-27 08:40:33.316 NZST [18954] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-27 08:40:33.316 NZST [18954] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pgjwt WITH SCHEMA extensions;
+2025-04-27 08:40:33.316 NZST [18954] ERROR:  extension "pgjwt" does not exist
+2025-04-27 08:40:33.316 NZST [18954] STATEMENT:  COMMENT ON EXTENSION pgjwt IS 'JSON Web Token API for Postgresql';
+2025-04-27 08:40:33.316 NZST [18954] ERROR:  extension "supabase_vault" is not available
+2025-04-27 08:40:33.316 NZST [18954] DETAIL:  Could not open extension control file "/opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/supabase_vault.control": No such file or directory.
+2025-04-27 08:40:33.316 NZST [18954] HINT:  The extension must first be installed on the system where PostgreSQL is running.
+2025-04-27 08:40:33.316 NZST [18954] STATEMENT:  CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
+2025-04-27 08:40:33.317 NZST [18954] ERROR:  extension "supabase_vault" does not exist
+2025-04-27 08:40:33.317 NZST [18954] STATEMENT:  COMMENT ON EXTENSION supabase_vault IS 'Supabase Vault Extension';
+2025-04-27 08:40:33.317 NZST [18954] ERROR:  must be owner of extension uuid-ossp
+2025-04-27 08:40:33.317 NZST [18954] STATEMENT:  COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+2025-04-27 08:40:33.317 NZST [18954] ERROR:  type "aal_level" already exists
+2025-04-27 08:40:33.317 NZST [18954] STATEMENT:  CREATE TYPE auth.aal_level AS ENUM (
+	    'aal1',
+	    'aal2',
+	    'aal3'
+	);
+2025-04-27 08:40:33.318 NZST [18954] ERROR:  type "code_challenge_method" already exists
+2025-04-27 08:40:33.318 NZST [18954] STATEMENT:  CREATE TYPE auth.code_challenge_method AS ENUM (
+	    's256',
+	    'plain'
+	);
+2025-04-27 08:40:33.318 NZST [18954] ERROR:  type "factor_status" already exists
+2025-04-27 08:40:33.318 NZST [18954] STATEMENT:  CREATE TYPE auth.factor_status AS ENUM (
+	    'unverified',
+	    'verified'
+	);
+2025-04-27 08:40:33.318 NZST [18954] ERROR:  type "factor_type" already exists
+2025-04-27 08:40:33.318 NZST [18954] STATEMENT:  CREATE TYPE auth.factor_type AS ENUM (
+	    'totp',
+	    'webauthn',
+	    'phone'
+	);
+2025-04-27 08:40:33.318 NZST [18954] ERROR:  type "one_time_token_type" already exists
+2025-04-27 08:40:33.318 NZST [18954] STATEMENT:  CREATE TYPE auth.one_time_token_type AS ENUM (
+	    'confirmation_token',
+	    'reauthentication_token',
+	    'recovery_token',
+	    'email_change_token_new',
+	    'email_change_token_current',
+	    'phone_change_token'
+	);
+2025-04-27 08:40:33.319 NZST [18954] ERROR:  type "action" already exists
+2025-04-27 08:40:33.319 NZST [18954] STATEMENT:  CREATE TYPE realtime.action AS ENUM (
+	    'INSERT',
+	    'UPDATE',
+	    'DELETE',
+	    'TRUNCATE',
+	    'ERROR'
+	);
+2025-04-27 08:40:33.319 NZST [18954] ERROR:  type "equality_op" already exists
+2025-04-27 08:40:33.319 NZST [18954] STATEMENT:  CREATE TYPE realtime.equality_op AS ENUM (
+	    'eq',
+	    'neq',
+	    'lt',
+	    'lte',
+	    'gt',
+	    'gte',
+	    'in'
+	);
+2025-04-27 08:40:33.319 NZST [18954] ERROR:  type "user_defined_filter" already exists
+2025-04-27 08:40:33.319 NZST [18954] STATEMENT:  CREATE TYPE realtime.user_defined_filter AS (
+		column_name text,
+		op realtime.equality_op,
+		value text
+	);
+2025-04-27 08:40:33.319 NZST [18954] ERROR:  type "wal_column" already exists
+2025-04-27 08:40:33.319 NZST [18954] STATEMENT:  CREATE TYPE realtime.wal_column AS (
+		name text,
+		type_name text,
+		type_oid oid,
+		value jsonb,
+		is_pkey boolean,
+		is_selectable boolean
+	);
+2025-04-27 08:40:33.320 NZST [18954] ERROR:  type "wal_rls" already exists
+2025-04-27 08:40:33.320 NZST [18954] STATEMENT:  CREATE TYPE realtime.wal_rls AS (
+		wal jsonb,
+		is_rls_enabled boolean,
+		subscription_ids uuid[],
+		errors text[]
+	);
+2025-04-27 08:40:33.320 NZST [18954] ERROR:  function "email" already exists with same argument types
+2025-04-27 08:40:33.320 NZST [18954] STATEMENT:  CREATE FUNCTION auth.email() RETURNS text
+	    LANGUAGE sql STABLE
+	    AS $$
+	  select 
+	  coalesce(
+	    nullif(current_setting('request.jwt.claim.email', true), ''),
+	    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')
+	  )::text
+	$$;
+2025-04-27 08:40:33.321 NZST [18954] ERROR:  function "jwt" already exists with same argument types
+2025-04-27 08:40:33.321 NZST [18954] STATEMENT:  CREATE FUNCTION auth.jwt() RETURNS jsonb
+	    LANGUAGE sql STABLE
+	    AS $$
+	  select 
+	    coalesce(
+	        nullif(current_setting('request.jwt.claim', true), ''),
+	        nullif(current_setting('request.jwt.claims', true), '')
+	    )::jsonb
+	$$;
+2025-04-27 08:40:33.321 NZST [18954] ERROR:  function "role" already exists with same argument types
+2025-04-27 08:40:33.321 NZST [18954] STATEMENT:  CREATE FUNCTION auth.role() RETURNS text
+	    LANGUAGE sql STABLE
+	    AS $$
+	  select 
+	  coalesce(
+	    nullif(current_setting('request.jwt.claim.role', true), ''),
+	    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
+	  )::text
+	$$;
+2025-04-27 08:40:33.322 NZST [18954] ERROR:  function "uid" already exists with same argument types
+2025-04-27 08:40:33.322 NZST [18954] STATEMENT:  CREATE FUNCTION auth.uid() RETURNS uuid
+	    LANGUAGE sql STABLE
+	    AS $$
+	  select 
+	  coalesce(
+	    nullif(current_setting('request.jwt.claim.sub', true), ''),
+	    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+	  )::uuid
+	$$;
+2025-04-27 08:40:33.323 NZST [18954] ERROR:  function "grant_pg_cron_access" already exists with same argument types
+2025-04-27 08:40:33.323 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.grant_pg_cron_access() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	BEGIN
+	  IF EXISTS (
+	    SELECT
+	    FROM pg_event_trigger_ddl_commands() AS ev
+	    JOIN pg_extension AS ext
+	    ON ev.objid = ext.oid
+	    WHERE ext.extname = 'pg_cron'
+	  )
+	  THEN
+	    grant usage on schema cron to postgres with grant option;
+	
+	    alter default privileges in schema cron grant all on tables to postgres with grant option;
+	    alter default privileges in schema cron grant all on functions to postgres with grant option;
+	    alter default privileges in schema cron grant all on sequences to postgres with grant option;
+	
+	    alter default privileges for user supabase_admin in schema cron grant all
+	        on sequences to postgres with grant option;
+	    alter default privileges for user supabase_admin in schema cron grant all
+	        on tables to postgres with grant option;
+	    alter default privileges for user supabase_admin in schema cron grant all
+	        on functions to postgres with grant option;
+	
+	    grant all privileges on all tables in schema cron to postgres with grant option;
+	    revoke all on table cron.job from postgres;
+	    grant select on table cron.job to postgres with grant option;
+	  END IF;
+	END;
+	$$;
+2025-04-27 08:40:33.324 NZST [18954] ERROR:  function "grant_pg_graphql_access" already exists with same argument types
+2025-04-27 08:40:33.324 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.grant_pg_graphql_access() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $_$
+	DECLARE
+	    func_is_graphql_resolve bool;
+	BEGIN
+	    func_is_graphql_resolve = (
+	        SELECT n.proname = 'resolve'
+	        FROM pg_event_trigger_ddl_commands() AS ev
+	        LEFT JOIN pg_catalog.pg_proc AS n
+	        ON ev.objid = n.oid
+	    );
+	
+	    IF func_is_graphql_resolve
+	    THEN
+	        -- Update public wrapper to pass all arguments through to the pg_graphql resolve func
+	        DROP FUNCTION IF EXISTS graphql_public.graphql;
+	        create or replace function graphql_public.graphql(
+	            "operationName" text default null,
+	            query text default null,
+	            variables jsonb default null,
+	            extensions jsonb default null
+	        )
+	            returns jsonb
+	            language sql
+	        as $$
+	            select graphql.resolve(
+	                query := query,
+	                variables := coalesce(variables, '{}'),
+	                "operationName" := "operationName",
+	                extensions := extensions
+	            );
+	        $$;
+	
+	        -- This hook executes when `graphql.resolve` is created. That is not necessarily the last
+	        -- function in the extension so we need to grant permissions on existing entities AND
+	        -- update default permissions to any others that are created after `graphql.resolve`
+	        grant usage on schema graphql to postgres, anon, authenticated, service_role;
+	        grant select on all tables in schema graphql to postgres, anon, authenticated, service_role;
+	        grant execute on all functions in schema graphql to postgres, anon, authenticated, service_role;
+	        grant all on all sequences in schema graphql to postgres, anon, authenticated, service_role;
+	        alter default privileges in schema graphql grant all on tables to postgres, anon, authenticated, service_role;
+	        alter default privileges in schema graphql grant all on functions to postgres, anon, authenticated, service_role;
+	        alter default privileges in schema graphql grant all on sequences to postgres, anon, authenticated, service_role;
+	
+	        -- Allow postgres role to allow granting usage on graphql and graphql_public schemas to custom roles
+	        grant usage on schema graphql_public to postgres with grant option;
+	        grant usage on schema graphql to postgres with grant option;
+	    END IF;
+	
+	END;
+	$_$;
+2025-04-27 08:40:33.324 NZST [18954] ERROR:  must be owner of function extensions.grant_pg_graphql_access
+2025-04-27 08:40:33.324 NZST [18954] STATEMENT:  COMMENT ON FUNCTION extensions.grant_pg_graphql_access() IS 'Grants access to pg_graphql';
+2025-04-27 08:40:33.324 NZST [18954] ERROR:  function "grant_pg_net_access" already exists with same argument types
+2025-04-27 08:40:33.324 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.grant_pg_net_access() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	BEGIN
+	  IF EXISTS (
+	    SELECT 1
+	    FROM pg_event_trigger_ddl_commands() AS ev
+	    JOIN pg_extension AS ext
+	    ON ev.objid = ext.oid
+	    WHERE ext.extname = 'pg_net'
+	  )
+	  THEN
+	    IF NOT EXISTS (
+	      SELECT 1
+	      FROM pg_roles
+	      WHERE rolname = 'supabase_functions_admin'
+	    )
+	    THEN
+	      CREATE USER supabase_functions_admin NOINHERIT CREATEROLE LOGIN NOREPLICATION;
+	    END IF;
+	
+	    GRANT USAGE ON SCHEMA net TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+	
+	    ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+	    ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+	
+	    ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+	    ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+	
+	    REVOKE ALL ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+	    REVOKE ALL ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+	
+	    GRANT EXECUTE ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+	    GRANT EXECUTE ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+	  END IF;
+	END;
+	$$;
+2025-04-27 08:40:33.325 NZST [18954] ERROR:  function "pgrst_ddl_watch" already exists with same argument types
+2025-04-27 08:40:33.325 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.pgrst_ddl_watch() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	DECLARE
+	  cmd record;
+	BEGIN
+	  FOR cmd IN SELECT * FROM pg_event_trigger_ddl_commands()
+	  LOOP
+	    IF cmd.command_tag IN (
+	      'CREATE SCHEMA', 'ALTER SCHEMA'
+	    , 'CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO', 'ALTER TABLE'
+	    , 'CREATE FOREIGN TABLE', 'ALTER FOREIGN TABLE'
+	    , 'CREATE VIEW', 'ALTER VIEW'
+	    , 'CREATE MATERIALIZED VIEW', 'ALTER MATERIALIZED VIEW'
+	    , 'CREATE FUNCTION', 'ALTER FUNCTION'
+	    , 'CREATE TRIGGER'
+	    , 'CREATE TYPE', 'ALTER TYPE'
+	    , 'CREATE RULE'
+	    , 'COMMENT'
+	    )
+	    -- don't notify in case of CREATE TEMP table or other objects created on pg_temp
+	    AND cmd.schema_name is distinct from 'pg_temp'
+	    THEN
+	      NOTIFY pgrst, 'reload schema';
+	    END IF;
+	  END LOOP;
+	END; $$;
+2025-04-27 08:40:33.326 NZST [18954] ERROR:  function "pgrst_drop_watch" already exists with same argument types
+2025-04-27 08:40:33.326 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.pgrst_drop_watch() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	DECLARE
+	  obj record;
+	BEGIN
+	  FOR obj IN SELECT * FROM pg_event_trigger_dropped_objects()
+	  LOOP
+	    IF obj.object_type IN (
+	      'schema'
+	    , 'table'
+	    , 'foreign table'
+	    , 'view'
+	    , 'materialized view'
+	    , 'function'
+	    , 'trigger'
+	    , 'type'
+	    , 'rule'
+	    )
+	    AND obj.is_temporary IS false -- no pg_temp objects
+	    THEN
+	      NOTIFY pgrst, 'reload schema';
+	    END IF;
+	  END LOOP;
+	END; $$;
+2025-04-27 08:40:33.326 NZST [18954] ERROR:  function "set_graphql_placeholder" already exists with same argument types
+2025-04-27 08:40:33.326 NZST [18954] STATEMENT:  CREATE FUNCTION extensions.set_graphql_placeholder() RETURNS event_trigger
+	    LANGUAGE plpgsql
+	    AS $_$
+	    DECLARE
+	    graphql_is_dropped bool;
+	    BEGIN
+	    graphql_is_dropped = (
+	        SELECT ev.schema_name = 'graphql_public'
+	        FROM pg_event_trigger_dropped_objects() AS ev
+	        WHERE ev.schema_name = 'graphql_public'
+	    );
+	
+	    IF graphql_is_dropped
+	    THEN
+	        create or replace function graphql_public.graphql(
+	            "operationName" text default null,
+	            query text default null,
+	            variables jsonb default null,
+	            extensions jsonb default null
+	        )
+	            returns jsonb
+	            language plpgsql
+	        as $$
+	            DECLARE
+	                server_version float;
+	            BEGIN
+	                server_version = (SELECT (SPLIT_PART((select version()), ' ', 2))::float);
+	
+	                IF server_version >= 14 THEN
+	                    RETURN jsonb_build_object(
+	                        'errors', jsonb_build_array(
+	                            jsonb_build_object(
+	                                'message', 'pg_graphql extension is not enabled.'
+	                            )
+	                        )
+	                    );
+	                ELSE
+	                    RETURN jsonb_build_object(
+	                        'errors', jsonb_build_array(
+	                            jsonb_build_object(
+	                                'message', 'pg_graphql is only available on projects running Postgres 14 onwards.'
+	                            )
+	                        )
+	                    );
+	                END IF;
+	            END;
+	        $$;
+	    END IF;
+	
+	    END;
+	$_$;
+2025-04-27 08:40:33.326 NZST [18954] ERROR:  must be owner of function extensions.set_graphql_placeholder
+2025-04-27 08:40:33.326 NZST [18954] STATEMENT:  COMMENT ON FUNCTION extensions.set_graphql_placeholder() IS 'Reintroduces placeholder function for graphql_public.graphql';
+2025-04-27 08:40:33.326 NZST [18954] ERROR:  permission denied for schema pgbouncer
+2025-04-27 08:40:33.326 NZST [18954] STATEMENT:  CREATE FUNCTION pgbouncer.get_auth(p_usename text) RETURNS TABLE(username text, password text)
+	    LANGUAGE plpgsql SECURITY DEFINER
+	    AS $$
+	BEGIN
+	    RAISE WARNING 'PgBouncer auth request: %', p_usename;
+	
+	    RETURN QUERY
+	    SELECT usename::TEXT, passwd::TEXT FROM pg_catalog.pg_shadow
+	    WHERE usename = p_usename;
+	END;
+	$$;
+2025-04-27 08:40:33.327 NZST [18954] ERROR:  function "apply_rls" already exists with same argument types
+2025-04-27 08:40:33.327 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.apply_rls(wal jsonb, max_record_bytes integer DEFAULT (1024 * 1024)) RETURNS SETOF realtime.wal_rls
+	    LANGUAGE plpgsql
+	    AS $$
+	declare
+	-- Regclass of the table e.g. public.notes
+	entity_ regclass = (quote_ident(wal ->> 'schema') || '.' || quote_ident(wal ->> 'table'))::regclass;
+	
+	-- I, U, D, T: insert, update ...
+	action realtime.action = (
+	    case wal ->> 'action'
+	        when 'I' then 'INSERT'
+	        when 'U' then 'UPDATE'
+	        when 'D' then 'DELETE'
+	        else 'ERROR'
+	    end
+	);
+	
+	-- Is row level security enabled for the table
+	is_rls_enabled bool = relrowsecurity from pg_class where oid = entity_;
+	
+	subscriptions realtime.subscription[] = array_agg(subs)
+	    from
+	        realtime.subscription subs
+	    where
+	        subs.entity = entity_;
+	
+	-- Subscription vars
+	roles regrole[] = array_agg(distinct us.claims_role::text)
+	    from
+	        unnest(subscriptions) us;
+	
+	working_role regrole;
+	claimed_role regrole;
+	claims jsonb;
+	
+	subscription_id uuid;
+	subscription_has_access bool;
+	visible_to_subscription_ids uuid[] = '{}';
+	
+	-- structured info for wal's columns
+	columns realtime.wal_column[];
+	-- previous identity values for update/delete
+	old_columns realtime.wal_column[];
+	
+	error_record_exceeds_max_size boolean = octet_length(wal::text) > max_record_bytes;
+	
+	-- Primary jsonb output for record
+	output jsonb;
+	
+	begin
+	perform set_config('role', null, true);
+	
+	columns =
+	    array_agg(
+	        (
+	            x->>'name',
+	            x->>'type',
+	            x->>'typeoid',
+	            realtime.cast(
+	                (x->'value') #>> '{}',
+	                coalesce(
+	                    (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4
+	                    (x->>'type')::regtype
+	                )
+	            ),
+	            (pks ->> 'name') is not null,
+	            true
+	        )::realtime.wal_column
+	    )
+	    from
+	        jsonb_array_elements(wal -> 'columns') x
+	        left join jsonb_array_elements(wal -> 'pk') pks
+	            on (x ->> 'name') = (pks ->> 'name');
+	
+	old_columns =
+	    array_agg(
+	        (
+	            x->>'name',
+	            x->>'type',
+	            x->>'typeoid',
+	            realtime.cast(
+	                (x->'value') #>> '{}',
+	                coalesce(
+	                    (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4
+	                    (x->>'type')::regtype
+	                )
+	            ),
+	            (pks ->> 'name') is not null,
+	            true
+	        )::realtime.wal_column
+	    )
+	    from
+	        jsonb_array_elements(wal -> 'identity') x
+	        left join jsonb_array_elements(wal -> 'pk') pks
+	            on (x ->> 'name') = (pks ->> 'name');
+	
+	for working_role in select * from unnest(roles) loop
+	
+	    -- Update `is_selectable` for columns and old_columns
+	    columns =
+	        array_agg(
+	            (
+	                c.name,
+	                c.type_name,
+	                c.type_oid,
+	                c.value,
+	                c.is_pkey,
+	                pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')
+	            )::realtime.wal_column
+	        )
+	        from
+	            unnest(columns) c;
+	
+	    old_columns =
+	            array_agg(
+	                (
+	                    c.name,
+	                    c.type_name,
+	                    c.type_oid,
+	                    c.value,
+	                    c.is_pkey,
+	                    pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')
+	                )::realtime.wal_column
+	            )
+	            from
+	                unnest(old_columns) c;
+	
+	    if action <> 'DELETE' and count(1) = 0 from unnest(columns) c where c.is_pkey then
+	        return next (
+	            jsonb_build_object(
+	                'schema', wal ->> 'schema',
+	                'table', wal ->> 'table',
+	                'type', action
+	            ),
+	            is_rls_enabled,
+	            -- subscriptions is already filtered by entity
+	            (select array_agg(s.subscription_id) from unnest(subscriptions) as s where claims_role = working_role),
+	            array['Error 400: Bad Request, no primary key']
+	        )::realtime.wal_rls;
+	
+	    -- The claims role does not have SELECT permission to the primary key of entity
+	    elsif action <> 'DELETE' and sum(c.is_selectable::int) <> count(1) from unnest(columns) c where c.is_pkey then
+	        return next (
+	            jsonb_build_object(
+	                'schema', wal ->> 'schema',
+	                'table', wal ->> 'table',
+	                'type', action
+	            ),
+	            is_rls_enabled,
+	            (select array_agg(s.subscription_id) from unnest(subscriptions) as s where claims_role = working_role),
+	            array['Error 401: Unauthorized']
+	        )::realtime.wal_rls;
+	
+	    else
+	        output = jsonb_build_object(
+	            'schema', wal ->> 'schema',
+	            'table', wal ->> 'table',
+	            'type', action,
+	            'commit_timestamp', to_char(
+	                ((wal ->> 'timestamp')::timestamptz at time zone 'utc'),
+	                'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+	            ),
+	            'columns', (
+	                select
+	                    jsonb_agg(
+	                        jsonb_build_object(
+	                            'name', pa.attname,
+	                            'type', pt.typname
+	                        )
+	                        order by pa.attnum asc
+	                    )
+	                from
+	                    pg_attribute pa
+	                    join pg_type pt
+	                        on pa.atttypid = pt.oid
+	                where
+	                    attrelid = entity_
+	                    and attnum > 0
+	                    and pg_catalog.has_column_privilege(working_role, entity_, pa.attname, 'SELECT')
+	            )
+	        )
+	        -- Add "record" key for insert and update
+	        || case
+	            when action in ('INSERT', 'UPDATE') then
+	                jsonb_build_object(
+	                    'record',
+	                    (
+	                        select
+	                            jsonb_object_agg(
+	                                -- if unchanged toast, get column name and value from old record
+	                                coalesce((c).name, (oc).name),
+	                                case
+	                                    when (c).name is null then (oc).value
+	                                    else (c).value
+	                                end
+	                            )
+	                        from
+	                            unnest(columns) c
+	                            full outer join unnest(old_columns) oc
+	                                on (c).name = (oc).name
+	                        where
+	                            coalesce((c).is_selectable, (oc).is_selectable)
+	                            and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
+	                    )
+	                )
+	            else '{}'::jsonb
+	        end
+	        -- Add "old_record" key for update and delete
+	        || case
+	            when action = 'UPDATE' then
+	                jsonb_build_object(
+	                        'old_record',
+	                        (
+	                            select jsonb_object_agg((c).name, (c).value)
+	                            from unnest(old_columns) c
+	                            where
+	                                (c).is_selectable
+	                                and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
+	                        )
+	                    )
+	            when action = 'DELETE' then
+	                jsonb_build_object(
+	                    'old_record',
+	                    (
+	                        select jsonb_object_agg((c).name, (c).value)
+	                        from unnest(old_columns) c
+	                        where
+	                            (c).is_selectable
+	                            and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
+	                            and ( not is_rls_enabled or (c).is_pkey ) -- if RLS enabled, we can't secure deletes so filter to pkey
+	                    )
+	                )
+	            else '{}'::jsonb
+	        end;
+	
+	        -- Create the prepared statement
+	        if is_rls_enabled and action <> 'DELETE' then
+	            if (select 1 from pg_prepared_statements where name = 'walrus_rls_stmt' limit 1) > 0 then
+	                deallocate walrus_rls_stmt;
+	            end if;
+	            execute realtime.build_prepared_statement_sql('walrus_rls_stmt', entity_, columns);
+	        end if;
+	
+	        visible_to_subscription_ids = '{}';
+	
+	        for subscription_id, claims in (
+	                select
+	                    subs.subscription_id,
+	                    subs.claims
+	                from
+	                    unnest(subscriptions) subs
+	                where
+	                    subs.entity = entity_
+	                    and subs.claims_role = working_role
+	                    and (
+	                        realtime.is_visible_through_filters(columns, subs.filters)
+	                        or (
+	                          action = 'DELETE'
+	                          and realtime.is_visible_through_filters(old_columns, subs.filters)
+	                        )
+	                    )
+	        ) loop
+	
+	            if not is_rls_enabled or action = 'DELETE' then
+	                visible_to_subscription_ids = visible_to_subscription_ids || subscription_id;
+	            else
+	                -- Check if RLS allows the role to see the record
+	                perform
+	                    -- Trim leading and trailing quotes from working_role because set_config
+	                    -- doesn't recognize the role as valid if they are included
+	                    set_config('role', trim(both '"' from working_role::text), true),
+	                    set_config('request.jwt.claims', claims::text, true);
+	
+	                execute 'execute walrus_rls_stmt' into subscription_has_access;
+	
+	                if subscription_has_access then
+	                    visible_to_subscription_ids = visible_to_subscription_ids || subscription_id;
+	                end if;
+	            end if;
+	        end loop;
+	
+	        perform set_config('role', null, true);
+	
+	        return next (
+	            output,
+	            is_rls_enabled,
+	            visible_to_subscription_ids,
+	            case
+	                when error_record_exceeds_max_size then array['Error 413: Payload Too Large']
+	                else '{}'
+	            end
+	        )::realtime.wal_rls;
+	
+	    end if;
+	end loop;
+	
+	perform set_config('role', null, true);
+	end;
+	$$;
+2025-04-27 08:40:33.328 NZST [18954] ERROR:  function "build_prepared_statement_sql" already exists with same argument types
+2025-04-27 08:40:33.328 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.build_prepared_statement_sql(prepared_statement_name text, entity regclass, columns realtime.wal_column[]) RETURNS text
+	    LANGUAGE sql
+	    AS $$
+	      /*
+	      Builds a sql string that, if executed, creates a prepared statement to
+	      tests retrive a row from *entity* by its primary key columns.
+	      Example
+	          select realtime.build_prepared_statement_sql('public.notes', '{"id"}'::text[], '{"bigint"}'::text[])
+	      */
+	          select
+	      'prepare ' || prepared_statement_name || ' as
+	          select
+	              exists(
+	                  select
+	                      1
+	                  from
+	                      ' || entity || '
+	                  where
+	                      ' || string_agg(quote_ident(pkc.name) || '=' || quote_nullable(pkc.value #>> '{}') , ' and ') || '
+	              )'
+	          from
+	              unnest(columns) pkc
+	          where
+	              pkc.is_pkey
+	          group by
+	              entity
+	      $$;
+2025-04-27 08:40:33.329 NZST [18954] ERROR:  function "cast" already exists with same argument types
+2025-04-27 08:40:33.329 NZST [18954] STATEMENT:  CREATE FUNCTION realtime."cast"(val text, type_ regtype) RETURNS jsonb
+	    LANGUAGE plpgsql IMMUTABLE
+	    AS $$
+	    declare
+	      res jsonb;
+	    begin
+	      execute format('select to_jsonb(%L::'|| type_::text || ')', val)  into res;
+	      return res;
+	    end
+	    $$;
+2025-04-27 08:40:33.329 NZST [18954] ERROR:  function "check_equality_op" already exists with same argument types
+2025-04-27 08:40:33.329 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text) RETURNS boolean
+	    LANGUAGE plpgsql IMMUTABLE
+	    AS $$
+	      /*
+	      Casts *val_1* and *val_2* as type *type_* and check the *op* condition for truthiness
+	      */
+	      declare
+	          op_symbol text = (
+	              case
+	                  when op = 'eq' then '='
+	                  when op = 'neq' then '!='
+	                  when op = 'lt' then '<'
+	                  when op = 'lte' then '<='
+	                  when op = 'gt' then '>'
+	                  when op = 'gte' then '>='
+	                  when op = 'in' then '= any'
+	                  else 'UNKNOWN OP'
+	              end
+	          );
+	          res boolean;
+	      begin
+	          execute format(
+	              'select %L::'|| type_::text || ' ' || op_symbol
+	              || ' ( %L::'
+	              || (
+	                  case
+	                      when op = 'in' then type_::text || '[]'
+	                      else type_::text end
+	              )
+	              || ')', val_1, val_2) into res;
+	          return res;
+	      end;
+	      $$;
+2025-04-27 08:40:33.329 NZST [18954] ERROR:  function "is_visible_through_filters" already exists with same argument types
+2025-04-27 08:40:33.329 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.is_visible_through_filters(columns realtime.wal_column[], filters realtime.user_defined_filter[]) RETURNS boolean
+	    LANGUAGE sql IMMUTABLE
+	    AS $_$
+	    /*
+	    Should the record be visible (true) or filtered out (false) after *filters* are applied
+	    */
+	        select
+	            -- Default to allowed when no filters present
+	            $2 is null -- no filters. this should not happen because subscriptions has a default
+	            or array_length($2, 1) is null -- array length of an empty array is null
+	            or bool_and(
+	                coalesce(
+	                    realtime.check_equality_op(
+	                        op:=f.op,
+	                        type_:=coalesce(
+	                            col.type_oid::regtype, -- null when wal2json version <= 2.4
+	                            col.type_name::regtype
+	                        ),
+	                        -- cast jsonb to text
+	                        val_1:=col.value #>> '{}',
+	                        val_2:=f.value
+	                    ),
+	                    false -- if null, filter does not match
+	                )
+	            )
+	        from
+	            unnest(filters) f
+	            join unnest(columns) col
+	                on f.column_name = col.name;
+	    $_$;
+2025-04-27 08:40:33.329 NZST [18954] ERROR:  permission denied to set parameter "log_min_messages"
+2025-04-27 08:40:33.329 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.list_changes(publication name, slot_name name, max_changes integer, max_record_bytes integer) RETURNS SETOF realtime.wal_rls
+	    LANGUAGE sql
+	    SET log_min_messages TO 'fatal'
+	    AS $$
+	      with pub as (
+	        select
+	          concat_ws(
+	            ',',
+	            case when bool_or(pubinsert) then 'insert' else null end,
+	            case when bool_or(pubupdate) then 'update' else null end,
+	            case when bool_or(pubdelete) then 'delete' else null end
+	          ) as w2j_actions,
+	          coalesce(
+	            string_agg(
+	              realtime.quote_wal2json(format('%I.%I', schemaname, tablename)::regclass),
+	              ','
+	            ) filter (where ppt.tablename is not null and ppt.tablename not like '% %'),
+	            ''
+	          ) w2j_add_tables
+	        from
+	          pg_publication pp
+	          left join pg_publication_tables ppt
+	            on pp.pubname = ppt.pubname
+	        where
+	          pp.pubname = publication
+	        group by
+	          pp.pubname
+	        limit 1
+	      ),
+	      w2j as (
+	        select
+	          x.*, pub.w2j_add_tables
+	        from
+	          pub,
+	          pg_logical_slot_get_changes(
+	            slot_name, null, max_changes,
+	            'include-pk', 'true',
+	            'include-transaction', 'false',
+	            'include-timestamp', 'true',
+	            'include-type-oids', 'true',
+	            'format-version', '2',
+	            'actions', pub.w2j_actions,
+	            'add-tables', pub.w2j_add_tables
+	          ) x
+	      )
+	      select
+	        xyz.wal,
+	        xyz.is_rls_enabled,
+	        xyz.subscription_ids,
+	        xyz.errors
+	      from
+	        w2j,
+	        realtime.apply_rls(
+	          wal := w2j.data::jsonb,
+	          max_record_bytes := max_record_bytes
+	        ) xyz(wal, is_rls_enabled, subscription_ids, errors)
+	      where
+	        w2j.w2j_add_tables <> ''
+	        and xyz.subscription_ids[1] is not null
+	    $$;
+2025-04-27 08:40:33.330 NZST [18954] ERROR:  function "quote_wal2json" already exists with same argument types
+2025-04-27 08:40:33.330 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.quote_wal2json(entity regclass) RETURNS text
+	    LANGUAGE sql IMMUTABLE STRICT
+	    AS $$
+	      select
+	        (
+	          select string_agg('' || ch,'')
+	          from unnest(string_to_array(nsp.nspname::text, null)) with ordinality x(ch, idx)
+	          where
+	            not (x.idx = 1 and x.ch = '"')
+	            and not (
+	              x.idx = array_length(string_to_array(nsp.nspname::text, null), 1)
+	              and x.ch = '"'
+	            )
+	        )
+	        || '.'
+	        || (
+	          select string_agg('' || ch,'')
+	          from unnest(string_to_array(pc.relname::text, null)) with ordinality x(ch, idx)
+	          where
+	            not (x.idx = 1 and x.ch = '"')
+	            and not (
+	              x.idx = array_length(string_to_array(nsp.nspname::text, null), 1)
+	              and x.ch = '"'
+	            )
+	          )
+	      from
+	        pg_class pc
+	        join pg_namespace nsp
+	          on pc.relnamespace = nsp.oid
+	      where
+	        pc.oid = entity
+	    $$;
+2025-04-27 08:40:33.330 NZST [18954] ERROR:  function "subscription_check_filters" already exists with same argument types
+2025-04-27 08:40:33.330 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.subscription_check_filters() RETURNS trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	    /*
+	    Validates that the user defined filters for a subscription:
+	    - refer to valid columns that the claimed role may access
+	    - values are coercable to the correct column type
+	    */
+	    declare
+	        col_names text[] = coalesce(
+	                array_agg(c.column_name order by c.ordinal_position),
+	                '{}'::text[]
+	            )
+	            from
+	                information_schema.columns c
+	            where
+	                format('%I.%I', c.table_schema, c.table_name)::regclass = new.entity
+	                and pg_catalog.has_column_privilege(
+	                    (new.claims ->> 'role'),
+	                    format('%I.%I', c.table_schema, c.table_name)::regclass,
+	                    c.column_name,
+	                    'SELECT'
+	                );
+	        filter realtime.user_defined_filter;
+	        col_type regtype;
+	
+	        in_val jsonb;
+	    begin
+	        for filter in select * from unnest(new.filters) loop
+	            -- Filtered column is valid
+	            if not filter.column_name = any(col_names) then
+	                raise exception 'invalid column for filter %', filter.column_name;
+	            end if;
+	
+	            -- Type is sanitized and safe for string interpolation
+	            col_type = (
+	                select atttypid::regtype
+	                from pg_catalog.pg_attribute
+	                where attrelid = new.entity
+	                      and attname = filter.column_name
+	            );
+	            if col_type is null then
+	                raise exception 'failed to lookup type for column %', filter.column_name;
+	            end if;
+	
+	            -- Set maximum number of entries for in filter
+	            if filter.op = 'in'::realtime.equality_op then
+	                in_val = realtime.cast(filter.value, (col_type::text || '[]')::regtype);
+	                if coalesce(jsonb_array_length(in_val), 0) > 100 then
+	                    raise exception 'too many values for `in` filter. Maximum 100';
+	                end if;
+	            else
+	                -- raises an exception if value is not coercable to type
+	                perform realtime.cast(filter.value, col_type);
+	            end if;
+	
+	        end loop;
+	
+	        -- Apply consistent order to filters so the unique constraint on
+	        -- (subscription_id, entity, filters) can't be tricked by a different filter order
+	        new.filters = coalesce(
+	            array_agg(f order by f.column_name, f.op, f.value),
+	            '{}'
+	        ) from unnest(new.filters) f;
+	
+	        return new;
+	    end;
+	    $$;
+2025-04-27 08:40:33.330 NZST [18954] ERROR:  function "to_regrole" already exists with same argument types
+2025-04-27 08:40:33.330 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.to_regrole(role_name text) RETURNS regrole
+	    LANGUAGE sql IMMUTABLE
+	    AS $$ select role_name::regrole $$;
+2025-04-27 08:40:33.331 NZST [18954] ERROR:  function "topic" already exists with same argument types
+2025-04-27 08:40:33.331 NZST [18954] STATEMENT:  CREATE FUNCTION realtime.topic() RETURNS text
+	    LANGUAGE sql STABLE
+	    AS $$
+	select nullif(current_setting('realtime.topic', true), '')::text;
+	$$;
+2025-04-27 08:40:33.331 NZST [18954] ERROR:  function "can_insert_object" already exists with same argument types
+2025-04-27 08:40:33.331 NZST [18954] STATEMENT:  CREATE FUNCTION storage.can_insert_object(bucketid text, name text, owner uuid, metadata jsonb) RETURNS void
+	    LANGUAGE plpgsql
+	    AS $$
+	BEGIN
+	  INSERT INTO "storage"."objects" ("bucket_id", "name", "owner", "metadata") VALUES (bucketid, name, owner, metadata);
+	  -- hack to rollback the successful insert
+	  RAISE sqlstate 'PT200' using
+	  message = 'ROLLBACK',
+	  detail = 'rollback successful insert';
+	END
+	$$;
+2025-04-27 08:40:33.331 NZST [18954] ERROR:  function "extension" already exists with same argument types
+2025-04-27 08:40:33.331 NZST [18954] STATEMENT:  CREATE FUNCTION storage.extension(name text) RETURNS text
+	    LANGUAGE plpgsql
+	    AS $$
+	DECLARE
+	_parts text[];
+	_filename text;
+	BEGIN
+		select string_to_array(name, '/') into _parts;
+		select _parts[array_length(_parts,1)] into _filename;
+		-- @todo return the last part instead of 2
+		return reverse(split_part(reverse(_filename), '.', 1));
+	END
+	$$;
+2025-04-27 08:40:33.331 NZST [18954] ERROR:  function "filename" already exists with same argument types
+2025-04-27 08:40:33.331 NZST [18954] STATEMENT:  CREATE FUNCTION storage.filename(name text) RETURNS text
+	    LANGUAGE plpgsql
+	    AS $$
+	DECLARE
+	_parts text[];
+	BEGIN
+		select string_to_array(name, '/') into _parts;
+		return _parts[array_length(_parts,1)];
+	END
+	$$;
+2025-04-27 08:40:33.331 NZST [18954] ERROR:  function "foldername" already exists with same argument types
+2025-04-27 08:40:33.331 NZST [18954] STATEMENT:  CREATE FUNCTION storage.foldername(name text) RETURNS text[]
+	    LANGUAGE plpgsql
+	    AS $$
+	DECLARE
+	_parts text[];
+	BEGIN
+		select string_to_array(name, '/') into _parts;
+		return _parts[1:array_length(_parts,1)-1];
+	END
+	$$;
+2025-04-27 08:40:33.332 NZST [18954] ERROR:  function "get_size_by_bucket" already exists with same argument types
+2025-04-27 08:40:33.332 NZST [18954] STATEMENT:  CREATE FUNCTION storage.get_size_by_bucket() RETURNS TABLE(size bigint, bucket_id text)
+	    LANGUAGE plpgsql
+	    AS $$
+	BEGIN
+	    return query
+	        select sum((metadata->>'size')::int) as size, obj.bucket_id
+	        from "storage".objects as obj
+	        group by obj.bucket_id;
+	END
+	$$;
+2025-04-27 08:40:33.332 NZST [18954] ERROR:  function "list_multipart_uploads_with_delimiter" already exists with same argument types
+2025-04-27 08:40:33.332 NZST [18954] STATEMENT:  CREATE FUNCTION storage.list_multipart_uploads_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, next_key_token text DEFAULT ''::text, next_upload_token text DEFAULT ''::text) RETURNS TABLE(key text, id text, created_at timestamp with time zone)
+	    LANGUAGE plpgsql
+	    AS $_$
+	BEGIN
+	    RETURN QUERY EXECUTE
+	        'SELECT DISTINCT ON(key COLLATE "C") * from (
+	            SELECT
+	                CASE
+	                    WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN
+	                        substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1)))
+	                    ELSE
+	                        key
+	                END AS key, id, created_at
+	            FROM
+	                storage.s3_multipart_uploads
+	            WHERE
+	                bucket_id = $5 AND
+	                key ILIKE $1 || ''%'' AND
+	                CASE
+	                    WHEN $4 != '''' AND $6 = '''' THEN
+	                        CASE
+	                            WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN
+	                                substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1))) COLLATE "C" > $4
+	                            ELSE
+	                                key COLLATE "C" > $4
+	                            END
+	                    ELSE
+	                        true
+	                END AND
+	                CASE
+	                    WHEN $6 != '''' THEN
+	                        id COLLATE "C" > $6
+	                    ELSE
+	                        true
+	                    END
+	            ORDER BY
+	                key COLLATE "C" ASC, created_at ASC) as e order by key COLLATE "C" LIMIT $3'
+	        USING prefix_param, delimiter_param, max_keys, next_key_token, bucket_id, next_upload_token;
+	END;
+	$_$;
+2025-04-27 08:40:33.332 NZST [18954] ERROR:  function "list_objects_with_delimiter" already exists with same argument types
+2025-04-27 08:40:33.332 NZST [18954] STATEMENT:  CREATE FUNCTION storage.list_objects_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, start_after text DEFAULT ''::text, next_token text DEFAULT ''::text) RETURNS TABLE(name text, id uuid, metadata jsonb, updated_at timestamp with time zone)
+	    LANGUAGE plpgsql
+	    AS $_$
+	BEGIN
+	    RETURN QUERY EXECUTE
+	        'SELECT DISTINCT ON(name COLLATE "C") * from (
+	            SELECT
+	                CASE
+	                    WHEN position($2 IN substring(name from length($1) + 1)) > 0 THEN
+	                        substring(name from 1 for length($1) + position($2 IN substring(name from length($1) + 1)))
+	                    ELSE
+	                        name
+	                END AS name, id, metadata, updated_at
+	            FROM
+	                storage.objects
+	            WHERE
+	                bucket_id = $5 AND
+	                name ILIKE $1 || ''%'' AND
+	                CASE
+	                    WHEN $6 != '''' THEN
+	                    name COLLATE "C" > $6
+	                ELSE true END
+	                AND CASE
+	                    WHEN $4 != '''' THEN
+	                        CASE
+	                            WHEN position($2 IN substring(name from length($1) + 1)) > 0 THEN
+	                                substring(name from 1 for length($1) + position($2 IN substring(name from length($1) + 1))) COLLATE "C" > $4
+	                            ELSE
+	                                name COLLATE "C" > $4
+	                            END
+	                    ELSE
+	                        true
+	                END
+	            ORDER BY
+	                name COLLATE "C" ASC) as e order by name COLLATE "C" LIMIT $3'
+	        USING prefix_param, delimiter_param, max_keys, next_token, bucket_id, start_after;
+	END;
+	$_$;
+2025-04-27 08:40:33.332 NZST [18954] ERROR:  function "operation" already exists with same argument types
+2025-04-27 08:40:33.332 NZST [18954] STATEMENT:  CREATE FUNCTION storage.operation() RETURNS text
+	    LANGUAGE plpgsql STABLE
+	    AS $$
+	BEGIN
+	    RETURN current_setting('storage.operation', true);
+	END;
+	$$;
+2025-04-27 08:40:33.333 NZST [18954] ERROR:  function "search" already exists with same argument types
+2025-04-27 08:40:33.333 NZST [18954] STATEMENT:  CREATE FUNCTION storage.search(prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text) RETURNS TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)
+	    LANGUAGE plpgsql STABLE
+	    AS $_$
+	declare
+	  v_order_by text;
+	  v_sort_order text;
+	begin
+	  case
+	    when sortcolumn = 'name' then
+	      v_order_by = 'name';
+	    when sortcolumn = 'updated_at' then
+	      v_order_by = 'updated_at';
+	    when sortcolumn = 'created_at' then
+	      v_order_by = 'created_at';
+	    when sortcolumn = 'last_accessed_at' then
+	      v_order_by = 'last_accessed_at';
+	    else
+	      v_order_by = 'name';
+	  end case;
+	
+	  case
+	    when sortorder = 'asc' then
+	      v_sort_order = 'asc';
+	    when sortorder = 'desc' then
+	      v_sort_order = 'desc';
+	    else
+	      v_sort_order = 'asc';
+	  end case;
+	
+	  v_order_by = v_order_by || ' ' || v_sort_order;
+	
+	  return query execute
+	    'with folders as (
+	       select path_tokens[$1] as folder
+	       from storage.objects
+	         where objects.name ilike $2 || $3 || ''%''
+	           and bucket_id = $4
+	           and array_length(objects.path_tokens, 1) <> $1
+	       group by folder
+	       order by folder ' || v_sort_order || '
+	     )
+	     (select folder as "name",
+	            null as id,
+	            null as updated_at,
+	            null as created_at,
+	            null as last_accessed_at,
+	            null as metadata from folders)
+	     union all
+	     (select path_tokens[$1] as "name",
+	            id,
+	            updated_at,
+	            created_at,
+	            last_accessed_at,
+	            metadata
+	     from storage.objects
+	     where objects.name ilike $2 || $3 || ''%''
+	       and bucket_id = $4
+	       and array_length(objects.path_tokens, 1) = $1
+	     order by ' || v_order_by || ')
+	     limit $5
+	     offset $6' using levels, prefix, search, bucketname, limits, offsets;
+	end;
+	$_$;
+2025-04-27 08:40:33.333 NZST [18954] ERROR:  function "update_updated_at_column" already exists with same argument types
+2025-04-27 08:40:33.333 NZST [18954] STATEMENT:  CREATE FUNCTION storage.update_updated_at_column() RETURNS trigger
+	    LANGUAGE plpgsql
+	    AS $$
+	BEGIN
+	    NEW.updated_at = now();
+	    RETURN NEW; 
+	END;
+	$$;
+2025-04-27 08:40:33.333 NZST [18954] ERROR:  permission denied for schema vault
+2025-04-27 08:40:33.333 NZST [18954] STATEMENT:  CREATE FUNCTION vault.secrets_encrypt_secret_secret() RETURNS trigger
+	    LANGUAGE plpgsql
+	    AS $$
+			BEGIN
+			        new.secret = CASE WHEN new.secret IS NULL THEN NULL ELSE
+				CASE WHEN new.key_id IS NULL THEN NULL ELSE pg_catalog.encode(
+				  pgsodium.crypto_aead_det_encrypt(
+					pg_catalog.convert_to(new.secret, 'utf8'),
+					pg_catalog.convert_to((new.id::text || new.description::text || new.created_at::text || new.updated_at::text)::text, 'utf8'),
+					new.key_id::uuid,
+					new.nonce
+				  ),
+					'base64') END END;
+			RETURN new;
+			END;
+			$$;
+2025-04-27 08:40:33.334 NZST [18954] ERROR:  relation "audit_log_entries" already exists
+2025-04-27 08:40:33.334 NZST [18954] STATEMENT:  CREATE TABLE auth.audit_log_entries (
+	    instance_id uuid,
+	    id uuid NOT NULL,
+	    payload json,
+	    created_at timestamp with time zone,
+	    ip_address character varying(64) DEFAULT ''::character varying NOT NULL
+	);
+2025-04-27 08:40:33.335 NZST [18954] ERROR:  relation "flow_state" already exists
+2025-04-27 08:40:33.335 NZST [18954] STATEMENT:  CREATE TABLE auth.flow_state (
+	    id uuid NOT NULL,
+	    user_id uuid,
+	    auth_code text NOT NULL,
+	    code_challenge_method auth.code_challenge_method NOT NULL,
+	    code_challenge text NOT NULL,
+	    provider_type text NOT NULL,
+	    provider_access_token text,
+	    provider_refresh_token text,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    authentication_method text NOT NULL,
+	    auth_code_issued_at timestamp with time zone
+	);
+2025-04-27 08:40:33.336 NZST [18954] ERROR:  relation "identities" already exists
+2025-04-27 08:40:33.336 NZST [18954] STATEMENT:  CREATE TABLE auth.identities (
+	    provider_id text NOT NULL,
+	    user_id uuid NOT NULL,
+	    identity_data jsonb NOT NULL,
+	    provider text NOT NULL,
+	    last_sign_in_at timestamp with time zone,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    email text GENERATED ALWAYS AS (lower((identity_data ->> 'email'::text))) STORED,
+	    id uuid DEFAULT gen_random_uuid() NOT NULL
+	);
+2025-04-27 08:40:33.337 NZST [18954] ERROR:  relation "instances" already exists
+2025-04-27 08:40:33.337 NZST [18954] STATEMENT:  CREATE TABLE auth.instances (
+	    id uuid NOT NULL,
+	    uuid uuid,
+	    raw_base_config text,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone
+	);
+2025-04-27 08:40:33.337 NZST [18954] ERROR:  relation "mfa_amr_claims" already exists
+2025-04-27 08:40:33.337 NZST [18954] STATEMENT:  CREATE TABLE auth.mfa_amr_claims (
+	    session_id uuid NOT NULL,
+	    created_at timestamp with time zone NOT NULL,
+	    updated_at timestamp with time zone NOT NULL,
+	    authentication_method text NOT NULL,
+	    id uuid NOT NULL
+	);
+2025-04-27 08:40:33.338 NZST [18954] ERROR:  relation "mfa_challenges" already exists
+2025-04-27 08:40:33.338 NZST [18954] STATEMENT:  CREATE TABLE auth.mfa_challenges (
+	    id uuid NOT NULL,
+	    factor_id uuid NOT NULL,
+	    created_at timestamp with time zone NOT NULL,
+	    verified_at timestamp with time zone,
+	    ip_address inet NOT NULL,
+	    otp_code text,
+	    web_authn_session_data jsonb
+	);
+2025-04-27 08:40:33.338 NZST [18954] ERROR:  relation "mfa_factors" already exists
+2025-04-27 08:40:33.338 NZST [18954] STATEMENT:  CREATE TABLE auth.mfa_factors (
+	    id uuid NOT NULL,
+	    user_id uuid NOT NULL,
+	    friendly_name text,
+	    factor_type auth.factor_type NOT NULL,
+	    status auth.factor_status NOT NULL,
+	    created_at timestamp with time zone NOT NULL,
+	    updated_at timestamp with time zone NOT NULL,
+	    secret text,
+	    phone text,
+	    last_challenged_at timestamp with time zone,
+	    web_authn_credential jsonb,
+	    web_authn_aaguid uuid
+	);
+2025-04-27 08:40:33.338 NZST [18954] ERROR:  relation "one_time_tokens" already exists
+2025-04-27 08:40:33.338 NZST [18954] STATEMENT:  CREATE TABLE auth.one_time_tokens (
+	    id uuid NOT NULL,
+	    user_id uuid NOT NULL,
+	    token_type auth.one_time_token_type NOT NULL,
+	    token_hash text NOT NULL,
+	    relates_to text NOT NULL,
+	    created_at timestamp without time zone DEFAULT now() NOT NULL,
+	    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+	    CONSTRAINT one_time_tokens_token_hash_check CHECK ((char_length(token_hash) > 0))
+	);
+2025-04-27 08:40:33.339 NZST [18954] ERROR:  relation "refresh_tokens" already exists
+2025-04-27 08:40:33.339 NZST [18954] STATEMENT:  CREATE TABLE auth.refresh_tokens (
+	    instance_id uuid,
+	    id bigint NOT NULL,
+	    token character varying(255),
+	    user_id character varying(255),
+	    revoked boolean,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    parent character varying(255),
+	    session_id uuid
+	);
+2025-04-27 08:40:33.340 NZST [18954] ERROR:  relation "refresh_tokens_id_seq" already exists
+2025-04-27 08:40:33.340 NZST [18954] STATEMENT:  CREATE SEQUENCE auth.refresh_tokens_id_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+2025-04-27 08:40:33.342 NZST [18954] ERROR:  relation "saml_providers" already exists
+2025-04-27 08:40:33.342 NZST [18954] STATEMENT:  CREATE TABLE auth.saml_providers (
+	    id uuid NOT NULL,
+	    sso_provider_id uuid NOT NULL,
+	    entity_id text NOT NULL,
+	    metadata_xml text NOT NULL,
+	    metadata_url text,
+	    attribute_mapping jsonb,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    name_id_format text,
+	    CONSTRAINT "entity_id not empty" CHECK ((char_length(entity_id) > 0)),
+	    CONSTRAINT "metadata_url not empty" CHECK (((metadata_url = NULL::text) OR (char_length(metadata_url) > 0))),
+	    CONSTRAINT "metadata_xml not empty" CHECK ((char_length(metadata_xml) > 0))
+	);
+2025-04-27 08:40:33.342 NZST [18954] ERROR:  relation "saml_relay_states" already exists
+2025-04-27 08:40:33.342 NZST [18954] STATEMENT:  CREATE TABLE auth.saml_relay_states (
+	    id uuid NOT NULL,
+	    sso_provider_id uuid NOT NULL,
+	    request_id text NOT NULL,
+	    for_email text,
+	    redirect_to text,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    flow_state_id uuid,
+	    CONSTRAINT "request_id not empty" CHECK ((char_length(request_id) > 0))
+	);
+2025-04-27 08:40:33.343 NZST [18954] ERROR:  relation "schema_migrations" already exists
+2025-04-27 08:40:33.343 NZST [18954] STATEMENT:  CREATE TABLE auth.schema_migrations (
+	    version character varying(255) NOT NULL
+	);
+2025-04-27 08:40:33.343 NZST [18954] ERROR:  relation "sessions" already exists
+2025-04-27 08:40:33.343 NZST [18954] STATEMENT:  CREATE TABLE auth.sessions (
+	    id uuid NOT NULL,
+	    user_id uuid NOT NULL,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    factor_id uuid,
+	    aal auth.aal_level,
+	    not_after timestamp with time zone,
+	    refreshed_at timestamp without time zone,
+	    user_agent text,
+	    ip inet,
+	    tag text
+	);
+2025-04-27 08:40:33.344 NZST [18954] ERROR:  relation "sso_domains" already exists
+2025-04-27 08:40:33.344 NZST [18954] STATEMENT:  CREATE TABLE auth.sso_domains (
+	    id uuid NOT NULL,
+	    sso_provider_id uuid NOT NULL,
+	    domain text NOT NULL,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    CONSTRAINT "domain not empty" CHECK ((char_length(domain) > 0))
+	);
+2025-04-27 08:40:33.344 NZST [18954] ERROR:  relation "sso_providers" already exists
+2025-04-27 08:40:33.344 NZST [18954] STATEMENT:  CREATE TABLE auth.sso_providers (
+	    id uuid NOT NULL,
+	    resource_id text,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    CONSTRAINT "resource_id not empty" CHECK (((resource_id = NULL::text) OR (char_length(resource_id) > 0)))
+	);
+2025-04-27 08:40:33.345 NZST [18954] ERROR:  relation "users" already exists
+2025-04-27 08:40:33.345 NZST [18954] STATEMENT:  CREATE TABLE auth.users (
+	    instance_id uuid,
+	    id uuid NOT NULL,
+	    aud character varying(255),
+	    role character varying(255),
+	    email character varying(255),
+	    encrypted_password character varying(255),
+	    email_confirmed_at timestamp with time zone,
+	    invited_at timestamp with time zone,
+	    confirmation_token character varying(255),
+	    confirmation_sent_at timestamp with time zone,
+	    recovery_token character varying(255),
+	    recovery_sent_at timestamp with time zone,
+	    email_change_token_new character varying(255),
+	    email_change character varying(255),
+	    email_change_sent_at timestamp with time zone,
+	    last_sign_in_at timestamp with time zone,
+	    raw_app_meta_data jsonb,
+	    raw_user_meta_data jsonb,
+	    is_super_admin boolean,
+	    created_at timestamp with time zone,
+	    updated_at timestamp with time zone,
+	    phone text DEFAULT NULL::character varying,
+	    phone_confirmed_at timestamp with time zone,
+	    phone_change text DEFAULT ''::character varying,
+	    phone_change_token character varying(255) DEFAULT ''::character varying,
+	    phone_change_sent_at timestamp with time zone,
+	    confirmed_at timestamp with time zone GENERATED ALWAYS AS (LEAST(email_confirmed_at, phone_confirmed_at)) STORED,
+	    email_change_token_current character varying(255) DEFAULT ''::character varying,
+	    email_change_confirm_status smallint DEFAULT 0,
+	    banned_until timestamp with time zone,
+	    reauthentication_token character varying(255) DEFAULT ''::character varying,
+	    reauthentication_sent_at timestamp with time zone,
+	    is_sso_user boolean DEFAULT false NOT NULL,
+	    deleted_at timestamp with time zone,
+	    is_anonymous boolean DEFAULT false NOT NULL,
+	    CONSTRAINT users_email_change_confirm_status_check CHECK (((email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)))
+	);
+2025-04-27 08:40:33.346 NZST [18954] ERROR:  permission denied for schema public at character 14
+2025-04-27 08:40:33.346 NZST [18954] STATEMENT:  CREATE TABLE public.userscore (
+	    id integer NOT NULL,
+	    username character varying(255) NOT NULL,
+	    game_log_data jsonb
+	);
+2025-04-27 08:40:33.346 NZST [18954] ERROR:  permission denied for schema public
+2025-04-27 08:40:33.346 NZST [18954] STATEMENT:  CREATE SEQUENCE public.userscore_id_seq
+	    AS integer
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+2025-04-27 08:40:33.346 NZST [18954] ERROR:  relation "messages" already exists
+2025-04-27 08:40:33.346 NZST [18954] STATEMENT:  CREATE TABLE realtime.messages (
+	    id bigint NOT NULL,
+	    topic text NOT NULL,
+	    extension text NOT NULL,
+	    inserted_at timestamp(0) without time zone NOT NULL,
+	    updated_at timestamp(0) without time zone NOT NULL
+	);
+2025-04-27 08:40:33.346 NZST [18954] ERROR:  relation "messages_id_seq" already exists
+2025-04-27 08:40:33.346 NZST [18954] STATEMENT:  CREATE SEQUENCE realtime.messages_id_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1;
+2025-04-27 08:40:33.347 NZST [18954] ERROR:  relation "schema_migrations" already exists
+2025-04-27 08:40:33.347 NZST [18954] STATEMENT:  CREATE TABLE realtime.schema_migrations (
+	    version bigint NOT NULL,
+	    inserted_at timestamp(0) without time zone
+	);
+2025-04-27 08:40:33.347 NZST [18954] ERROR:  must be owner of table schema_migrations
+2025-04-27 08:40:33.347 NZST [18954] STATEMENT:  ALTER TABLE realtime.schema_migrations OWNER TO supabase_admin;
+2025-04-27 08:40:33.347 NZST [18954] ERROR:  relation "subscription" already exists
+2025-04-27 08:40:33.347 NZST [18954] STATEMENT:  CREATE TABLE realtime.subscription (
+	    id bigint NOT NULL,
+	    subscription_id uuid NOT NULL,
+	    entity regclass NOT NULL,
+	    filters realtime.user_defined_filter[] DEFAULT '{}'::realtime.user_defined_filter[] NOT NULL,
+	    claims jsonb NOT NULL,
+	    claims_role regrole GENERATED ALWAYS AS (realtime.to_regrole((claims ->> 'role'::text))) STORED NOT NULL,
+	    created_at timestamp without time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+	);
+2025-04-27 08:40:33.347 NZST [18954] ERROR:  must be owner of table subscription
+2025-04-27 08:40:33.347 NZST [18954] STATEMENT:  ALTER TABLE realtime.subscription OWNER TO supabase_admin;
+2025-04-27 08:40:33.347 NZST [18954] ERROR:  must be owner of table subscription
+2025-04-27 08:40:33.347 NZST [18954] STATEMENT:  ALTER TABLE realtime.subscription ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+	    SEQUENCE NAME realtime.subscription_id_seq
+	    START WITH 1
+	    INCREMENT BY 1
+	    NO MINVALUE
+	    NO MAXVALUE
+	    CACHE 1
+	);
+2025-04-27 08:40:33.348 NZST [18954] ERROR:  relation "buckets" already exists
+2025-04-27 08:40:33.348 NZST [18954] STATEMENT:  CREATE TABLE storage.buckets (
+	    id text NOT NULL,
+	    name text NOT NULL,
+	    owner uuid,
+	    created_at timestamp with time zone DEFAULT now(),
+	    updated_at timestamp with time zone DEFAULT now(),
+	    public boolean DEFAULT false,
+	    avif_autodetection boolean DEFAULT false,
+	    file_size_limit bigint,
+	    allowed_mime_types text[],
+	    owner_id text
+	);
+2025-04-27 08:40:33.348 NZST [18954] ERROR:  relation "migrations" already exists
+2025-04-27 08:40:33.348 NZST [18954] STATEMENT:  CREATE TABLE storage.migrations (
+	    id integer NOT NULL,
+	    name character varying(100) NOT NULL,
+	    hash character varying(40) NOT NULL,
+	    executed_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+	);
+2025-04-27 08:40:33.348 NZST [18954] ERROR:  relation "objects" already exists
+2025-04-27 08:40:33.348 NZST [18954] STATEMENT:  CREATE TABLE storage.objects (
+	    id uuid DEFAULT gen_random_uuid() NOT NULL,
+	    bucket_id text,
+	    name text,
+	    owner uuid,
+	    created_at timestamp with time zone DEFAULT now(),
+	    updated_at timestamp with time zone DEFAULT now(),
+	    last_accessed_at timestamp with time zone DEFAULT now(),
+	    metadata jsonb,
+	    path_tokens text[] GENERATED ALWAYS AS (string_to_array(name, '/'::text)) STORED,
+	    version text,
+	    owner_id text,
+	    user_metadata jsonb
+	);
+2025-04-27 08:40:33.349 NZST [18954] ERROR:  relation "s3_multipart_uploads" already exists
+2025-04-27 08:40:33.349 NZST [18954] STATEMENT:  CREATE TABLE storage.s3_multipart_uploads (
+	    id text NOT NULL,
+	    in_progress_size bigint DEFAULT 0 NOT NULL,
+	    upload_signature text NOT NULL,
+	    bucket_id text NOT NULL,
+	    key text NOT NULL COLLATE pg_catalog."C",
+	    version text NOT NULL,
+	    owner_id text,
+	    created_at timestamp with time zone DEFAULT now() NOT NULL,
+	    user_metadata jsonb
+	);
+2025-04-27 08:40:33.349 NZST [18954] ERROR:  relation "s3_multipart_uploads_parts" already exists
+2025-04-27 08:40:33.349 NZST [18954] STATEMENT:  CREATE TABLE storage.s3_multipart_uploads_parts (
+	    id uuid DEFAULT gen_random_uuid() NOT NULL,
+	    upload_id text NOT NULL,
+	    size bigint DEFAULT 0 NOT NULL,
+	    part_number integer NOT NULL,
+	    bucket_id text NOT NULL,
+	    key text NOT NULL COLLATE pg_catalog."C",
+	    etag text NOT NULL,
+	    owner_id text,
+	    version text NOT NULL,
+	    created_at timestamp with time zone DEFAULT now() NOT NULL
+	);
+2025-04-27 08:40:33.350 NZST [18954] ERROR:  relation "schema_migrations" already exists
+2025-04-27 08:40:33.350 NZST [18954] STATEMENT:  CREATE TABLE supabase_migrations.schema_migrations (
+	    version text NOT NULL,
+	    statements text[],
+	    name text
+	);
+2025-04-27 08:40:33.350 NZST [18954] ERROR:  relation "vault.secrets" does not exist at character 721
+2025-04-27 08:40:33.350 NZST [18954] STATEMENT:  CREATE VIEW vault.decrypted_secrets AS
+	 SELECT secrets.id,
+	    secrets.name,
+	    secrets.description,
+	    secrets.secret,
+	        CASE
+	            WHEN (secrets.secret IS NULL) THEN NULL::text
+	            ELSE
+	            CASE
+	                WHEN (secrets.key_id IS NULL) THEN NULL::text
+	                ELSE convert_from(pgsodium.crypto_aead_det_decrypt(decode(secrets.secret, 'base64'::text), convert_to(((((secrets.id)::text || secrets.description) || (secrets.created_at)::text) || (secrets.updated_at)::text), 'utf8'::name), secrets.key_id, secrets.nonce), 'utf8'::name)
+	            END
+	        END AS decrypted_secret,
+	    secrets.key_id,
+	    secrets.nonce,
+	    secrets.created_at,
+	    secrets.updated_at
+	   FROM vault.secrets;
+2025-04-27 08:40:33.350 NZST [18954] ERROR:  relation "vault.decrypted_secrets" does not exist
+2025-04-27 08:40:33.350 NZST [18954] STATEMENT:  ALTER TABLE vault.decrypted_secrets OWNER TO supabase_admin;
+2025-04-27 08:40:33.353 NZST [18954] ERROR:  duplicate key value violates unique constraint "audit_log_entries_pkey"
+2025-04-27 08:40:33.353 NZST [18954] DETAIL:  Key (id)=(61231cc3-2fdc-4f3e-9a2c-25c6d69e67ea) already exists.
+2025-04-27 08:40:33.353 NZST [18954] CONTEXT:  COPY audit_log_entries, line 1
+2025-04-27 08:40:33.353 NZST [18954] STATEMENT:  COPY auth.audit_log_entries (instance_id, id, payload, created_at, ip_address) FROM stdin;
+2025-04-27 08:40:33.355 NZST [18954] ERROR:  duplicate key value violates unique constraint "identities_pkey"
+2025-04-27 08:40:33.355 NZST [18954] DETAIL:  Key (id)=(d26c0125-1e80-405d-99ab-6d8fa10841c1) already exists.
+2025-04-27 08:40:33.355 NZST [18954] CONTEXT:  COPY identities, line 1
+2025-04-27 08:40:33.355 NZST [18954] STATEMENT:  COPY auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at, id) FROM stdin;
+2025-04-27 08:40:33.356 NZST [18954] ERROR:  duplicate key value violates unique constraint "one_time_tokens_pkey"
+2025-04-27 08:40:33.356 NZST [18954] DETAIL:  Key (id)=(357aa4bb-677c-4b20-9fda-d02c04e31b5e) already exists.
+2025-04-27 08:40:33.356 NZST [18954] CONTEXT:  COPY one_time_tokens, line 1
+2025-04-27 08:40:33.356 NZST [18954] STATEMENT:  COPY auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to, created_at, updated_at) FROM stdin;
+2025-04-27 08:40:33.357 NZST [18954] ERROR:  duplicate key value violates unique constraint "schema_migrations_pkey"
+2025-04-27 08:40:33.357 NZST [18954] DETAIL:  Key (version)=(20171026211738) already exists.
+2025-04-27 08:40:33.357 NZST [18954] CONTEXT:  COPY schema_migrations, line 1
+2025-04-27 08:40:33.357 NZST [18954] STATEMENT:  COPY auth.schema_migrations (version) FROM stdin;
+2025-04-27 08:40:33.358 NZST [18954] ERROR:  duplicate key value violates unique constraint "users_pkey"
+2025-04-27 08:40:33.358 NZST [18954] DETAIL:  Key (id)=(e86e65ab-97a2-4544-962d-2357236fd22d) already exists.
+2025-04-27 08:40:33.358 NZST [18954] CONTEXT:  COPY users, line 1
+2025-04-27 08:40:33.358 NZST [18954] STATEMENT:  COPY auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at, confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at, email_change_token_new, email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone, phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at, email_change_token_current, email_change_confirm_status, banned_until, reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous) FROM stdin;
+2025-04-27 08:40:33.358 NZST [18954] ERROR:  relation "pgsodium.key" does not exist
+2025-04-27 08:40:33.358 NZST [18954] STATEMENT:  COPY pgsodium.key (id, status, created, expires, key_type, key_id, key_context, name, associated_data, raw_key, raw_key_nonce, parent_key, comment, user_data) FROM stdin;
+2025-04-27 08:40:33.362 NZST [18954] ERROR:  duplicate key value violates unique constraint "userscore_pkey"
+2025-04-27 08:40:33.362 NZST [18954] DETAIL:  Key (id)=(24) already exists.
+2025-04-27 08:40:33.362 NZST [18954] CONTEXT:  COPY userscore, line 1
+2025-04-27 08:40:33.362 NZST [18954] STATEMENT:  COPY public.userscore (id, username, game_log_data) FROM stdin;
+2025-04-27 08:40:33.363 NZST [18954] ERROR:  duplicate key value violates unique constraint "schema_migrations_pkey"
+2025-04-27 08:40:33.363 NZST [18954] DETAIL:  Key (version)=(20211116024918) already exists.
+2025-04-27 08:40:33.363 NZST [18954] CONTEXT:  COPY schema_migrations, line 1
+2025-04-27 08:40:33.363 NZST [18954] STATEMENT:  COPY realtime.schema_migrations (version, inserted_at) FROM stdin;
+2025-04-27 08:40:33.363 NZST [18954] ERROR:  duplicate key value violates unique constraint "migrations_name_key"
+2025-04-27 08:40:33.363 NZST [18954] DETAIL:  Key (name)=(create-migrations-table) already exists.
+2025-04-27 08:40:33.363 NZST [18954] CONTEXT:  COPY migrations, line 1
+2025-04-27 08:40:33.363 NZST [18954] STATEMENT:  COPY storage.migrations (id, name, hash, executed_at) FROM stdin;
+2025-04-27 08:40:33.364 NZST [18954] ERROR:  relation "vault.secrets" does not exist
+2025-04-27 08:40:33.364 NZST [18954] STATEMENT:  COPY vault.secrets (id, name, description, secret, key_id, nonce, created_at, updated_at) FROM stdin;
+2025-04-27 08:40:33.364 NZST [18954] ERROR:  relation "pgsodium.key_key_id_seq" does not exist at character 26
+2025-04-27 08:40:33.364 NZST [18954] STATEMENT:  SELECT pg_catalog.setval('pgsodium.key_key_id_seq', 1, false);
+2025-04-27 08:40:33.365 NZST [18954] ERROR:  multiple primary keys for table "mfa_amr_claims" are not allowed
+2025-04-27 08:40:33.365 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_amr_claims
+	    ADD CONSTRAINT amr_id_pk PRIMARY KEY (id);
+2025-04-27 08:40:33.365 NZST [18954] ERROR:  multiple primary keys for table "audit_log_entries" are not allowed
+2025-04-27 08:40:33.365 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.audit_log_entries
+	    ADD CONSTRAINT audit_log_entries_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.365 NZST [18954] ERROR:  multiple primary keys for table "flow_state" are not allowed
+2025-04-27 08:40:33.365 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.flow_state
+	    ADD CONSTRAINT flow_state_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.365 NZST [18954] ERROR:  multiple primary keys for table "identities" are not allowed
+2025-04-27 08:40:33.365 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.identities
+	    ADD CONSTRAINT identities_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  relation "identities_provider_id_provider_unique" already exists
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.identities
+	    ADD CONSTRAINT identities_provider_id_provider_unique UNIQUE (provider_id, provider);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  multiple primary keys for table "instances" are not allowed
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.instances
+	    ADD CONSTRAINT instances_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  relation "mfa_amr_claims_session_id_authentication_method_pkey" already exists
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_amr_claims
+	    ADD CONSTRAINT mfa_amr_claims_session_id_authentication_method_pkey UNIQUE (session_id, authentication_method);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  multiple primary keys for table "mfa_challenges" are not allowed
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_challenges
+	    ADD CONSTRAINT mfa_challenges_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  relation "mfa_factors_last_challenged_at_key" already exists
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_factors
+	    ADD CONSTRAINT mfa_factors_last_challenged_at_key UNIQUE (last_challenged_at);
+2025-04-27 08:40:33.366 NZST [18954] ERROR:  multiple primary keys for table "mfa_factors" are not allowed
+2025-04-27 08:40:33.366 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_factors
+	    ADD CONSTRAINT mfa_factors_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  multiple primary keys for table "one_time_tokens" are not allowed
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.one_time_tokens
+	    ADD CONSTRAINT one_time_tokens_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  multiple primary keys for table "refresh_tokens" are not allowed
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.refresh_tokens
+	    ADD CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  relation "refresh_tokens_token_unique" already exists
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.refresh_tokens
+	    ADD CONSTRAINT refresh_tokens_token_unique UNIQUE (token);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  relation "saml_providers_entity_id_key" already exists
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_providers
+	    ADD CONSTRAINT saml_providers_entity_id_key UNIQUE (entity_id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  multiple primary keys for table "saml_providers" are not allowed
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_providers
+	    ADD CONSTRAINT saml_providers_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  multiple primary keys for table "saml_relay_states" are not allowed
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_relay_states
+	    ADD CONSTRAINT saml_relay_states_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.367 NZST [18954] ERROR:  multiple primary keys for table "schema_migrations" are not allowed
+2025-04-27 08:40:33.367 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.schema_migrations
+	    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  multiple primary keys for table "sessions" are not allowed
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.sessions
+	    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  multiple primary keys for table "sso_domains" are not allowed
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.sso_domains
+	    ADD CONSTRAINT sso_domains_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  multiple primary keys for table "sso_providers" are not allowed
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.sso_providers
+	    ADD CONSTRAINT sso_providers_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  relation "users_phone_key" already exists
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.users
+	    ADD CONSTRAINT users_phone_key UNIQUE (phone);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  multiple primary keys for table "users" are not allowed
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.users
+	    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  permission denied for schema public
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY public.userscore
+	    ADD CONSTRAINT userscore_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  multiple primary keys for table "messages" are not allowed
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY realtime.messages
+	    ADD CONSTRAINT messages_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.368 NZST [18954] ERROR:  must be owner of table subscription
+2025-04-27 08:40:33.368 NZST [18954] STATEMENT:  ALTER TABLE ONLY realtime.subscription
+	    ADD CONSTRAINT pk_subscription PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  must be owner of table schema_migrations
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY realtime.schema_migrations
+	    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "buckets" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.buckets
+	    ADD CONSTRAINT buckets_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  relation "migrations_name_key" already exists
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.migrations
+	    ADD CONSTRAINT migrations_name_key UNIQUE (name);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "migrations" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.migrations
+	    ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "objects" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.objects
+	    ADD CONSTRAINT objects_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "s3_multipart_uploads_parts" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.s3_multipart_uploads_parts
+	    ADD CONSTRAINT s3_multipart_uploads_parts_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "s3_multipart_uploads" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.s3_multipart_uploads
+	    ADD CONSTRAINT s3_multipart_uploads_pkey PRIMARY KEY (id);
+2025-04-27 08:40:33.369 NZST [18954] ERROR:  multiple primary keys for table "schema_migrations" are not allowed
+2025-04-27 08:40:33.369 NZST [18954] STATEMENT:  ALTER TABLE ONLY supabase_migrations.schema_migrations
+	    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "audit_logs_instance_id_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE INDEX audit_logs_instance_id_idx ON auth.audit_log_entries USING btree (instance_id);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "confirmation_token_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX confirmation_token_idx ON auth.users USING btree (confirmation_token) WHERE ((confirmation_token)::text !~ '^[0-9 ]*$'::text);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "email_change_token_current_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX email_change_token_current_idx ON auth.users USING btree (email_change_token_current) WHERE ((email_change_token_current)::text !~ '^[0-9 ]*$'::text);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "email_change_token_new_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX email_change_token_new_idx ON auth.users USING btree (email_change_token_new) WHERE ((email_change_token_new)::text !~ '^[0-9 ]*$'::text);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "factor_id_created_at_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE INDEX factor_id_created_at_idx ON auth.mfa_factors USING btree (user_id, created_at);
+2025-04-27 08:40:33.370 NZST [18954] ERROR:  relation "flow_state_created_at_idx" already exists
+2025-04-27 08:40:33.370 NZST [18954] STATEMENT:  CREATE INDEX flow_state_created_at_idx ON auth.flow_state USING btree (created_at DESC);
+2025-04-27 08:40:33.371 NZST [18954] ERROR:  relation "identities_email_idx" already exists
+2025-04-27 08:40:33.371 NZST [18954] STATEMENT:  CREATE INDEX identities_email_idx ON auth.identities USING btree (email text_pattern_ops);
+2025-04-27 08:40:33.371 NZST [18954] ERROR:  relation "identities_user_id_idx" already exists
+2025-04-27 08:40:33.371 NZST [18954] STATEMENT:  CREATE INDEX identities_user_id_idx ON auth.identities USING btree (user_id);
+2025-04-27 08:40:33.371 NZST [18954] ERROR:  relation "idx_auth_code" already exists
+2025-04-27 08:40:33.371 NZST [18954] STATEMENT:  CREATE INDEX idx_auth_code ON auth.flow_state USING btree (auth_code);
+2025-04-27 08:40:33.371 NZST [18954] ERROR:  relation "idx_user_id_auth_method" already exists
+2025-04-27 08:40:33.371 NZST [18954] STATEMENT:  CREATE INDEX idx_user_id_auth_method ON auth.flow_state USING btree (user_id, authentication_method);
+2025-04-27 08:40:33.371 NZST [18954] ERROR:  relation "mfa_challenge_created_at_idx" already exists
+2025-04-27 08:40:33.371 NZST [18954] STATEMENT:  CREATE INDEX mfa_challenge_created_at_idx ON auth.mfa_challenges USING btree (created_at DESC);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "mfa_factors_user_friendly_name_unique" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX mfa_factors_user_friendly_name_unique ON auth.mfa_factors USING btree (friendly_name, user_id) WHERE (TRIM(BOTH FROM friendly_name) <> ''::text);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "mfa_factors_user_id_idx" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE INDEX mfa_factors_user_id_idx ON auth.mfa_factors USING btree (user_id);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "one_time_tokens_relates_to_hash_idx" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE INDEX one_time_tokens_relates_to_hash_idx ON auth.one_time_tokens USING hash (relates_to);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "one_time_tokens_token_hash_hash_idx" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE INDEX one_time_tokens_token_hash_hash_idx ON auth.one_time_tokens USING hash (token_hash);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "one_time_tokens_user_id_token_type_key" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX one_time_tokens_user_id_token_type_key ON auth.one_time_tokens USING btree (user_id, token_type);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "reauthentication_token_idx" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX reauthentication_token_idx ON auth.users USING btree (reauthentication_token) WHERE ((reauthentication_token)::text !~ '^[0-9 ]*$'::text);
+2025-04-27 08:40:33.372 NZST [18954] ERROR:  relation "recovery_token_idx" already exists
+2025-04-27 08:40:33.372 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX recovery_token_idx ON auth.users USING btree (recovery_token) WHERE ((recovery_token)::text !~ '^[0-9 ]*$'::text);
+2025-04-27 08:40:33.373 NZST [18954] ERROR:  relation "refresh_tokens_instance_id_idx" already exists
+2025-04-27 08:40:33.373 NZST [18954] STATEMENT:  CREATE INDEX refresh_tokens_instance_id_idx ON auth.refresh_tokens USING btree (instance_id);
+2025-04-27 08:40:33.373 NZST [18954] ERROR:  relation "refresh_tokens_instance_id_user_id_idx" already exists
+2025-04-27 08:40:33.373 NZST [18954] STATEMENT:  CREATE INDEX refresh_tokens_instance_id_user_id_idx ON auth.refresh_tokens USING btree (instance_id, user_id);
+2025-04-27 08:40:33.373 NZST [18954] ERROR:  relation "refresh_tokens_parent_idx" already exists
+2025-04-27 08:40:33.373 NZST [18954] STATEMENT:  CREATE INDEX refresh_tokens_parent_idx ON auth.refresh_tokens USING btree (parent);
+2025-04-27 08:40:33.373 NZST [18954] ERROR:  relation "refresh_tokens_session_id_revoked_idx" already exists
+2025-04-27 08:40:33.373 NZST [18954] STATEMENT:  CREATE INDEX refresh_tokens_session_id_revoked_idx ON auth.refresh_tokens USING btree (session_id, revoked);
+2025-04-27 08:40:33.373 NZST [18954] ERROR:  relation "refresh_tokens_updated_at_idx" already exists
+2025-04-27 08:40:33.373 NZST [18954] STATEMENT:  CREATE INDEX refresh_tokens_updated_at_idx ON auth.refresh_tokens USING btree (updated_at DESC);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "saml_providers_sso_provider_id_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX saml_providers_sso_provider_id_idx ON auth.saml_providers USING btree (sso_provider_id);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "saml_relay_states_created_at_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX saml_relay_states_created_at_idx ON auth.saml_relay_states USING btree (created_at DESC);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "saml_relay_states_for_email_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX saml_relay_states_for_email_idx ON auth.saml_relay_states USING btree (for_email);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "saml_relay_states_sso_provider_id_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX saml_relay_states_sso_provider_id_idx ON auth.saml_relay_states USING btree (sso_provider_id);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "sessions_not_after_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX sessions_not_after_idx ON auth.sessions USING btree (not_after DESC);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "sessions_user_id_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX sessions_user_id_idx ON auth.sessions USING btree (user_id);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "sso_domains_domain_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX sso_domains_domain_idx ON auth.sso_domains USING btree (lower(domain));
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "sso_domains_sso_provider_id_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE INDEX sso_domains_sso_provider_id_idx ON auth.sso_domains USING btree (sso_provider_id);
+2025-04-27 08:40:33.374 NZST [18954] ERROR:  relation "sso_providers_resource_id_idx" already exists
+2025-04-27 08:40:33.374 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX sso_providers_resource_id_idx ON auth.sso_providers USING btree (lower(resource_id));
+2025-04-27 08:40:33.375 NZST [18954] ERROR:  relation "unique_phone_factor_per_user" already exists
+2025-04-27 08:40:33.375 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX unique_phone_factor_per_user ON auth.mfa_factors USING btree (user_id, phone);
+2025-04-27 08:40:33.375 NZST [18954] ERROR:  relation "user_id_created_at_idx" already exists
+2025-04-27 08:40:33.375 NZST [18954] STATEMENT:  CREATE INDEX user_id_created_at_idx ON auth.sessions USING btree (user_id, created_at);
+2025-04-27 08:40:33.375 NZST [18954] ERROR:  relation "users_email_partial_key" already exists
+2025-04-27 08:40:33.375 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX users_email_partial_key ON auth.users USING btree (email) WHERE (is_sso_user = false);
+2025-04-27 08:40:33.375 NZST [18954] ERROR:  relation "users_instance_id_email_idx" already exists
+2025-04-27 08:40:33.375 NZST [18954] STATEMENT:  CREATE INDEX users_instance_id_email_idx ON auth.users USING btree (instance_id, lower((email)::text));
+2025-04-27 08:40:33.375 NZST [18954] ERROR:  relation "users_instance_id_idx" already exists
+2025-04-27 08:40:33.375 NZST [18954] STATEMENT:  CREATE INDEX users_instance_id_idx ON auth.users USING btree (instance_id);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "users_is_anonymous_idx" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX users_is_anonymous_idx ON auth.users USING btree (is_anonymous);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  permission denied for schema public
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX userscore_game_log_data ON public.userscore USING gin (game_log_data);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  must be owner of table subscription
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX ix_realtime_subscription_entity ON realtime.subscription USING hash (entity);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "messages_topic_index" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX messages_topic_index ON realtime.messages USING btree (topic);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  must be owner of table subscription
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX subscription_subscription_id_entity_filters_key ON realtime.subscription USING btree (subscription_id, entity, filters);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "bname" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX bname ON storage.buckets USING btree (name);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "bucketid_objname" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE UNIQUE INDEX bucketid_objname ON storage.objects USING btree (bucket_id, name);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "idx_multipart_uploads_list" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX idx_multipart_uploads_list ON storage.s3_multipart_uploads USING btree (bucket_id, key, created_at);
+2025-04-27 08:40:33.376 NZST [18954] ERROR:  relation "idx_objects_bucket_id_name" already exists
+2025-04-27 08:40:33.376 NZST [18954] STATEMENT:  CREATE INDEX idx_objects_bucket_id_name ON storage.objects USING btree (bucket_id, name COLLATE "C");
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  relation "name_prefix_search" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  CREATE INDEX name_prefix_search ON storage.objects USING btree (name text_pattern_ops);
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  trigger "tr_check_filters" for relation "subscription" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  CREATE TRIGGER tr_check_filters BEFORE INSERT OR UPDATE ON realtime.subscription FOR EACH ROW EXECUTE FUNCTION realtime.subscription_check_filters();
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  trigger "update_objects_updated_at" for relation "objects" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column();
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "identities_user_id_fkey" for relation "identities" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.identities
+	    ADD CONSTRAINT identities_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "mfa_amr_claims_session_id_fkey" for relation "mfa_amr_claims" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_amr_claims
+	    ADD CONSTRAINT mfa_amr_claims_session_id_fkey FOREIGN KEY (session_id) REFERENCES auth.sessions(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "mfa_challenges_auth_factor_id_fkey" for relation "mfa_challenges" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_challenges
+	    ADD CONSTRAINT mfa_challenges_auth_factor_id_fkey FOREIGN KEY (factor_id) REFERENCES auth.mfa_factors(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "mfa_factors_user_id_fkey" for relation "mfa_factors" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.mfa_factors
+	    ADD CONSTRAINT mfa_factors_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "one_time_tokens_user_id_fkey" for relation "one_time_tokens" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.one_time_tokens
+	    ADD CONSTRAINT one_time_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.377 NZST [18954] ERROR:  constraint "refresh_tokens_session_id_fkey" for relation "refresh_tokens" already exists
+2025-04-27 08:40:33.377 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.refresh_tokens
+	    ADD CONSTRAINT refresh_tokens_session_id_fkey FOREIGN KEY (session_id) REFERENCES auth.sessions(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "saml_providers_sso_provider_id_fkey" for relation "saml_providers" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_providers
+	    ADD CONSTRAINT saml_providers_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "saml_relay_states_flow_state_id_fkey" for relation "saml_relay_states" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_relay_states
+	    ADD CONSTRAINT saml_relay_states_flow_state_id_fkey FOREIGN KEY (flow_state_id) REFERENCES auth.flow_state(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "saml_relay_states_sso_provider_id_fkey" for relation "saml_relay_states" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.saml_relay_states
+	    ADD CONSTRAINT saml_relay_states_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "sessions_user_id_fkey" for relation "sessions" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.sessions
+	    ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "sso_domains_sso_provider_id_fkey" for relation "sso_domains" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY auth.sso_domains
+	    ADD CONSTRAINT sso_domains_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "objects_bucketId_fkey" for relation "objects" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.objects
+	    ADD CONSTRAINT "objects_bucketId_fkey" FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "s3_multipart_uploads_bucket_id_fkey" for relation "s3_multipart_uploads" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.s3_multipart_uploads
+	    ADD CONSTRAINT s3_multipart_uploads_bucket_id_fkey FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "s3_multipart_uploads_parts_bucket_id_fkey" for relation "s3_multipart_uploads_parts" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.s3_multipart_uploads_parts
+	    ADD CONSTRAINT s3_multipart_uploads_parts_bucket_id_fkey FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
+2025-04-27 08:40:33.378 NZST [18954] ERROR:  constraint "s3_multipart_uploads_parts_upload_id_fkey" for relation "s3_multipart_uploads_parts" already exists
+2025-04-27 08:40:33.378 NZST [18954] STATEMENT:  ALTER TABLE ONLY storage.s3_multipart_uploads_parts
+	    ADD CONSTRAINT s3_multipart_uploads_parts_upload_id_fkey FOREIGN KEY (upload_id) REFERENCES storage.s3_multipart_uploads(id) ON DELETE CASCADE;
+2025-04-27 08:40:33.384 NZST [18954] ERROR:  permission denied for database postgres
+2025-04-27 08:40:33.384 NZST [18954] STATEMENT:  CREATE PUBLICATION supabase_realtime WITH (publish = 'insert, update, delete, truncate');
+2025-04-27 08:40:33.384 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.384 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.385 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.385 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.385 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.385 NZST [18954] WARNING:  no privileges were granted for "auth"
+2025-04-27 08:40:33.386 NZST [18954] WARNING:  no privileges were granted for "public"
+2025-04-27 08:40:33.386 NZST [18954] WARNING:  no privileges were granted for "public"
+2025-04-27 08:40:33.386 NZST [18954] WARNING:  no privileges were granted for "public"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "public"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "realtime"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "realtime"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "realtime"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "realtime"
+2025-04-27 08:40:33.387 NZST [18954] WARNING:  no privileges were granted for "realtime"
+2025-04-27 08:40:33.388 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.388 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.388 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.388 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.388 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.389 NZST [18954] WARNING:  no privileges were granted for "storage"
+2025-04-27 08:40:33.390 NZST [18954] ERROR:  function extensions.algorithm_sign(text, text, text) does not exist
+2025-04-27 08:40:33.390 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.algorithm_sign(signables text, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.390 NZST [18954] ERROR:  function extensions.algorithm_sign(text, text, text) does not exist
+2025-04-27 08:40:33.390 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.algorithm_sign(signables text, secret text, algorithm text) TO dashboard_user;
+2025-04-27 08:40:33.390 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.390 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.armor(bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.391 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.391 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.armor(bytea, text[], text[]) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.391 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.391 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.crypt(text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.391 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.391 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.dearmor(text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.392 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.392 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.decrypt(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.392 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.392 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.decrypt_iv(bytea, bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.393 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.393 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.digest(bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.393 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.393 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.digest(text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.393 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.393 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.encrypt(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.394 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.394 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.encrypt_iv(bytea, bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.394 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.394 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.gen_random_bytes(integer) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.394 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.394 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.gen_random_uuid() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.394 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.394 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.gen_salt(text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.394 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.394 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.gen_salt(text, integer) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.395 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.395 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.grant_pg_graphql_access() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.396 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.396 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.hmac(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.396 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.396 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.hmac(text, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.396 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.396 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pg_stat_statements(showtext boolean, OUT userid oid, OUT dbid oid, OUT toplevel boolean, OUT queryid bigint, OUT query text, OUT plans bigint, OUT total_plan_time double precision, OUT min_plan_time double precision, OUT max_plan_time double precision, OUT mean_plan_time double precision, OUT stddev_plan_time double precision, OUT calls bigint, OUT total_exec_time double precision, OUT min_exec_time double precision, OUT max_exec_time double precision, OUT mean_exec_time double precision, OUT stddev_exec_time double precision, OUT rows bigint, OUT shared_blks_hit bigint, OUT shared_blks_read bigint, OUT shared_blks_dirtied bigint, OUT shared_blks_written bigint, OUT local_blks_hit bigint, OUT local_blks_read bigint, OUT local_blks_dirtied bigint, OUT local_blks_written bigint, OUT temp_blks_read bigint, OUT temp_blks_written bigint, OUT blk_read_time double precision, OUT blk_write_time double precision, OUT temp_blk_read_time double precision, OUT temp_blk_write_time double precision, OUT wal_records bigint, OUT wal_fpi bigint, OUT wal_bytes numeric, OUT jit_functions bigint, OUT jit_generation_time double precision, OUT jit_inlining_count bigint, OUT jit_inlining_time double precision, OUT jit_optimization_count bigint, OUT jit_optimization_time double precision, OUT jit_emission_count bigint, OUT jit_emission_time double precision) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.397 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.397 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pg_stat_statements_info(OUT dealloc bigint, OUT stats_reset timestamp with time zone) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.397 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.397 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.397 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.397 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_armor_headers(text, OUT key text, OUT value text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.397 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.397 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_key_id(bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.398 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.398 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt(bytea, bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.398 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.398 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.398 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.398 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt(bytea, bytea, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.399 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.399 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt_bytea(bytea, bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.399 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.399 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt_bytea(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.399 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.399 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_decrypt_bytea(bytea, bytea, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.399 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.399 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_encrypt(text, bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.400 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.400 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_encrypt(text, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.400 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.400 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_encrypt_bytea(bytea, bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.400 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.400 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_pub_encrypt_bytea(bytea, bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.400 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.400 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_decrypt(bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.400 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.400 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_decrypt(bytea, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.401 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.401 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_decrypt_bytea(bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.401 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.401 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_decrypt_bytea(bytea, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.401 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.401 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_encrypt(text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.401 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.401 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_encrypt(text, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.402 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.402 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_encrypt_bytea(bytea, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.402 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.402 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgp_sym_encrypt_bytea(bytea, text, text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgrst_ddl_watch() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.pgrst_drop_watch() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.set_graphql_placeholder() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.sign(json, text, text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.sign(payload json, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.sign(json, text, text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.sign(payload json, secret text, algorithm text) TO dashboard_user;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.try_cast_double(text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.try_cast_double(inp text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.try_cast_double(text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.try_cast_double(inp text) TO dashboard_user;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.url_decode(text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_decode(data text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.403 NZST [18954] ERROR:  function extensions.url_decode(text) does not exist
+2025-04-27 08:40:33.403 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_decode(data text) TO dashboard_user;
+2025-04-27 08:40:33.404 NZST [18954] ERROR:  function extensions.url_encode(bytea) does not exist
+2025-04-27 08:40:33.404 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_encode(data bytea) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.404 NZST [18954] ERROR:  function extensions.url_encode(bytea) does not exist
+2025-04-27 08:40:33.404 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.url_encode(data bytea) TO dashboard_user;
+2025-04-27 08:40:33.404 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.404 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_generate_v1() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.404 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.404 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_generate_v1mc() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.404 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.404 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_generate_v3(namespace uuid, name text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.405 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.405 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_generate_v4() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.405 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.405 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_generate_v5(namespace uuid, name text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.405 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.405 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_nil() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.405 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.405 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_ns_dns() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_ns_oid() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_ns_url() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.uuid_ns_x500() TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  function extensions.verify(text, text, text) does not exist
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.verify(token text, secret text, algorithm text) TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  function extensions.verify(text, text, text) does not exist
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION extensions.verify(token text, secret text, algorithm text) TO dashboard_user;
+2025-04-27 08:40:33.406 NZST [18954] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-27 08:40:33.406 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO postgres;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO anon;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO authenticated;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.comment_directive(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.comment_directive(comment_ text) TO service_role;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.exception(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO postgres;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.exception(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO anon;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.exception(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO authenticated;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.exception(text) does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.exception(message text) TO service_role;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO postgres;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO anon;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO authenticated;
+2025-04-27 08:40:33.407 NZST [18954] ERROR:  function graphql.get_schema_version() does not exist
+2025-04-27 08:40:33.407 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.get_schema_version() TO service_role;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO postgres;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO anon;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO authenticated;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql.increment_schema_version() does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql.increment_schema_version() TO service_role;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO postgres;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO anon;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO authenticated;
+2025-04-27 08:40:33.408 NZST [18954] ERROR:  function graphql_public.graphql(text, text, jsonb, jsonb) does not exist
+2025-04-27 08:40:33.408 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION graphql_public.graphql("operationName" text, query text, variables jsonb, extensions jsonb) TO service_role;
+2025-04-27 08:40:33.409 NZST [18954] ERROR:  function pgsodium.crypto_aead_det_decrypt(bytea, bytea, uuid, bytea) does not exist
+2025-04-27 08:40:33.409 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_decrypt(message bytea, additional bytea, key_uuid uuid, nonce bytea) TO service_role;
+2025-04-27 08:40:33.409 NZST [18954] ERROR:  function pgsodium.crypto_aead_det_encrypt(bytea, bytea, uuid, bytea) does not exist
+2025-04-27 08:40:33.409 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_encrypt(message bytea, additional bytea, key_uuid uuid, nonce bytea) TO service_role;
+2025-04-27 08:40:33.409 NZST [18954] ERROR:  function pgsodium.crypto_aead_det_keygen() does not exist
+2025-04-27 08:40:33.409 NZST [18954] STATEMENT:  GRANT ALL ON FUNCTION pgsodium.crypto_aead_det_keygen() TO service_role;
+2025-04-27 08:40:33.409 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.410 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.410 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.410 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "apply_rls"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.411 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "build_prepared_statement_sql"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.412 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "cast"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.413 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "check_equality_op"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.414 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "is_visible_through_filters"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.415 NZST [18954] WARNING:  no privileges were granted for "list_changes"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "quote_wal2json"
+2025-04-27 08:40:33.416 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "subscription_check_filters"
+2025-04-27 08:40:33.417 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.418 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.418 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.418 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.418 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.418 NZST [18954] WARNING:  no privileges were granted for "to_regrole"
+2025-04-27 08:40:33.427 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.427 NZST [18954] STATEMENT:  GRANT ALL ON TABLE extensions.pg_stat_statements TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.427 NZST [18954] ERROR:  grant options cannot be granted back to your own grantor
+2025-04-27 08:40:33.427 NZST [18954] STATEMENT:  GRANT ALL ON TABLE extensions.pg_stat_statements_info TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.427 NZST [18954] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-27 08:40:33.427 NZST [18954] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO postgres;
+2025-04-27 08:40:33.427 NZST [18954] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-27 08:40:33.427 NZST [18954] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO anon;
+2025-04-27 08:40:33.428 NZST [18954] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-27 08:40:33.428 NZST [18954] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO authenticated;
+2025-04-27 08:40:33.428 NZST [18954] ERROR:  relation "graphql.seq_schema_version" does not exist
+2025-04-27 08:40:33.428 NZST [18954] STATEMENT:  GRANT ALL ON SEQUENCE graphql.seq_schema_version TO service_role;
+2025-04-27 08:40:33.428 NZST [18954] ERROR:  relation "pgsodium.decrypted_key" does not exist
+2025-04-27 08:40:33.428 NZST [18954] STATEMENT:  GRANT ALL ON TABLE pgsodium.decrypted_key TO pgsodium_keyholder;
+2025-04-27 08:40:33.428 NZST [18954] ERROR:  relation "pgsodium.masking_rule" does not exist
+2025-04-27 08:40:33.428 NZST [18954] STATEMENT:  GRANT ALL ON TABLE pgsodium.masking_rule TO pgsodium_keyholder;
+2025-04-27 08:40:33.428 NZST [18954] ERROR:  relation "pgsodium.mask_columns" does not exist
+2025-04-27 08:40:33.428 NZST [18954] STATEMENT:  GRANT ALL ON TABLE pgsodium.mask_columns TO pgsodium_keyholder;
+2025-04-27 08:40:33.430 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.430 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.430 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.430 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "schema_migrations"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.431 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.432 NZST [18954] WARNING:  no privileges were granted for "subscription_id_seq"
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA extensions GRANT ALL ON SEQUENCES  TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA extensions GRANT ALL ON FUNCTIONS  TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA extensions GRANT ALL ON TABLES  TO postgres WITH GRANT OPTION;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON SEQUENCES  TO postgres;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON SEQUENCES  TO anon;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON SEQUENCES  TO authenticated;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON SEQUENCES  TO service_role;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON FUNCTIONS  TO postgres;
+2025-04-27 08:40:33.436 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.436 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON FUNCTIONS  TO anon;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON FUNCTIONS  TO authenticated;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON FUNCTIONS  TO service_role;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON TABLES  TO postgres;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON TABLES  TO anon;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON TABLES  TO authenticated;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql GRANT ALL ON TABLES  TO service_role;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON SEQUENCES  TO postgres;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON SEQUENCES  TO anon;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON SEQUENCES  TO authenticated;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON SEQUENCES  TO service_role;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON FUNCTIONS  TO postgres;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON FUNCTIONS  TO anon;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON FUNCTIONS  TO authenticated;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON FUNCTIONS  TO service_role;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON TABLES  TO postgres;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON TABLES  TO anon;
+2025-04-27 08:40:33.437 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.437 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON TABLES  TO authenticated;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA graphql_public GRANT ALL ON TABLES  TO service_role;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium GRANT ALL ON SEQUENCES  TO pgsodium_keyholder;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium GRANT ALL ON TABLES  TO pgsodium_keyholder;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON SEQUENCES  TO pgsodium_keyiduser;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON FUNCTIONS  TO pgsodium_keyiduser;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA pgsodium_masks GRANT ALL ON TABLES  TO pgsodium_keyiduser;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES  TO postgres;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES  TO anon;
+2025-04-27 08:40:33.438 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.438 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES  TO authenticated;
+2025-04-27 08:40:33.439 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.439 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES  TO service_role;
+2025-04-27 08:40:33.439 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.439 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS  TO postgres;
+2025-04-27 08:40:33.439 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.439 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS  TO anon;
+2025-04-27 08:40:33.439 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.439 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS  TO authenticated;
+2025-04-27 08:40:33.439 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.439 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS  TO service_role;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES  TO postgres;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES  TO anon;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES  TO authenticated;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES  TO service_role;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON SEQUENCES  TO postgres;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON SEQUENCES  TO dashboard_user;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON FUNCTIONS  TO postgres;
+2025-04-27 08:40:33.440 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.440 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON FUNCTIONS  TO dashboard_user;
+2025-04-27 08:40:33.441 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.441 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON TABLES  TO postgres;
+2025-04-27 08:40:33.441 NZST [18954] ERROR:  must be member of role "supabase_admin"
+2025-04-27 08:40:33.441 NZST [18954] STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA realtime GRANT ALL ON TABLES  TO dashboard_user;
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  permission denied to create event trigger "issue_graphql_placeholder"
+2025-04-27 08:40:33.442 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER issue_graphql_placeholder ON sql_drop
+	         WHEN TAG IN ('DROP EXTENSION')
+	   EXECUTE FUNCTION extensions.set_graphql_placeholder();
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  permission denied to create event trigger "issue_pg_cron_access"
+2025-04-27 08:40:33.442 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER issue_pg_cron_access ON ddl_command_end
+	         WHEN TAG IN ('CREATE EXTENSION')
+	   EXECUTE FUNCTION extensions.grant_pg_cron_access();
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  permission denied to create event trigger "issue_pg_graphql_access"
+2025-04-27 08:40:33.442 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER issue_pg_graphql_access ON ddl_command_end
+	         WHEN TAG IN ('CREATE FUNCTION')
+	   EXECUTE FUNCTION extensions.grant_pg_graphql_access();
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  permission denied to create event trigger "issue_pg_net_access"
+2025-04-27 08:40:33.442 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER issue_pg_net_access ON ddl_command_end
+	         WHEN TAG IN ('CREATE EXTENSION')
+	   EXECUTE FUNCTION extensions.grant_pg_net_access();
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  must be owner of event trigger issue_pg_net_access
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  ALTER EVENT TRIGGER issue_pg_net_access OWNER TO postgres;
+2025-04-27 08:40:33.442 NZST [18954] ERROR:  permission denied to create event trigger "pgrst_ddl_watch"
+2025-04-27 08:40:33.442 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.442 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER pgrst_ddl_watch ON ddl_command_end
+	   EXECUTE FUNCTION extensions.pgrst_ddl_watch();
+2025-04-27 08:40:33.443 NZST [18954] ERROR:  permission denied to create event trigger "pgrst_drop_watch"
+2025-04-27 08:40:33.443 NZST [18954] HINT:  Must be superuser to create an event trigger.
+2025-04-27 08:40:33.443 NZST [18954] STATEMENT:  CREATE EVENT TRIGGER pgrst_drop_watch ON sql_drop
+	   EXECUTE FUNCTION extensions.pgrst_drop_watch();
+2025-04-27 08:42:12.335 NZST [9992] LOG:  checkpoint starting: time
+2025-04-27 08:42:26.584 NZST [9992] LOG:  checkpoint complete: wrote 141 buffers (0.9%); 1 WAL file(s) added, 0 removed, 0 recycled; write=14.228 s, sync=0.005 s, total=14.250 s; sync files=56, longest=0.001 s, average=0.001 s; distance=779 kB, estimate=3976 kB
+2025-04-27 09:02:14.202 NZST [9991] LOG:  received smart shutdown request
+2025-04-27 09:02:14.208 NZST [9991] LOG:  background worker "logical replication launcher" (PID 9997) exited with exit code 1
+2025-04-27 09:02:14.209 NZST [9992] LOG:  shutting down
+2025-04-27 09:02:14.209 NZST [9992] LOG:  checkpoint starting: shutdown immediate
+2025-04-27 09:02:14.212 NZST [9992] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.004 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3578 kB
+2025-04-27 09:02:14.217 NZST [9991] LOG:  database system is shut down

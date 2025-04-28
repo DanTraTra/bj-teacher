@@ -69,8 +69,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     const visibleBoard = useMemo(() => {
 
-        console.log("centerCellState.row", centerCellState.row, "centerCellState.col", centerCellState.col)
-        console.log("startRow", visibleBoardBounds.startCol, "endRow", visibleBoardBounds.endRow, "startCol", visibleBoardBounds.startCol, "endCol", visibleBoardBounds.endCol)
+        // console.log("centerCellState.row", centerCellState.row, "centerCellState.col", centerCellState.col)
+        // console.log("startRow", visibleBoardBounds.startCol, "endRow", visibleBoardBounds.endRow, "startCol", visibleBoardBounds.startCol, "endCol", visibleBoardBounds.endCol)
 
         return grid.grid
             .slice(visibleBoardBounds.startRow, visibleBoardBounds.endRow)
@@ -82,7 +82,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         const offsetX = visibleBoardBounds.startCol * tileSize;
         const offsetY = visibleBoardBounds.startRow * tileSize;
 
-        console.log("offsetX", offsetX, "offsetY", offsetY)
+        // console.log("offsetX", offsetX, "offsetY", offsetY)
 
         return {x: offsetX, y: offsetY};
     }, [visibleBoardBounds, tileSize]);
@@ -100,7 +100,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         const minGridWith = pixelPos2GridTile((viewportSize.width) / 2)
         const minGridHeight = pixelPos2GridTile((viewportSize.height) / 2)
 
-        console.log("minGridHeight", minGridHeight, "minGridWith", minGridWith)
+        // console.log("minGridHeight", minGridHeight, "minGridWith", minGridWith)
 
         const startRow = Math.max(0, centerCellState.row - minGridHeight - buffer);
         // const startRow = 0
@@ -120,8 +120,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
     useEffect(() => {
         // Adjust values only when viewport changes
-        console.log("viewportSize", viewportSize.width, viewportSize.height)
-        console.log("minGridWith", pixelPos2GridTile(viewportSize.width), "minGridHeight", pixelPos2GridTile(viewportSize.height))
+        // console.log("viewportSize", viewportSize.width, viewportSize.height)
+        // console.log("minGridWith", pixelPos2GridTile(viewportSize.width), "minGridHeight", pixelPos2GridTile(viewportSize.height))
 
         if (boardBorderRef.current) {
             api.start({
@@ -260,7 +260,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
     // Apply gestures
     useGesture(gestureHandlers, {
         target: boardRef,
-        drag: {from: () => [x.get(), y.get()] as [number, number]},
+        drag: {
+            from: () => {
+                console.log(x.get(), y.get())
+                return [x.get(), y.get()] as [number, number]
+            }
+        },
         // pinch: {from: () => [scale.get(), scale.get()] as [number, number]},
     });
 
@@ -269,6 +274,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         <div className="w-[100vw] h-[70vh] overflow-hidden relative"
              ref={boardBorderRef}>
             <animated.div
+                id="displayboard"
                 ref={boardRef}
                 // ref={tileDragStart ? null : boardRef}
                 style={{
@@ -279,33 +285,33 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     touchAction: 'none', // Disable default browser touch gestures
 
                     // }} className="absolute"
-                }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-            //}} className="absolute"
+                }} className="absolute w-full h-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                //}} className="absolute"
             >
-            {visibleBoard.map((row, rowIndex) =>
-                (
-                    row.map((t, colIndex) => (
-                        <div className="absolute"
-                             key={`cell-${rowIndex * (row.length) + colIndex}`}
-                             style={{
-                                 left: `${t!.col * 2.75}rem`,
-                                 top: `${t!.row * 2.75}rem`,
-                                 // gridTemplateColumns: `repeat(${visibleBoard[rowIndex].length}, 2.5rem)`
-                             }}>
-                            <EmptyTile key={`empty-${t!.row * (grid.grid[0].length) + t!.col}`}
-                                       // id={rowIndex * (row.length) + colIndex}
-                                       id={t!.row * (grid.grid[0].length) + t!.col}
-                                       t={t} rowIndex={rowIndex} colIndex={colIndex}></EmptyTile>
-                        </div>
-                    ))
-                )
-            )}
-        </animated.div>
+                {visibleBoard.map((row, rowIndex) =>
+                    (
+                        row.map((t, colIndex) => (
+                            <div className="absolute"
+                                 key={`cell-${rowIndex * (row.length) + colIndex}`}
+                                 style={{
+                                     left: `${t!.col * 2.75}rem`,
+                                     top: `${t!.row * 2.75}rem`,
+                                     // gridTemplateColumns: `repeat(${visibleBoard[rowIndex].length}, 2.5rem)`
+                                 }}>
+                                <EmptyTile key={`empty-${t!.row * (grid.grid[0].length) + t!.col}`}
+                                    // id={rowIndex * (row.length) + colIndex}
+                                           id={t!.row * (grid.grid[0].length) + t!.col}
+                                           t={t} rowIndex={rowIndex} colIndex={colIndex}></EmptyTile>
+                            </div>
+                        ))
+                    )
+                )}
+            </animated.div>
 
 
-</div>
-)
-    ;
+        </div>
+    )
+        ;
 };
 
 export default GameBoard;

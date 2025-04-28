@@ -18,6 +18,7 @@
   },
   "include": [
     "src",
+    "vite-env.d.ts",
     "../../../Library/Caches/JetBrains/PyCharm2021.2/javascript/typings/node/20.12.1/node_modules/@types/node/globals.d.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]

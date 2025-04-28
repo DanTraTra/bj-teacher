@@ -177,9 +177,9 @@ function SinglePLayer() {
 
     useEffect(() => {
 
-        // // console.log("lettersList", lettersList)
+        console.log("tileDragStart", gridTileDragStart)
 
-    }, [lettersList])
+    }, [gridTileDragStart])
 
 
     const addTileToGrid = (id: number, toGridPos: { row: number, col: number }, fromLettersList: boolean) => {
@@ -526,7 +526,7 @@ function SinglePLayer() {
     const [draggedTile, setDraggedTile] = useState<TileProps | null>(null)
 
     const handleTileDragStart = (event: DragStartEvent) => {
-        // console.log("handleTileDragStart event", event)
+        console.log("gridTileDragStart", gridTileDragStart)
         setDraggedTileID(Number(event.active.id))
         setGridTileDragStart(true)
     }
@@ -567,6 +567,7 @@ function SinglePLayer() {
         const draggedTileFromGrid = displayTileGrid.grid.flat().find((tile) => tile?.id == draggedTileID)
 
         if (!draggedTileFromLL && !draggedTileFromGrid) {
+            console.log("not found in LL or grid")
             return
         }
         if (!over) {
@@ -574,9 +575,9 @@ function SinglePLayer() {
             // console.log("draggedTileFromLL", draggedTileFromLL)
             // console.log("draggedTileFromGrid", draggedTileFromGrid)
             if (draggedTileFromGrid) {
-                handleTileClick(draggedTileFromGrid, false)
+                // handleTileClick(draggedTileFromGrid, false)
             } else if (draggedTileFromLL) {
-                handleTileClick(draggedTileFromLL, true)
+                // handleTileClick(draggedTileFromLL, true)
             }
             // console.log("Tile missed drop")
             return
@@ -602,8 +603,9 @@ function SinglePLayer() {
             addTileToGrid(draggedTileFromGrid.id, {row: overRow, col: overCol}, false)
 
             // console.log("Rearranging grid")
-
         }
+
+        console.log(displayTileGrid.grid)
 
     }
 
@@ -744,6 +746,7 @@ function SinglePLayer() {
                            }}/>
 
                 <BottomPanel id={10000}/>
+                <div>{`dragStart: ${dragStart}`}</div>
             </DndContext>
             <div className="font-black">{`${clicked}`}</div>
         </div>
