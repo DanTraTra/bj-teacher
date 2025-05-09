@@ -46,6 +46,7 @@
     "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250429.0",
     "@svgr/webpack": "^8.1.0",
     "@types/d3-interpolate": "^3.0.4",
     "@types/d3-interpolate-path": "^2.0.3",
