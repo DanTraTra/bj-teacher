@@ -13,6 +13,10 @@ interface CCCardProps {
     correctCard?: boolean;
     /** Optional: Callback when content is edited */
     onContentEdit?: (newContent: string) => void;
+    /** Whether the card is currently flipped */
+    isFlipped: boolean;
+    /** Callback when the card is flipped */
+    onFlip: () => void;
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -25,8 +29,9 @@ const CCCard: React.FC<CCCardProps> = ({
     clueCell = false,
     correctCard,
     onContentEdit,
+    isFlipped,
+    onFlip,
 }) => {
-    const [isFlipped, setIsFlipped] = useState(beginsFlipped);
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(frontContent);
     const [isCorrect, setIsCorrect] = useState(correctCard);
@@ -61,7 +66,6 @@ const CCCard: React.FC<CCCardProps> = ({
 
     const cardClickHandler = () => {
         if (!isEditing) {
-            setIsFlipped(!isFlipped);
             if (!isFlipped) {
                 setTimeout(() => {
                     setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
@@ -69,6 +73,7 @@ const CCCard: React.FC<CCCardProps> = ({
             } else {
                 setClickEffectClass('');
             }
+            onFlip();
         }
     }
 

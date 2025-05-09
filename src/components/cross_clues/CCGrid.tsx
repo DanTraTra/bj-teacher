@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CCCard from './CCCard';
 
 // Define the types for header content
@@ -15,6 +15,9 @@ interface GridProps {
     className?: string;
     /** Optional: Tailwind size class for cells (e.g., 'w-16', 'h-16'). If not provided, relies purely on aspect-square and grid layout. */
     cellSize?: string; // Changed from 'size' to 'cellSize' for clarity
+    randomCO: string | null;
+    numRows: number;
+    numCols: number;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -22,24 +25,29 @@ const CCGrid: React.FC<GridProps> = ({
     colHeaders,
     className = '',
     cellSize = '',
+    randomCO,
+    numRows,
+    numCols,
 }) => {
-    const numRows = 5;
-    const numCols = 5;
-    
-    // Add state for the random coordinate
-    const [randomCO, setRandomCO] = useState(() => {
-        const colLetters = Array.from({length: numCols}, (_, i) =>
-            String.fromCharCode(65 + i)
-        );
-        return `${colLetters[Math.floor(Math.random() * numCols)]}${Math.round(Math.random() * numCols) + 1}`;
-    });
 
     // Add state for the clue cell content
     const [clueCellContent, setClueCellContent] = useState("?");
+    
+    // Add state to track the currently flipped card
+    const [flippedCard, setFlippedCard] = useState<string | null>(null);
 
     // Handler for clue cell content updates
     const handleClueCellEdit = (newContent: string) => {
         setClueCellContent(newContent);
+    };
+
+    // Handler for card flips
+    const handleCardFlip = (cellId: string) => {
+        if (clueCellContent === "?" && cellId !== "clue") {
+            alert("Your partner needs to give a clue first!");
+        } else {
+            setFlippedCard(prevFlipped => prevFlipped === cellId ? null : cellId);
+        }
     };
 
     // Basic validation (optional, but good practice in larger apps)
@@ -74,8 +82,6 @@ const CCGrid: React.FC<GridProps> = ({
         );
     };
 
-    const tick = '✓'
-    const cross = '✗'
 
     // Generate column letters ('A', 'B', ...)
     const colLetters = Array.from({length: numCols}, (_, i) =>
@@ -99,6 +105,8 @@ const CCGrid: React.FC<GridProps> = ({
                 backClassName="text-gray-500"
                 clueCell={true}
                 onContentEdit={handleClueCellEdit}
+                isFlipped={flippedCard === 'clue'}
+                onFlip={() => handleCardFlip('clue')}
             />
 
             {/* Column Headers */}
@@ -127,6 +135,8 @@ const CCGrid: React.FC<GridProps> = ({
                                 backClassName={cellContent === randomCO ? 'text-green-500' : 'text-red-500'}
                                 clueCell={false}
                                 correctCard={cellContent === randomCO ? true : false}
+                                isFlipped={flippedCard === cellContent}
+                                onFlip={() => handleCardFlip(cellContent)}
                             />
                         )
                     })}

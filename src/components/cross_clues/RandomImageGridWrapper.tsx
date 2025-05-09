@@ -25,6 +25,14 @@ const RandomImageGridWrapper: React.FC = () => {
     const [colHeaders, setColHeaders] = useState<React.JSX.Element[]>([]);
     const [rowSlice, setRowSlice] = useState<number>(0);
     const [colSlice, setColSlice] = useState<number>(5);
+    const [randomCO, setRandomCO] = useState<string | null>(null);
+
+    const numRows = 5;
+    const numCols = 5;
+
+    const colLetters = Array.from({length: numCols}, (_, i) =>
+        String.fromCharCode(65 + i)
+    );
 
     const regenerateImages = () => {
         const shuffled = [...allImagePaths].sort(() => 0.5 - Math.random());
@@ -55,12 +63,15 @@ const RandomImageGridWrapper: React.FC = () => {
             // console.log(`${rootPath}${i}`);
         }
         setAllImagePaths(temp_list)
+        setRandomCO(prevCO => prevCO === null ? `${colLetters[Math.floor(Math.random() * numCols)]}${Math.round(Math.random() * numRows)}` : prevCO);
+
 
     }, []);
 
     // Generate headers only after images are loaded
     useEffect(() => {
         regenerateImages();
+        
     }, [allImagePaths, rowSlice, colSlice]);
 
     return (
@@ -72,6 +83,9 @@ const RandomImageGridWrapper: React.FC = () => {
                         rowHeaders={rowHeaders}
                         colHeaders={colHeaders}
                         cellSize="size-[120px]"
+                        randomCO={randomCO}
+                        numRows={numRows}
+                        numCols={numCols}   
                     /> :
                     <CCRows
                         rowHeaders={rowHeaders}
