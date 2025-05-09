@@ -31,6 +31,7 @@ const CCCard: React.FC<CCCardProps> = ({
     const [editValue, setEditValue] = useState(frontContent);
     const [isCorrect, setIsCorrect] = useState(correctCard);
     const [fontSize, setFontSize] = useState('text-2xl');
+    const [clickEffectClass, setClickEffectClass] = useState('');
     const contentRef = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
@@ -61,6 +62,13 @@ const CCCard: React.FC<CCCardProps> = ({
     const cardClickHandler = () => {
         if (!isEditing) {
             setIsFlipped(!isFlipped);
+            if (!isFlipped) {
+                setTimeout(() => {
+                    setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
+                }, 350);
+            } else {
+                setClickEffectClass('');
+            }
         }
     }
 
@@ -94,7 +102,7 @@ const CCCard: React.FC<CCCardProps> = ({
 
     return (
         <div
-            className={`${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : isCorrect ? correctCardClasses : incorrectCardClasses}` : ''}`}
+            className={`${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : ''}`}
             onClick={() => cardClickHandler()}
         >
             <div className="flip-card-inner">
