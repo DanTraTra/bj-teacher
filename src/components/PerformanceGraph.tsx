@@ -79,7 +79,7 @@ const PerformanceGraph: React.FC<PerformanceGraphProps> = ({game_log_data, dark_
                     display: true,
                     labels: {
                         usePointStyle: true, // Use point style for legend
-                        pointStyle: 'circle', // Use circle for the legend point style
+                        pointStyle: 'circle' as const, // Use circle for the legend point style
                         boxWidth: 5,
                         boxHeight: 4,
                         font: {
