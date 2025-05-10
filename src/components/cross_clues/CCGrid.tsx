@@ -15,9 +15,16 @@ interface GridProps {
     className?: string;
     /** Optional: Tailwind size class for cells (e.g., 'w-16', 'h-16'). If not provided, relies purely on aspect-square and grid layout. */
     cellSize?: string; // Changed from 'size' to 'cellSize' for clarity
-    randomCO: string | null;
+    randomCO: {rowIndex: number, colIndex: number} | null;
     numRows: number;
     numCols: number;
+    clueCellContent: string;
+    handleClueCellEdit: (newContent: string) => void;
+    flippedCard: {rowIndex: number, colIndex: number} | null;
+    resetFlippedCardState: () => void;
+    frontCellContent: string[][];
+    handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
+    completedCards: string[];
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -28,27 +35,16 @@ const CCGrid: React.FC<GridProps> = ({
     randomCO,
     numRows,
     numCols,
+    clueCellContent,
+    handleClueCellEdit,
+    completedCards = [],
+    flippedCard,
+    resetFlippedCardState,
+    frontCellContent,
+    handleCardFlip,
 }) => {
 
-    // Add state for the clue cell content
-    const [clueCellContent, setClueCellContent] = useState("?");
-    
-    // Add state to track the currently flipped card
-    const [flippedCard, setFlippedCard] = useState<string | null>(null);
-
-    // Handler for clue cell content updates
-    const handleClueCellEdit = (newContent: string) => {
-        setClueCellContent(newContent);
-    };
-
-    // Handler for card flips
-    const handleCardFlip = (cellId: string) => {
-        if (clueCellContent === "?" && cellId !== "clue") {
-            alert("Your partner needs to give a clue first!");
-        } else {
-            setFlippedCard(prevFlipped => prevFlipped === cellId ? null : cellId);
-        }
-    };
+    // TODO: Add the clue to the chosen correct cell
 
     // Basic validation (optional, but good practice in larger apps)
     if (rowHeaders.length !== numRows || colHeaders.length !== numCols) {
@@ -59,6 +55,8 @@ const CCGrid: React.FC<GridProps> = ({
         rowHeaders = [...rowHeaders, ...Array(numRows).fill('')].slice(0, numRows);
         colHeaders = [...colHeaders, ...Array(numCols).fill('')].slice(0, numCols);
     }
+
+    
 
     // Helper function to render a single cell
     const renderCell = (
@@ -84,62 +82,68 @@ const CCGrid: React.FC<GridProps> = ({
 
 
     // Generate column letters ('A', 'B', ...)
-    const colLetters = Array.from({length: numCols}, (_, i) =>
+    const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
     );
+
+    console.log("completedCards", completedCards)
 
     return (
         // The main grid container. grid-cols-6 because we have 1 header col + 5 data cols.
         // gap-0 ensures borders touch cleanly.
         <div
             className={`grid grid-cols-6 gap-0 ${className}`}
-            style={{width: 'fit-content'}} // Ensure container shrinks to fit content if no specific width/cellSize is given
+            style={{ width: 'fit-content' }} // Ensure container shrinks to fit content if no specific width/cellSize is given
         >
             {/* Top-left clue cell */}
-            <CCCard 
+            <CCCard
                 frontContent={clueCellContent}
-                backContent={randomCO}
+                backContent={`${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`}
                 beginsFlipped={false}
                 cellSize={cellSize}
                 frontClassName="text-gray-500"
                 backClassName="text-gray-500"
                 clueCell={true}
                 onContentEdit={handleClueCellEdit}
-                isFlipped={flippedCard === 'clue'}
-                onFlip={() => handleCardFlip('clue')}
+                isFlipped={flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100}
+                handleCardFlip={handleCardFlip}
+                rowIndex={100}
+                colIndex={100}    
+                resetFlippedCardState={resetFlippedCardState}
             />
 
             {/* Column Headers */}
             {colHeaders.map((header, index) =>
                 renderCell(header, `col-header-${index}`, true)
             )}
+            
 
             {/* Rows: Each row contains a Row Header + Data Cells */}
-            {Array.from({length: numRows}).map((_, rowIndex) => (
+            {frontCellContent.map((row, rowIndex) => (
                 // Using React.Fragment for key prop on the group of elements per row
                 <React.Fragment key={`row-${rowIndex}`}>
                     {/* Row Header */}
                     {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true)}
 
                     {/* Data Cells for the current row */}
-                    {Array.from({length: numCols}).map((_, colIndex) => {
-                        const cellContent = `${colLetters[colIndex]}${rowIndex + 1}`;
-                        return (
-                            <CCCard 
-                                key={`cell-${colIndex}-${rowIndex}`}
-                                frontContent={cellContent}
-                                backContent={cellContent === randomCO ? '✓' : '✗'}
-                                beginsFlipped={false}
-                                cellSize={cellSize}
-                                frontClassName="text-gray-200 hover:text-gray-500"
-                                backClassName={cellContent === randomCO ? 'text-green-500' : 'text-red-500'}
-                                clueCell={false}
-                                correctCard={cellContent === randomCO ? true : false}
-                                isFlipped={flippedCard === cellContent}
-                                onFlip={() => handleCardFlip(cellContent)}
-                            />
-                        )
-                    })}
+                    {row.map((cellContent, colIndex) => (
+                        <CCCard
+                            key={`cell-${colIndex}-${rowIndex}`}
+                            frontContent={cellContent}
+                            backContent={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? '✓' : '✗'}
+                            beginsFlipped={false}
+                            cellSize={cellSize}
+                            frontClassName={'text-gray-200 hover:text-gray-500'}
+                            backClassName={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'text-green-500' : 'text-red-500'}
+                            clueCell={false}
+                            correctCard={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? true : false}
+                            isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
+                            handleCardFlip={handleCardFlip}
+                            rowIndex={rowIndex}
+                            colIndex={colIndex}
+                            resetFlippedCardState={resetFlippedCardState}
+                        />
+                    ))}
                 </React.Fragment>
             ))}
         </div>

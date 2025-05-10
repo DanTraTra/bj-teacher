@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 interface CCCardProps {
     frontContent: string;
-    backContent: string;
+    backContent: string | null;
     beginsFlipped: boolean;
     /** Optional: Tailwind size class for the card (e.g., 'w-16', 'h-16') */
     cellSize?: string;
@@ -16,7 +16,10 @@ interface CCCardProps {
     /** Whether the card is currently flipped */
     isFlipped: boolean;
     /** Callback when the card is flipped */
-    onFlip: () => void;
+    handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
+    rowIndex: number;
+    colIndex: number;
+    resetFlippedCardState: () => void;
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -30,7 +33,10 @@ const CCCard: React.FC<CCCardProps> = ({
     correctCard,
     onContentEdit,
     isFlipped,
-    onFlip,
+    handleCardFlip,
+    rowIndex,
+    colIndex,
+    resetFlippedCardState,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(frontContent);
@@ -38,6 +44,11 @@ const CCCard: React.FC<CCCardProps> = ({
     const [fontSize, setFontSize] = useState('text-2xl');
     const [clickEffectClass, setClickEffectClass] = useState('');
     const contentRef = useRef<HTMLSpanElement>(null);
+
+    // Add effect to sync editValue with frontContent
+    useEffect(() => {
+        setEditValue(frontContent);
+    }, [frontContent]);
 
     useEffect(() => {
         if (contentRef.current) {
@@ -66,14 +77,20 @@ const CCCard: React.FC<CCCardProps> = ({
 
     const cardClickHandler = () => {
         if (!isEditing) {
-            if (!isFlipped) {
+            if (!isFlipped && !clueCell) {
                 setTimeout(() => {
                     setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
+                    if (correctCard) {
+                        setEditValue('');
+                    }
                 }, 350);
+                // Reset the edit value if the card is correct
+            } else if (clueCell) {
+                setIsEditing(true);
             } else {
                 setClickEffectClass('');
             }
-            onFlip();
+            handleCardFlip(rowIndex, colIndex, clueCell);
         }
     }
 
@@ -86,22 +103,25 @@ const CCCard: React.FC<CCCardProps> = ({
         setEditValue(e.target.value);
     };
 
-    const handleInputBlur = () => {
+    const saveClue = () => {
         setIsEditing(false);
-        if (onContentEdit && editValue !== frontContent) {
+        resetFlippedCardState();
+        if (editValue.split(' ').length >= 2) {
+            alert('Please enter a single word');
+        }
+        else if (onContentEdit && editValue !== '') {
+            // resetFlippedCardState();
             onContentEdit(editValue);
         }
+    }
+
+    const handleInputBlur = () => {
+        saveClue()
     };
 
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            setIsEditing(false);
-            if (editValue.split(' ').length >= 2) {
-                alert('Please enter a single word');
-            }
-            else if (onContentEdit && editValue !== frontContent && editValue !== '') {
-                onContentEdit(editValue);
-            }
+            saveClue()
         }
     };
 
@@ -114,24 +134,14 @@ const CCCard: React.FC<CCCardProps> = ({
                 <div className={`flip-card-front bg-white flex items-center justify-center ${frontClassName}`}>
                     {clueCell && <div className="absolute bottom-0 right-0 flex items-center justify-center p-2">
                         <span
-                            className="text-[10pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
+                            className="text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
                             onClick={handleEditClick}
                         >
                             {frontContent != '?' ? 'Edit clue' : 'Give clue'}
                         </span>
                     </div>}
                     <div className="w-full h-full flex items-center justify-center p-2">
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                value={editValue}
-                                onChange={handleInputChange}
-                                onBlur={handleInputBlur}
-                                onKeyDown={handleInputKeyDown}
-                                className="w-24 text-center text-2xl border border-gray-300 rounded px-2 py-1"
-                                autoFocus
-                            />
-                        ) : (
+                        {(
                             <span
                                 ref={contentRef}
                                 className={`
@@ -149,11 +159,27 @@ const CCCard: React.FC<CCCardProps> = ({
                 </div>
                 <div className={`flip-card-back bg-white flex items-center justify-center ${backClassName}`}>
                     <div className="w-full h-full flex items-center justify-center p-2">
-                        <span
-                            className={`text-[54px]`}
-                        >
-                            {backContent}
-                        </span>
+                        {isEditing ? (
+                            <div className="w-full h-full flex flex-col items-center justify-between py-2">
+                                <input
+                                    type="text"
+                                    value={editValue === '?' ? '' : editValue}
+                                    placeholder="Give a clue for:"
+                                    onChange={handleInputChange}
+                                    onBlur={handleInputBlur}
+                                    onKeyDown={handleInputKeyDown}
+                                    className="w-24 text-center text-sm px-1 py-0 placeholder:text-gray-300 text-[9pt] pb-0 h-10
+                                    focus:outline-none focus:ring-0 focus:ring-gray-100 focus:border-gray-100 focus:border-0 focus:border-b-2 focus:border-b-gray-100
+                                    outline-none ring-0 ring-gray-100 border-gray-100 border-0 border-b-2 border-b-gray-100
+                                    "
+                                    autoFocus
+                                />
+                                <span className={`text-[40px] pb-0`}> {backContent} </span>
+
+                            </div>
+                        ) : (
+                            <span className={`text-[54px]`}> {backContent} </span>
+                        )}
                     </div>
                 </div>
             </div>
