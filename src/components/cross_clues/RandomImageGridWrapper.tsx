@@ -49,7 +49,7 @@ const decodeState = (encoded: string) => {
 
 const RandomImageGridWrapper: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [inspectView, setInspectView] = useState<boolean>(false);
+    const [viewingClue, setViewingClue] = useState<boolean>(false);
     const [gridView, setGridView] = useState<boolean>(true)
     const [rowHeaders, setRowHeaders] = useState<React.JSX.Element[]>([]);
     const [colHeaders, setColHeaders] = useState<React.JSX.Element[]>([]);
@@ -84,7 +84,7 @@ const RandomImageGridWrapper: React.FC = () => {
             for (let i = 0; i < 10; i++) {
                 let num;
                 do {
-                    num = Math.floor(Math.random() * 100) + 1;
+                    num = Math.floor(Math.random() * 1000) + 1;
                 } while (randomNumbers.includes(num));
                 randomNumbers.push(num);
             }
@@ -113,13 +113,13 @@ const RandomImageGridWrapper: React.FC = () => {
 
         setRowHeaders(
             rowPaths.map((src, i) => (
-                <img key={`row-${i}`} src={src} alt={`row-${i}`} className="w-full h-full object-contain" />
+                <img key={`row-${i}`} src={src} alt={`row-${i}`} className="w-full h-full object-contain grayscale" />
             ))
         );
 
         setColHeaders(
             colPaths.map((src, i) => (
-                <img key={`col-${i}`} src={src} alt={`col-${i}`} className="w-full h-full object-contain" />
+                <img key={`col-${i}`} src={src} alt={`col-${i}`} className="w-full h-full object-contain grayscale" />
             ))
         );
     };
@@ -132,11 +132,26 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [image_numbers]);
 
     const regenerateRandomCO = () => {
-        let tempCO = { rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) }
-        console.log("completedCards", completedCards)
-        while (completedCards.includes(`${colLetters[tempCO.rowIndex]}${tempCO.colIndex + 1}`)) {
-            tempCO = { rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) }
+        let tempCO = { 
+            rowIndex: Math.floor(Math.random() * numRows), 
+            colIndex: Math.floor(Math.random() * numCols) 
+        };
+        console.log("completedCards", completedCards);
+        
+        // Convert to coordinate string (e.g., "A1", "B2", etc.)
+        const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
+        
+        while (completedCards.includes(coordString)) {
+            tempCO = { 
+                rowIndex: Math.floor(Math.random() * numRows), 
+                colIndex: Math.floor(Math.random() * numCols) 
+            };
+            const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
+            if (!completedCards.includes(newCoordString)) {
+                break;
+            }
         }
+        console.log("Generated coordinate:", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
         setRandomCO(tempCO);
     }
 
@@ -175,13 +190,20 @@ const RandomImageGridWrapper: React.FC = () => {
         if (clueCellContent === "?" && !clueCell) {
             alert("Your partner needs to give a clue first!");
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
-            setFlippedCardState(null);
-            console.log("setting flippedCardState to null", flippedCardState)
+            // setFlippedCardState(null);
+            // console.log("setting flippedCardState to null", flippedCardState)
         } else {
             setFlippedCardState({ rowIndex, colIndex });
             console.log("frontCellContentState", frontCellContentState)
             console.log("randomCO", randomCO)
 
+            if (rowIndex === 100 && colIndex === 100) {
+                console.log("Setting viewingClue to true");
+                setViewingClue(true);
+            } else {
+                console.log("Setting viewingClue to false");
+                setViewingClue(false);
+            }
 
             if (rowIndex === randomCO?.rowIndex && colIndex === randomCO?.colIndex) {
                 // Correct card chosen
@@ -190,21 +212,28 @@ const RandomImageGridWrapper: React.FC = () => {
                     setFlippedCardState(null);
                     setClueCellContent("?");
                     setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]);
-
+                    setViewingClue(false);
                 }, 1000);
 
                 setTimeout(() => {
-
                     setFrontCellContentState(prevFrontCellContent => {
                         const newFrontCellContent = [...prevFrontCellContent];
                         newFrontCellContent[rowIndex][colIndex] = clueCellContent;
                         return newFrontCellContent;
                     });
                     regenerateRandomCO();
-
                 }, 100);
             }
         };
+    }
+
+    useEffect(() => {
+        console.log("viewingClue changed to:", viewingClue)
+    }, [viewingClue])
+
+    const isViewingClue = (boolean: boolean) => {
+        console.log("isViewingClue called with:", boolean);
+        setViewingClue(boolean);
     }
 
     return (
@@ -227,6 +256,8 @@ const RandomImageGridWrapper: React.FC = () => {
                         flippedCard={flippedCardState}
                         resetFlippedCardState={resetFlippedCardState}
                         completedCards={completedCards}
+                        setViewingClue={isViewingClue} 
+                        viewingClue={viewingClue}
                     /> :
                     <CCRows
                         rowHeaders={rowHeaders}

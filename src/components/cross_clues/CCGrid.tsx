@@ -25,6 +25,8 @@ interface GridProps {
     frontCellContent: string[][];
     handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
     completedCards: string[];
+    setViewingClue: (boolean: boolean) => void;
+    viewingClue: boolean;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -42,6 +44,8 @@ const CCGrid: React.FC<GridProps> = ({
     resetFlippedCardState,
     frontCellContent,
     handleCardFlip,
+    setViewingClue,
+    viewingClue,
 }) => {
 
     // TODO: Add the clue to the chosen correct cell
@@ -110,6 +114,8 @@ const CCGrid: React.FC<GridProps> = ({
                 rowIndex={100}
                 colIndex={100}    
                 resetFlippedCardState={resetFlippedCardState}
+                setViewingClue={setViewingClue}
+                highlightClass={"border-gray-100"}
             />
 
             {/* Column Headers */}
@@ -126,14 +132,16 @@ const CCGrid: React.FC<GridProps> = ({
                     {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true)}
 
                     {/* Data Cells for the current row */}
-                    {row.map((cellContent, colIndex) => (
+                    {row.map((cellContent, colIndex) => {
+                        const highlightCard = viewingClue && cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`;
+                        return (
                         <CCCard
                             key={`cell-${colIndex}-${rowIndex}`}
                             frontContent={cellContent}
                             backContent={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? '✓' : '✗'}
                             beginsFlipped={false}
                             cellSize={cellSize}
-                            frontClassName={'text-gray-200 hover:text-gray-500'}
+                            frontClassName={`${highlightCard ? "text-gray-500" : "text-gray-200"} hover:text-gray-500`}
                             backClassName={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'text-green-500' : 'text-red-500'}
                             clueCell={false}
                             correctCard={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? true : false}
@@ -142,8 +150,10 @@ const CCGrid: React.FC<GridProps> = ({
                             rowIndex={rowIndex}
                             colIndex={colIndex}
                             resetFlippedCardState={resetFlippedCardState}
+                            setViewingClue={setViewingClue}
+                            highlightClass={highlightCard ? "border-gray-500" : "border-gray-100"}
                         />
-                    ))}
+                    )})}
                 </React.Fragment>
             ))}
         </div>

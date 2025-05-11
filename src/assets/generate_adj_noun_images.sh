@@ -3,7 +3,7 @@
 # --- Configuration ---
 ADJECTIVE_FILE="src/assets/adjectives.csv" # CSV file with adjectives (header row, first column)
 NOUN_FILE="src/assets/most-common-nouns-english.csv"           # CSV file with nouns (header row, first column)
-NUM_IMAGES=100                  # How many images to generate
+NUM_IMAGES=1000                  # How many images to generate
 OUTPUT_DIR="public/images" # Directory to save the images
 ACCOUNT_ID="d85c1a22f832cacd74de9477aa1661e0" # Your Cloudflare Account ID
 API_TOKEN="lDFbQlPVJV_mbZrRwtLnI6-8TjpaqIqG9pIZCM0i" # Your Cloudflare API Token (BE CAREFUL!)
@@ -17,7 +17,9 @@ API_PROMPT_ENDPOINT="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}
 PROMPT_MAX_TOKENS=24
 PROMPT_MAX_WORDS=7
 REQUEST_DELAY=5                 # Seconds to wait between requests (IMPORTANT!)
-image_index_start=100
+image_index_start=1
+error_count=0
+success_count=0
 
 # Load base64 image and mask (no newlines)
 INIT_IMAGE=$(base64 -i public/images/init.png | tr -d '\n')
@@ -57,9 +59,9 @@ echo "Saving images to directory: $OUTPUT_DIR"
 
 echo "Starting image generation for $NUM_IMAGES images..."
 
-for (( i=image_index_start; i<=image_index_start+NUM_IMAGES; i++ ))
+for (( i=image_index_start; i<=NUM_IMAGES; i++ ))
 do
-  echo "--- Generating image $i of $(image_index_start+NUM_IMAGES) ---"
+  echo "--- Generating image $i of $NUM_IMAGES (Success: $success_count, Errors: $error_count) ---"
 
   # Get 2 random adjectives (skip header, take first field)
   mapfile -t random_adjectives < <(tail -n +2 "$ADJECTIVE_FILE" | gshuf -n 2 | cut -d ',' -f 1)
@@ -125,8 +127,8 @@ do
 
   # Construct the JSON payload using printf
   # Modify the prompt structure as desired
-  json_payload=$(printf '{ "prompt": "A very simple, flat, black-and-white vector-style cartoon illustration of %s. Line art only, minimal detail, white background, no textures, no shading. Clear shapes, thick outlines. Looks like pictogram, not a realistic drawing.",
-    "negative_prompt":"high detail, realistic, intricate, photorealistic, shadows, textures, background, color, noise, busy composition",
+  json_payload=$(printf '{ "prompt": "A very simple, flat, vector-style cartoon illustration of %s. Line art only, minimal detail, no textures, no shading. Clear shapes, pastel colors, thick outlines. Looks like pictogram, not a realistic drawing.",
+    "negative_prompt":"high detail, realistic, intricate, photorealistic, shadows, textures, background, noise, busy composition",
     "seed": %d,
     "guidance": 5}' \
     "$prompt_url" "$RANDOM")
@@ -156,10 +158,11 @@ do
   curl_exit_status=$?
   if [ $curl_exit_status -ne 0 ]; then
       echo "Error: curl command failed with exit status $curl_exit_status for image $i."
-      # exit 1 # Uncomment to stop on first error
+      error_count=$((error_count + 1))
       echo "Continuing to next image..."
   else
       echo "Successfully generated: $output_filename"
+      success_count=$((success_count + 1))
   fi
 
   # Wait before the next request
@@ -168,4 +171,7 @@ do
 
 done
 
-echo "--- Finished generating $NUM_IMAGES images ---"
+echo "--- Finished generating images ---"
+echo "Total images requested: $NUM_IMAGES"
+echo "Successfully generated: $success_count"
+echo "Failed to generate: $error_count"
