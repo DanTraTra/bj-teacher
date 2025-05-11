@@ -23,6 +23,7 @@ interface GridProps {
     flippedCard: {rowIndex: number, colIndex: number} | null;
     resetFlippedCardState: () => void;
     frontCellContent: string[][];
+    correctlyGuessedGrid: boolean[][];
     handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
@@ -43,6 +44,7 @@ const CCGrid: React.FC<GridProps> = ({
     flippedCard,
     resetFlippedCardState,
     frontCellContent,
+    correctlyGuessedGrid,
     handleCardFlip,
     setViewingClue,
     viewingClue,
@@ -110,12 +112,28 @@ const CCGrid: React.FC<GridProps> = ({
                 clueCell={true}
                 onContentEdit={handleClueCellEdit}
                 isFlipped={flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100}
-                handleCardFlip={handleCardFlip}
+                // handleCardFlip={handleCardFlip}
+                handleCardFlip={() => {}}
                 rowIndex={100}
                 colIndex={100}    
                 resetFlippedCardState={resetFlippedCardState}
                 setViewingClue={setViewingClue}
                 highlightClass={"border-gray-100"}
+                // frontContent={clueCellContent}
+                // backContent={`${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`}
+                // beginsFlipped={false}
+                // cellSize={cellSize}
+                // frontClassName="text-gray-500"
+                // backClassName="text-gray-500"
+                // clueCell={true}
+                // onContentEdit={handleClueCellEdit}
+                // isFlipped={flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100}
+                // handleCardFlip={handleCardFlip}
+                // rowIndex={100}
+                // colIndex={100}    
+                // resetFlippedCardState={resetFlippedCardState}
+                // setViewingClue={setViewingClue}
+                // highlightClass={"border-gray-100"}
             />
 
             {/* Column Headers */}
@@ -134,6 +152,9 @@ const CCGrid: React.FC<GridProps> = ({
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
                         const highlightCard = viewingClue && cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`;
+                        let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
+                        if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
+
                         return (
                         <CCCard
                             key={`cell-${colIndex}-${rowIndex}`}
@@ -141,7 +162,7 @@ const CCGrid: React.FC<GridProps> = ({
                             backContent={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? '✓' : '✗'}
                             beginsFlipped={false}
                             cellSize={cellSize}
-                            frontClassName={`${highlightCard ? "text-gray-500" : "text-gray-200"} hover:text-gray-500`}
+                            frontClassName={`${highlightClasses} hover:text-gray-500`}
                             backClassName={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'text-green-500' : 'text-red-500'}
                             clueCell={false}
                             correctCard={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? true : false}
@@ -151,7 +172,7 @@ const CCGrid: React.FC<GridProps> = ({
                             colIndex={colIndex}
                             resetFlippedCardState={resetFlippedCardState}
                             setViewingClue={setViewingClue}
-                            highlightClass={highlightCard ? "border-gray-500" : "border-gray-100"}
+                            highlightClass={highlightCard ? `border-gray-500` : `border-gray-100`}
                         />
                     )})}
                 </React.Fragment>

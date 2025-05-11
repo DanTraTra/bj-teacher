@@ -11,15 +11,17 @@ const encodeState = (state: {
     randomCO: { rowIndex: number, colIndex: number } | null,
     clueCellContent: string | null,
     frontCellContent: string[][],
-    completedCards: string[]
+    completedCards: string[],
+    correctlyGuessedGrid: boolean[][]
 }) => {
-    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards } = state;
+    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid } = state;
     return btoa(JSON.stringify({
         in: image_numbers,
         rc: randomCO,
         ccc: clueCellContent,
         fc: frontCellContent,
-        cc: completedCards
+        cc: completedCards,
+        cg: correctlyGuessedGrid    
     }));
 };
 
@@ -31,7 +33,8 @@ const decodeState = (encoded: string) => {
             randomCO: decoded.rc,
             clueCellContent: decoded.ccc,
             frontCellContent: decoded.fc,
-            completedCards: decoded.cc
+            completedCards: decoded.cc,
+            correctlyGuessedGrid: decoded.cg
         };
     } catch (e) {
         return null;
@@ -47,6 +50,7 @@ const decodeState = (encoded: string) => {
 //
 // };
 
+
 const RandomImageGridWrapper: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [viewingClue, setViewingClue] = useState<boolean>(false);
@@ -56,8 +60,12 @@ const RandomImageGridWrapper: React.FC = () => {
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
+    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>([]);
     const [completedCards, setCompletedCards] = useState<string[]>([]);
     const [clueCellContent, setClueCellContent] = useState<string>("?");
+    const [editValue, setEditValue] = useState<string>("?");
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [buttonState, setButtonState] = useState<'view' | 'give' | 'input'>('view');
     const numRows = 5;
     const numCols = 5;
 
@@ -77,6 +85,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setFrontCellContentState(decodedState.frontCellContent);
                 setCompletedCards(decodedState.completedCards);
                 setClueCellContent(decodedState.clueCellContent);
+                setCorrectlyGuessedGrid(decodedState.correctlyGuessedGrid);
             }
         } else {
             // Only generate new random numbers if there's no URL state
@@ -89,7 +98,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 randomNumbers.push(num);
             }
             setImageNumbers(randomNumbers);
-            
+
             // Initialize randomCO and frontCellContentState for new games
             setRandomCO({ rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) });
             const frontCellContent = Array.from({ length: numRows }, (_, rowIndex) =>
@@ -98,6 +107,13 @@ const RandomImageGridWrapper: React.FC = () => {
                 )
             );
             setFrontCellContentState(frontCellContent);
+
+            const boolGrid = Array.from({ length: numRows }, (_, rowIndex) =>
+                Array.from({ length: numCols }, (_, colIndex) =>
+                    false
+                )
+            )
+            setCorrectlyGuessedGrid(boolGrid);
         }
     }, []); // Only run on mount
 
@@ -132,19 +148,19 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [image_numbers]);
 
     const regenerateRandomCO = () => {
-        let tempCO = { 
-            rowIndex: Math.floor(Math.random() * numRows), 
-            colIndex: Math.floor(Math.random() * numCols) 
+        let tempCO = {
+            rowIndex: Math.floor(Math.random() * numRows),
+            colIndex: Math.floor(Math.random() * numCols)
         };
         console.log("completedCards", completedCards);
-        
+
         // Convert to coordinate string (e.g., "A1", "B2", etc.)
         const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-        
+
         while (completedCards.includes(coordString)) {
-            tempCO = { 
-                rowIndex: Math.floor(Math.random() * numRows), 
-                colIndex: Math.floor(Math.random() * numCols) 
+            tempCO = {
+                rowIndex: Math.floor(Math.random() * numRows),
+                colIndex: Math.floor(Math.random() * numCols)
             };
             const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
             if (!completedCards.includes(newCoordString)) {
@@ -167,10 +183,11 @@ const RandomImageGridWrapper: React.FC = () => {
             randomCO,
             clueCellContent,
             frontCellContent: frontCellContentState,
-            completedCards
+            completedCards,
+            correctlyGuessedGrid
         };
         setSearchParams({ state: encodeState(state) });
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent]);
+    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid]);
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -200,19 +217,28 @@ const RandomImageGridWrapper: React.FC = () => {
             if (rowIndex === 100 && colIndex === 100) {
                 console.log("Setting viewingClue to true");
                 setViewingClue(true);
+                setIsEditing(true);
             } else {
                 console.log("Setting viewingClue to false");
                 setViewingClue(false);
+                setIsEditing(false);
             }
 
             if (rowIndex === randomCO?.rowIndex && colIndex === randomCO?.colIndex) {
                 // Correct card chosen
+                setClueCellContent("?");
+                setEditValue("?");
                 setTimeout(() => {
                     console.log("User flipped the correct card")
                     setFlippedCardState(null);
-                    setClueCellContent("?");
                     setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]);
                     setViewingClue(false);
+                    setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
+                        const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
+                        newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
+                        return newCorrectlyGuessedGrid;
+                    });
+
                 }, 1000);
 
                 setTimeout(() => {
@@ -222,7 +248,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         return newFrontCellContent;
                     });
                     regenerateRandomCO();
-                }, 100);
+                }, 1500);
             }
         };
     }
@@ -236,51 +262,108 @@ const RandomImageGridWrapper: React.FC = () => {
         setViewingClue(boolean);
     }
 
-    return (
-        <div className="flex flex-col flex-start space-y-0 py-10">
-            <div className="h-[90vh] overflow-y-auto">
-            {
-                gridView ?
-                    rowHeaders.length &&
-                    <CCGrid
-                        rowHeaders={rowHeaders}
-                        colHeaders={colHeaders}
-                        cellSize="size-[calc(100vw/6)] max-w-[110px] max-h-[110px]"
-                        randomCO={randomCO}
-                        numRows={numRows}
-                        numCols={numCols}
-                        frontCellContent={frontCellContentState}
-                        handleCardFlip={handleCardFlip}
-                        clueCellContent={clueCellContent}
-                        handleClueCellEdit={handleClueCellEdit}
-                        flippedCard={flippedCardState}
-                        resetFlippedCardState={resetFlippedCardState}
-                        completedCards={completedCards}
-                        setViewingClue={isViewingClue} 
-                        viewingClue={viewingClue}
-                    /> :
-                    <CCRows
-                        rowHeaders={rowHeaders}
-                        colHeaders={colHeaders}
-                        cellSize="size-[150px]"
-                    />
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEditValue(e.target.value);
+    };
+
+    const handleViewClue = () => {
+        if (clueCellContent === "?") {
+            handleCardFlip(100, 100, true);
+            setButtonState('give');
+        }
+    };
+
+    const handleGiveClue = () => {
+        setButtonState('input');
+    };
+
+    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            if (editValue.split(' ').length >= 2) {
+                alert('Please enter a single word');
             }
+            else if (editValue !== '') {
+                handleClueCellEdit(editValue);
+                setEditValue('?');
+                setButtonState('view');
+                setFlippedCardState(null);
+            }
+            setIsEditing(false);
+            setViewingClue(false);
+        }
+    };
+
+    const buttonClasses = "text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+
+    return (
+        <div className="flex flex-col flex-start space-y-2 py-5 overflow-y-auto">
+            <div className="h-full overflow-y-auto">
+                {
+                    gridView ?
+                        rowHeaders.length &&
+                        <CCGrid
+                            rowHeaders={rowHeaders}
+                            colHeaders={colHeaders}
+                            cellSize="size-[calc(100vw/6)] max-w-[110px] max-h-[110px]"
+                            randomCO={randomCO}
+                            numRows={numRows}
+                            numCols={numCols}
+                            frontCellContent={frontCellContentState}
+                            handleCardFlip={handleCardFlip}
+                            clueCellContent={clueCellContent}
+                            handleClueCellEdit={handleClueCellEdit}
+                            flippedCard={flippedCardState}
+                            resetFlippedCardState={resetFlippedCardState}
+                            completedCards={completedCards}
+                            setViewingClue={isViewingClue}
+                            viewingClue={viewingClue}
+                            correctlyGuessedGrid={correctlyGuessedGrid}
+                        /> :
+                        <CCRows
+                            rowHeaders={rowHeaders}
+                            colHeaders={colHeaders}
+                            cellSize="size-[150px]"
+                        />
+                }
             </div>
-            <div className="relative flex flex-row justify-end items-end">
-                {/*<button*/}
-                {/*    onClick={() => {*/}
-                {/*        setRowSlice(rowSlice + 10)*/}
-                {/*        setColSlice(colSlice + 10)*/}
-                {/*    }}*/}
-                {/*    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"*/}
-                {/*>*/}
-                {/*    Regenerate Headers*/}
-                {/*</button>*/}
+            <div className="relative flex flex-row justify-end items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                    {buttonState === 'view' && (
+                        <button
+                            onClick={handleViewClue}
+                            className={buttonClasses}
+                        >
+                            View Clue
+                        </button>
+                    )}
+                    {buttonState === 'give' && (
+                        <button
+                            onClick={handleGiveClue}
+                            className={buttonClasses}
+                        >
+                            Give Clue
+                        </button>
+                    )}
+                    {buttonState === 'input' && (
+                        <input
+                            type="text"
+                            value={editValue === '?' ? '' : editValue}
+                            placeholder="Give a clue for:"
+                            onChange={handleInputChange}
+                            onKeyDown={handleInputKeyDown}
+                            className="w-32 text-center text-sm px-2 py-1 placeholder:text-gray-300
+                            focus:outline-none focus:ring-0 focus:border-gray-500 border-b-2 border-gray-500
+                            bg-transparent border-t-0 border-l-0 border-r-0"
+                            autoFocus
+                        />
+                    )}
+                </div>
+
                 <button
                     onClick={() => {
                         setGridView(!gridView);
                     }}
-                    className=" size-10 p-2 text-black rounded"
+                    className="size-10 p-2 text-black rounded"
                 > {
                         gridView ?
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
@@ -294,7 +377,6 @@ const RandomImageGridWrapper: React.FC = () => {
                                     d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                             </svg>
                     }
-
                 </button>
             </div>
         </div>

@@ -22,7 +22,6 @@ interface CCCardProps {
     resetFlippedCardState: () => void;
     setViewingClue: (boolean: boolean) => void;
     highlightClass: string;
-    /** Whether this card should be highlighted (when clue cell is being viewed) */
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -43,34 +42,49 @@ const CCCard: React.FC<CCCardProps> = ({
     setViewingClue,
     highlightClass,
 }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(frontContent);
-    const [isCorrect, setIsCorrect] = useState(correctCard);
-    const [fontSize, setFontSize] = useState('text-2xl');
     const [clickEffectClass, setClickEffectClass] = useState('');
-    const contentRef = useRef<HTMLSpanElement>(null);
+    const [frontTextSize, setFrontTextSize] = useState(54);
+    const [backTextSize, setBackTextSize] = useState(54);
+    const frontContentRef = useRef<HTMLSpanElement>(null);
+    const backContentRef = useRef<HTMLSpanElement>(null);
+    const frontContainerRef = useRef<HTMLDivElement>(null);
+    const backContainerRef = useRef<HTMLDivElement>(null);
 
-    // Add effect to sync editValue with frontContent
     useEffect(() => {
-        setEditValue(frontContent);
-    }, [frontContent]);
+        if (frontContentRef.current && frontContainerRef.current) {
+            const content = frontContentRef.current;
+            const container = frontContainerRef.current;
+            let currentSize = 54;
+            content.style.fontSize = `${currentSize}px`;
 
-    useEffect(() => {
-        if (contentRef.current) {
-            const content = contentRef.current;
-            const parent = content.parentElement;
-            if (parent) {
-                // Start with a large font size and reduce until it fits
-                let currentSize = 54;
+            // Get the actual width of the container, accounting for padding
+            const containerWidth = container.clientWidth - 18; // 20px for padding
+
+            while (content.scrollWidth > containerWidth && currentSize > 8) {
+                currentSize -= 2;
                 content.style.fontSize = `${currentSize}px`;
-
-                while (content.scrollWidth > parent.clientWidth - 20 && currentSize > 6) {
-                    currentSize -= 2;
-                    content.style.fontSize = `${currentSize}px`;
-                }
             }
+            setFrontTextSize(currentSize);
         }
     }, [frontContent]);
+
+    useEffect(() => {
+        if (backContentRef.current && backContainerRef.current) {
+            const content = backContentRef.current;
+            const container = backContainerRef.current;
+            let currentSize = 54;
+            content.style.fontSize = `${currentSize}px`;
+
+            // Get the actual width of the container, accounting for padding
+            const containerWidth = container.clientWidth - 20; // 20px for padding
+
+            while (content.scrollWidth > containerWidth && currentSize > 8) {
+                currentSize -= 2;
+                content.style.fontSize = `${currentSize}px`;
+            }
+            setBackTextSize(currentSize);
+        }
+    }, [backContent]);
 
     const baseClasses = `flip-card 
         aspect-square flex items-center justify-center
@@ -81,60 +95,14 @@ const CCCard: React.FC<CCCardProps> = ({
     const incorrectCardClasses = `border-red-500`;
 
     const cardClickHandler = () => {
-        if (!isEditing) {
-            if (!isFlipped && !clueCell) {
-                setTimeout(() => {
-                    setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
-                    if (correctCard) {
-                        setEditValue('');
-                    }
-                }, 350);
-            } else if (clueCell) {
-                console.log("Clue cell clicked, setting editing to true");
-                setIsEditing(true);
-                setViewingClue(true);
-            } else {
-                setClickEffectClass('');
-            }
-            handleCardFlip(rowIndex, colIndex, clueCell);
+        if (!isFlipped && !clueCell) {
+            setTimeout(() => {
+                setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
+            }, 350);
         }
+        handleCardFlip(rowIndex, colIndex, clueCell);
     }
 
-    const handleEditClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent card flip when clicking edit
-        setIsEditing(true);
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEditValue(e.target.value);
-    };
-
-    const saveClue = () => {
-        console.log("Saving clue, setting editing to false");
-        setIsEditing(false);
-        resetFlippedCardState();
-        setViewingClue(false);
-        if (editValue.split(' ').length >= 2) {
-            alert('Please enter a single word');
-        }
-        else if (onContentEdit && editValue !== '') {
-            resetFlippedCardState();
-            setViewingClue(false);
-            onContentEdit(editValue);
-        }
-    }
-
-    const handleInputBlur = () => {
-        saveClue()
-    };
-
-    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            saveClue()
-        }
-    };
-
-    
     return (
         <div
             className={`${baseClasses} ${highlightClass} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : ''}`}
@@ -142,17 +110,18 @@ const CCCard: React.FC<CCCardProps> = ({
         >
             <div className="flip-card-inner">
                 <div className={`flip-card-front bg-white flex items-center justify-center ${frontClassName}`}>
-                    {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
+                    {/* {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
                         <span
-                            className="text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
+                            className="max-md:hidden text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
                         >
                             {frontContent != '?' ? 'Your clue:' : 'Set clue'}
                         </span>
-                    </div>}
-                    <div className="w-full h-full flex items-center justify-center p-2">
+                    </div>} */}
+                    <div ref={frontContainerRef} className="w-full h-full flex items-center justify-center p-2">
                         {(
                             <span
-                                ref={contentRef}
+                                ref={frontContentRef}
+                                style={{ fontSize: `${frontTextSize}px` }}
                                 className={`
                                     ${frontClassName}
                                     w-[95%]
@@ -167,27 +136,13 @@ const CCCard: React.FC<CCCardProps> = ({
                     </div>
                 </div>
                 <div className={`flip-card-back bg-white flex items-center justify-center ${backClassName}`}>
-                    <div className="w-full h-full flex items-center justify-center p-2">
-                        {isEditing ? (
-                            <div className="w-full h-full flex flex-col items-center justify-between py-2">
-                                <input
-                                    type="text"
-                                    value={editValue === '?' ? '' : editValue}
-                                    placeholder="Give a clue for:"
-                                    onChange={handleInputChange}
-                                    onBlur={handleInputBlur}
-                                    onKeyDown={handleInputKeyDown}
-                                    className="w-24 text-center text-sm px-1 py-0 placeholder:text-gray-300 text-[9pt] pb-0 h-10
-                                    focus:outline-none focus:ring-0 focus:ring-gray-100 focus:border-gray-100 focus:border-0 focus:border-b-2 focus:border-b-gray-100
-                                    outline-none ring-0 ring-gray-100 border-gray-100 border-0 border-b-2 border-b-gray-100
-                                    "
-                                    autoFocus
-                                />
-                                <span className={`text-[40px] pb-0`}> {backContent} </span>
-                            </div>
-                        ) : (
-                            <span className={`text-[54px]`}> {backContent} </span>
-                        )}
+                    <div ref={backContainerRef} className="w-full h-full flex items-center justify-center p-2">
+                        <span 
+                            ref={backContentRef}
+                            style={{ fontSize: `${backTextSize}px` }}
+                        > 
+                            {backContent} 
+                        </span>
                     </div>
                 </div>
             </div>
