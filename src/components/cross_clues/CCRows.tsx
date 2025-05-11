@@ -17,11 +17,11 @@ interface RowProps {
 }
 
 const CCRows: React.FC<RowProps> = ({
-                                        rowHeaders,
-                                        colHeaders,
-                                        className = '',
-                                        cellSize = '', // Default to empty, letting aspect-square manage size based on container width
-                                    }) => {
+    rowHeaders,
+    colHeaders,
+    className = '',
+    cellSize = '', // Default to empty, letting aspect-square manage size based on container width
+}) => {
     const numRows = 5;
     const numCols = 5;
 
@@ -63,8 +63,8 @@ const CCRows: React.FC<RowProps> = ({
         isTop: boolean = false
     ) => {
         const baseClasses = `flex items-center justify-center
-      overflow-hidden p-1 text-center bg-white border border-gray-100 border-4 rounded-2xl font-bold text-gray-500
-      ${isTop ? 'rounded-b' : ' rounded-t'}`; // Added overflow-hidden, padding, text-center
+       p-1 text-center bg-white border border-gray-100 border-4 rounded-2xl font-bold text-gray-500
+      ${isTop ? 'md:rounded-b max-md:rounded-r' : 'md:rounded-t max-md:rounded-l'}`; // Added overflow-hidden, padding, text-center
         // const headerClasses = isTop ? 'rounded-b' : ' rounded-t';
         // Ensure images within cells are contained and centered
         const contentWrapperClasses = 'max-w-full max-h-full object-contain flex items-center justify-center'; // Added flex centering here too
@@ -78,7 +78,7 @@ const CCRows: React.FC<RowProps> = ({
     };
 
     // Generate column letters ('A', 'B', ...)
-    const colLetters = Array.from({length: numCols}, (_, i) =>
+    const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
     );
 
@@ -86,47 +86,30 @@ const CCRows: React.FC<RowProps> = ({
     return (
         // The main grid container. grid-cols-6 because we have 1 header col + 5 data cols.
         // gap-0 ensures borders touch cleanly.
-        <div
-            className={`grid grid-cols-5 gap-0 border border-gray-100 ${className}`}
-            style={{width: 'fit-content'}} // Ensure container shrinks to fit content if no specific width/cellSize is given
-        >
-            {/* Top-left empty corner cell */}
-            {/*{renderCell('', 'corner-cell', true)}*/}
+        <>
+            <div
+                className={`grid md:grid-cols-5 max-md:grid-rows-5 max-md:grid-flow-col gap-0 border border-gray-100 ${className}`}
+                style={{ width: 'fit-content' }} // Ensure container shrinks to fit content if no specific width/cellSize is given
+            >
+                {/* Top-left empty corner cell */}
+                {/*{renderCell('', 'corner-cell', true)}*/}
 
-            {/* Column Headers */}
-            {colHeaders.map((header, index) =>
-                renderHeader(`${colLetters[index]}`, `col-header-${index}`, true)
-            )}
-            {colHeaders.map((header, index) =>
-                renderCell(header, `col-header-${index}`, true)
-            )}
-            {rowHeaders.map((header, index) =>
-                renderCell(header, `col-header-${index}`, true)
-            )}
-            {/* Column Headers */}
-            {colHeaders.map((header, index) =>
-                renderHeader(`${index + 1}`, `row-header-${index}`, false)
-            )}
-
-            {/*/!* Rows: Each row contains a Row Header + Data Cells *!/*/}
-            {/*{Array.from({length: numRows}).map((_, rowIndex) => (*/}
-            {/*    // Using React.Fragment for key prop on the group of elements per row*/}
-            {/*    <React.Fragment key={`row-${rowIndex}`}>*/}
-            {/*        /!* Row Header *!/*/}
-            {/*        {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true)}*/}
-
-            {/*        /!* Data Cells for the current row *!/*/}
-            {/*        {Array.from({length: numCols}).map((_, colIndex) => {*/}
-            {/*            const cellContent = `${colLetters[colIndex]}${rowIndex + 1}`;*/}
-            {/*            return renderCell(*/}
-            {/*                cellContent,*/}
-            {/*                `cell-${rowIndex}-${colIndex}`,*/}
-            {/*                false*/}
-            {/*            );*/}
-            {/*        })}*/}
-            {/*    </React.Fragment>*/}
-            {/*))}*/}
-        </div>
+                {/* Column Headers */}
+                {colHeaders.map((header, index) =>
+                    renderHeader(`${colLetters[index]}`, `col-header-${index}`, true)
+                )}
+                {colHeaders.map((header, index) =>
+                    renderCell(header, `col-header-${index}`, true)
+                )}
+                {rowHeaders.map((header, index) =>
+                    renderCell(header, `col-header-${index}`, true)
+                )}
+                {/* Column Headers */}
+                {colHeaders.map((header, index) =>
+                    renderHeader(`${index + 1}`, `row-header-${index}`, false)
+                )}
+            </div>
+        </>
     ); // End of the returned JSX element
 }; // End of the GridComponent function
 

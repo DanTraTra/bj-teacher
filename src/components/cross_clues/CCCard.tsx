@@ -59,7 +59,7 @@ const CCCard: React.FC<CCCardProps> = ({
                 let currentSize = 54;
                 content.style.fontSize = `${currentSize}px`;
 
-                while (content.scrollWidth > parent.clientWidth - 20 && currentSize > 4) {
+                while (content.scrollWidth > parent.clientWidth - 20 && currentSize > 24) {
                     currentSize -= 2;
                     content.style.fontSize = `${currentSize}px`;
                 }
