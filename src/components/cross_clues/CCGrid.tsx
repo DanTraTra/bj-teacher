@@ -28,6 +28,7 @@ interface GridProps {
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
+    handleHeaderClick: (header: React.ReactNode) => void;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -48,6 +49,7 @@ const CCGrid: React.FC<GridProps> = ({
     handleCardFlip,
     setViewingClue,
     viewingClue,
+    handleHeaderClick,
 }) => {
 
     // TODO: Add the clue to the chosen correct cell
@@ -79,7 +81,7 @@ const CCGrid: React.FC<GridProps> = ({
         const contentWrapperClasses = 'max-w-full max-h-full object-contain flex items-center justify-center'; // Added flex centering here too
 
         return (
-            <div key={key} className={`${baseClasses} ${headerClasses}`}>
+            <div key={key} className={`${baseClasses} ${headerClasses}`} onClick={() => {handleHeaderClick(content)}}>
                 {/* Wrap content, especially useful if it's an image */}
                 <div className={contentWrapperClasses}>{content}</div>
             </div>
@@ -92,26 +94,33 @@ const CCGrid: React.FC<GridProps> = ({
         String.fromCharCode(65 + i)
     );
 
-    console.log("completedCards", completedCards)
+    // console.log("completedCards", completedCards)
 
     return (
         // The main grid container. grid-cols-6 because we have 1 header col + 5 data cols.
         // gap-0 ensures borders touch cleanly.
+            
+
         <div
             className={`grid grid-cols-6 gap-0 ${className}`}
             style={{ width: 'fit-content' }} // Ensure container shrinks to fit content if no specific width/cellSize is given
-        >
+        > 
             {/* Top-left clue cell */}
             <CCCard
-                frontContent={clueCellContent}
+                frontContent={
+                    // clueCellContent
+                    " "
+                }
                 backContent={`${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`}
                 beginsFlipped={false}
                 cellSize={cellSize}
-                frontClassName="text-gray-500"
-                backClassName="text-gray-500"
+                frontClassName="text-gray-500 bg-gray"
+                backClassName="text-gray-500 bg-gray"
                 clueCell={true}
-                onContentEdit={handleClueCellEdit}
-                isFlipped={flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100}
+                // onContentEdit={handleClueCellEdit}
+                isFlipped={
+                    flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100
+                }
                 // handleCardFlip={handleCardFlip}
                 handleCardFlip={() => {}}
                 rowIndex={100}
@@ -119,21 +128,6 @@ const CCGrid: React.FC<GridProps> = ({
                 resetFlippedCardState={resetFlippedCardState}
                 setViewingClue={setViewingClue}
                 highlightClass={"border-gray-100"}
-                // frontContent={clueCellContent}
-                // backContent={`${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`}
-                // beginsFlipped={false}
-                // cellSize={cellSize}
-                // frontClassName="text-gray-500"
-                // backClassName="text-gray-500"
-                // clueCell={true}
-                // onContentEdit={handleClueCellEdit}
-                // isFlipped={flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100}
-                // handleCardFlip={handleCardFlip}
-                // rowIndex={100}
-                // colIndex={100}    
-                // resetFlippedCardState={resetFlippedCardState}
-                // setViewingClue={setViewingClue}
-                // highlightClass={"border-gray-100"}
             />
 
             {/* Column Headers */}
@@ -154,18 +148,20 @@ const CCGrid: React.FC<GridProps> = ({
                         const highlightCard = viewingClue && cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`;
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                         if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
-
+                        // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
+                        // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
+                        const correct_card = cellContent == `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'correct' : (cellContent[0] == `${colLetters[randomCO!.colIndex]}` || cellContent[1] == `${randomCO!.rowIndex + 1}`) ? 'close': 'incorrect'
                         return (
                         <CCCard
                             key={`cell-${colIndex}-${rowIndex}`}
                             frontContent={cellContent}
-                            backContent={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? '✓' : '✗'}
+                            backContent={correct_card == 'correct' ? '✓' : correct_card == 'close' ? '○' : '✗'}
                             beginsFlipped={false}
                             cellSize={cellSize}
-                            frontClassName={`${highlightClasses} hover:text-gray-500`}
-                            backClassName={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'text-green-500' : 'text-red-500'}
+                            frontClassName={`${highlightClasses}`}
+                            backClassName={correct_card == 'correct' ? 'text-green-500' : correct_card == 'close' ? 'text-orange-400' : 'text-red-500'}
                             clueCell={false}
-                            correctCard={cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? true : false}
+                            correctCard={correct_card}
                             isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
                             handleCardFlip={handleCardFlip}
                             rowIndex={rowIndex}

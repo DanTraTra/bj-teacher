@@ -12,16 +12,20 @@ const encodeState = (state: {
     clueCellContent: string | null,
     frontCellContent: string[][],
     completedCards: string[],
-    correctlyGuessedGrid: boolean[][]
+    correctlyGuessedGrid: boolean[][],
+    incorrectGuessCountP1: number[],
+    incorrectGuessCountP2: number[],
 }) => {
-    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid } = state;
+    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2 } = state;
     return btoa(JSON.stringify({
         in: image_numbers,
         rc: randomCO,
         ccc: clueCellContent,
         fc: frontCellContent,
         cc: completedCards,
-        cg: correctlyGuessedGrid    
+        cg: correctlyGuessedGrid,
+        igc1: incorrectGuessCountP1,
+        igc2: incorrectGuessCountP2,
     }));
 };
 
@@ -34,7 +38,9 @@ const decodeState = (encoded: string) => {
             clueCellContent: decoded.ccc,
             frontCellContent: decoded.fc,
             completedCards: decoded.cc,
-            correctlyGuessedGrid: decoded.cg
+            correctlyGuessedGrid: decoded.cg,
+            incorrectGuessCountP1: decoded.igc1,
+            incorrectGuessCountP2: decoded.igc2,
         };
     } catch (e) {
         return null;
@@ -52,20 +58,26 @@ const decodeState = (encoded: string) => {
 
 
 const RandomImageGridWrapper: React.FC = () => {
+    const [playerTurn, setPlayerTurn] = useState<'One' | 'Two'>('One')
+    const [playerAction, setPlayerAction] = useState<'view card & give clue' | 'guess the card'>('view card & give clue')
     const [searchParams, setSearchParams] = useSearchParams();
     const [viewingClue, setViewingClue] = useState<boolean>(false);
     const [gridView, setGridView] = useState<boolean>(true)
     const [rowHeaders, setRowHeaders] = useState<React.JSX.Element[]>([]);
     const [colHeaders, setColHeaders] = useState<React.JSX.Element[]>([]);
+    const [bigImage, setBigImage] = useState<React.ReactNode | null>(null);
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
     const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>([]);
     const [completedCards, setCompletedCards] = useState<string[]>([]);
+    const [incorrectGuessCountP1, setIncorrectGuessCountP1] = useState<number[]>([]);
+    const [incorrectGuessCountP2, setIncorrectGuessCountP2] = useState<number[]>([]);
+    const [incorrectGuesses, setIncorrectGuesses] = useState<number>(0)
     const [clueCellContent, setClueCellContent] = useState<string>("?");
     const [editValue, setEditValue] = useState<string>("?");
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [buttonState, setButtonState] = useState<'view' | 'give' | 'input'>('view');
+    const [buttonState, setButtonState] = useState<'view' | 'give' | 'input' | null>('view');
     const numRows = 5;
     const numCols = 5;
 
@@ -86,6 +98,8 @@ const RandomImageGridWrapper: React.FC = () => {
                 setCompletedCards(decodedState.completedCards);
                 setClueCellContent(decodedState.clueCellContent);
                 setCorrectlyGuessedGrid(decodedState.correctlyGuessedGrid);
+                setIncorrectGuessCountP1(decodedState.incorrectGuessCountP1);
+                setIncorrectGuessCountP2(decodedState.incorrectGuessCountP2);
             }
         } else {
             // Only generate new random numbers if there's no URL state
@@ -152,7 +166,7 @@ const RandomImageGridWrapper: React.FC = () => {
             rowIndex: Math.floor(Math.random() * numRows),
             colIndex: Math.floor(Math.random() * numCols)
         };
-        console.log("completedCards", completedCards);
+        // console.log("completedCards", completedCards);
 
         // Convert to coordinate string (e.g., "A1", "B2", etc.)
         const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
@@ -184,10 +198,12 @@ const RandomImageGridWrapper: React.FC = () => {
             clueCellContent,
             frontCellContent: frontCellContentState,
             completedCards,
-            correctlyGuessedGrid
+            correctlyGuessedGrid,
+            incorrectGuessCountP1,
+            incorrectGuessCountP2,
         };
         setSearchParams({ state: encodeState(state) });
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid]);
+    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2,]);
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -202,23 +218,24 @@ const RandomImageGridWrapper: React.FC = () => {
     }
     // Handler for card flips
     const handleCardFlip = (rowIndex: number, colIndex: number, clueCell: boolean) => {
-        console.log("rowIndex", rowIndex)
-        console.log("colIndex", colIndex)
+        // console.log("rowIndex", rowIndex)
+        // console.log("colIndex", colIndex)
         if (clueCellContent === "?" && !clueCell) {
             alert("Your partner needs to give a clue first!");
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
             // setFlippedCardState(null);
             // console.log("setting flippedCardState to null", flippedCardState)
         } else {
-            setFlippedCardState({ rowIndex, colIndex });
-            console.log("frontCellContentState", frontCellContentState)
-            console.log("randomCO", randomCO)
+            // setFlippedCardState({ rowIndex, colIndex });
+            // console.log("frontCellContentState", frontCellContentState)
+            // console.log("randomCO", randomCO)
 
             if (rowIndex === 100 && colIndex === 100) {
                 console.log("Setting viewingClue to true");
                 setViewingClue(true);
                 setIsEditing(true);
             } else {
+                setFlippedCardState({ rowIndex, colIndex });
                 console.log("Setting viewingClue to false");
                 setViewingClue(false);
                 setIsEditing(false);
@@ -228,16 +245,22 @@ const RandomImageGridWrapper: React.FC = () => {
                 // Correct card chosen
                 setClueCellContent("?");
                 setEditValue("?");
+                setPlayerAction("view card & give clue")
+
+                setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
+                    const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
+                    newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
+                    return newCorrectlyGuessedGrid;
+                });
+                setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]);
+
+                playerTurn == 'One' ? setIncorrectGuessCountP1(current => [...current, incorrectGuesses]) : setIncorrectGuessCountP2(current => [...current, incorrectGuesses])
+                setIncorrectGuesses(0)
+
                 setTimeout(() => {
                     console.log("User flipped the correct card")
                     setFlippedCardState(null);
-                    setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]);
                     setViewingClue(false);
-                    setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
-                        const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
-                        newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
-                        return newCorrectlyGuessedGrid;
-                    });
 
                 }, 1000);
 
@@ -247,15 +270,45 @@ const RandomImageGridWrapper: React.FC = () => {
                         newFrontCellContent[rowIndex][colIndex] = clueCellContent;
                         return newFrontCellContent;
                     });
-                    regenerateRandomCO();
+                    // regenerateRandomCO();
                 }, 1500);
+            } else if (!clueCell) {
+                setIncorrectGuesses(current => current + 1)
             }
         };
     }
 
     useEffect(() => {
-        console.log("viewingClue changed to:", viewingClue)
-    }, [viewingClue])
+        console.log("completedCards:", completedCards)
+        setTimeout(() => {
+            regenerateRandomCO();
+        }, 1500)
+
+        if (completedCards.length % 2 != 0) {
+            setPlayerTurn('Two')
+        } else {
+            setPlayerTurn('One')
+        }
+    }, [completedCards])
+
+    useEffect(() => {
+        if (clueCellContent !== "?") {
+            setButtonState(null);
+            setPlayerAction('guess the card');
+            if (completedCards.length % 2 != 0) {
+                setPlayerTurn('One')
+            } else {
+                setPlayerTurn('Two')
+            }
+        } else {
+            // setPlayerTurn(current => current == 'One' ? 'Two' : 'One')
+            setButtonState("view")
+        }
+    }, [clueCellContent])
+
+    // useEffect(() => {
+    //     // setPlayerTurn(current => current=='One' ? 'Two' : 'One')
+    // }, [clueCellContent])
 
     const isViewingClue = (boolean: boolean) => {
         console.log("isViewingClue called with:", boolean);
@@ -266,7 +319,7 @@ const RandomImageGridWrapper: React.FC = () => {
         setEditValue(e.target.value);
     };
 
-    const handleViewClue = () => {
+    const handleViewCard = () => {
         if (clueCellContent === "?") {
             handleCardFlip(100, 100, true);
             setButtonState('give');
@@ -275,6 +328,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const handleGiveClue = () => {
         setButtonState('input');
+        setViewingClue(false);
+        setIsEditing(false);
+        setFlippedCardState(null);
     };
 
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -287,97 +343,165 @@ const RandomImageGridWrapper: React.FC = () => {
                 setEditValue('?');
                 setButtonState('view');
                 setFlippedCardState(null);
+                setBigImage(null);
+                setPlayerAction('guess the card');
             }
-            setIsEditing(false);
-            setViewingClue(false);
         }
     };
+
+    const handleInputBlur = () => {
+        if (editValue.split(' ').length >= 2) {
+            alert('Please enter a single word');
+        }
+        else if (editValue !== '') {
+            handleClueCellEdit(editValue);
+            setEditValue('?');
+            setButtonState('view');
+            setFlippedCardState(null);
+        }
+
+    };
+
+    const handleInputFocus = () => {
+        setButtonState('input')
+    }
+
+    const handleHeaderClick = (header: React.ReactNode) => {
+        setBigImage(header)
+    }
 
     const buttonClasses = "text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
 
     return (
-        <div className="flex flex-col flex-start space-y-2 py-5 overflow-y-auto">
-            <div className="h-full overflow-y-auto">
-                {
-                    gridView ?
-                        rowHeaders.length &&
-                        <CCGrid
-                            rowHeaders={rowHeaders}
-                            colHeaders={colHeaders}
-                            cellSize="size-[calc(100vw/6)] max-w-[110px] max-h-[110px]"
-                            randomCO={randomCO}
-                            numRows={numRows}
-                            numCols={numCols}
-                            frontCellContent={frontCellContentState}
-                            handleCardFlip={handleCardFlip}
-                            clueCellContent={clueCellContent}
-                            handleClueCellEdit={handleClueCellEdit}
-                            flippedCard={flippedCardState}
-                            resetFlippedCardState={resetFlippedCardState}
-                            completedCards={completedCards}
-                            setViewingClue={isViewingClue}
-                            viewingClue={viewingClue}
-                            correctlyGuessedGrid={correctlyGuessedGrid}
-                        /> :
-                        <CCRows
-                            rowHeaders={rowHeaders}
-                            colHeaders={colHeaders}
-                            cellSize="size-[150px]"
-                        />
-                }
+        <div className='flex flex-col h-full justify-center pb-4'>
+            <div className="flex flex-col flex-start max-h-[50vh]" onClick={() => setBigImage(null)}>
+                {bigImage}
             </div>
-            <div className="relative flex flex-row justify-end items-center space-x-2">
-                <div className="flex items-center space-x-2">
-                    {buttonState === 'view' && (
-                        <button
-                            onClick={handleViewClue}
-                            className={buttonClasses}
-                        >
-                            View Clue
-                        </button>
-                    )}
-                    {buttonState === 'give' && (
-                        <button
-                            onClick={handleGiveClue}
-                            className={buttonClasses}
-                        >
-                            Give Clue
-                        </button>
-                    )}
-                    {buttonState === 'input' && (
-                        <input
-                            type="text"
-                            value={editValue === '?' ? '' : editValue}
-                            placeholder="Give a clue for:"
-                            onChange={handleInputChange}
-                            onKeyDown={handleInputKeyDown}
-                            className="w-32 text-center text-sm px-2 py-1 placeholder:text-gray-300
+            {/* <div className='flex flex-col items-center justify-start pt-5'>
+                <span className='text-xs text-gray-400'>
+                    Your Clue
+                </span>
+                <span className='text-2xl text-gray-800'>
+                    {clueCellContent}
+                </span>
+            </div> */}
+            <div className="flex flex-row justify-center py-2">
+                <span className='text-xs text-gray-400'>Player {playerTurn}'s turn to {playerAction}</span>
+            </div>
+            {clueCellContent != '?' && <div className='flex flex-col items-center justify-start'>
+                {/* <span className='text-xs text-gray-400'>
+                    Your Clue
+                </span> */}
+                <span className='text-2xl text-gray-800'>
+                    {clueCellContent}
+                </span>
+            </div>}
+            <div className="flex flex-col flex-start items-center space-y-1 py-3 overflow-y-auto">
+                <div className="h-full overflow-y-auto">
+                    {
+                        gridView ?
+                            rowHeaders.length &&
+                            <CCGrid
+                                rowHeaders={rowHeaders}
+                                colHeaders={colHeaders}
+                                cellSize="size-[calc(100vw/6)] max-w-[80px] max-h-[80px]"
+                                randomCO={randomCO}
+                                numRows={numRows}
+                                numCols={numCols}
+                                frontCellContent={frontCellContentState}
+                                handleCardFlip={handleCardFlip}
+                                clueCellContent={clueCellContent}
+                                handleClueCellEdit={handleClueCellEdit}
+                                flippedCard={flippedCardState}
+                                resetFlippedCardState={resetFlippedCardState}
+                                completedCards={completedCards}
+                                setViewingClue={isViewingClue}
+                                viewingClue={viewingClue}
+                                correctlyGuessedGrid={correctlyGuessedGrid}
+                                handleHeaderClick={handleHeaderClick}
+                            /> :
+                            <CCRows
+                                rowHeaders={rowHeaders}
+                                colHeaders={colHeaders}
+                                cellSize="size-[150px]"
+                            />
+                    }
+                </div>
+                <div className={`flex flex-row justify-start pb-1 w-full`}>
+                    {Array.from({ length: incorrectGuesses }).map((_, idx) => (
+                        <div key={idx} className='h-1.5 w-full my-0.5 mx-1 bg-red-300'></div>))}
+                </div>
+                <div className='w-full px-3 py-1'>
+                    <div className="flex flex-row w-full justify-start py-1 items-center">
+                        <span className='text-xs text-gray-400 pr-1 font-bold w-[90px]'>PLAYER ONE:</span>
+                        <div className='flex flex-row space-x-1 pr-1'>
+                            {incorrectGuessCountP1.map((count, idx) => (
+                                <div key={idx} className='flex justify-center items-start font-bold text-xs text-bold text-red-600 size-4 bg-gray-100 rounded-full'>{count}</div>))}
+                        </div>
+                    </div>
+                    <div className="flex flex-row w-full justify-start py-1 items-center">
+                        <span className='text-xs text-gray-400 pr-1 font-bold w-[90px]'>PLAYER TWO:</span>
+                        <div className='flex flex-row space-x-1 pr-1'>
+                            {incorrectGuessCountP2.map((count, idx) => (
+                                <div key={idx} className='flex justify-center items-start font-bold text-xs text-bold text-red-600 size-4 bg-gray-100 rounded-full'>{count}</div>))}
+                        </div>
+                    </div>
+                </div>
+                <div className="w-full relative flex flex-row justify-end items-center space-x-2">
+                    <div className="flex items-center space-x-2">
+                        {(buttonState == 'view' || buttonState == 'input') && (
+                            <button
+                                onClick={handleViewCard}
+                                className={buttonClasses}
+                            >
+                                View Card
+                            </button>
+                        )}
+                        {buttonState == 'give' && (
+                            <button
+                                onClick={handleGiveClue}
+                                className={buttonClasses}
+                            >
+                                Give Clue
+                            </button>
+                        )}
+                        {buttonState === 'input' && (
+                            <input
+                                type="text"
+                                value={editValue === '?' ? '' : editValue}
+                                placeholder="Give a clue for:"
+                                onChange={handleInputChange}
+                                onKeyDown={handleInputKeyDown}
+                                onBlur={handleInputBlur}
+                                onFocus={handleInputFocus}
+                                className="w-32 text-center text-sm px-2 py-1 placeholder:text-gray-300
                             focus:outline-none focus:ring-0 focus:border-gray-500 border-b-2 border-gray-500
                             bg-transparent border-t-0 border-l-0 border-r-0"
-                            autoFocus
-                        />
-                    )}
-                </div>
+                                autoFocus
+                            />
+                        )}
+                    </div>
 
-                <button
-                    onClick={() => {
-                        setGridView(!gridView);
-                    }}
-                    className="size-10 p-2 text-black rounded"
-                > {
-                        gridView ?
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                stroke="currentColor" className="size-full">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
-                            </svg> :
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                stroke="currentColor" className="size-full">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                            </svg>
-                    }
-                </button>
+                    <button
+                        onClick={() => {
+                            setGridView(!gridView);
+                        }}
+                        className="size-10 p-2 text-black rounded"
+                    > {
+                            gridView ?
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                    stroke="currentColor" className="size-full">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+                                </svg> :
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                    stroke="currentColor" className="size-full">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                                </svg>
+                        }
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -10,7 +10,7 @@ interface CCCardProps {
     frontClassName?: string;
     backClassName?: string;
     clueCell?: boolean;
-    correctCard?: boolean;
+    correctCard?: 'correct' | 'incorrect' | 'close';
     /** Optional: Callback when content is edited */
     onContentEdit?: (newContent: string) => void;
     /** Whether the card is currently flipped */
@@ -44,7 +44,9 @@ const CCCard: React.FC<CCCardProps> = ({
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
     const [frontTextSize, setFrontTextSize] = useState(54);
+    const [frontTextColorClass, setfrontTextColorClass] = useState('');
     const [backTextSize, setBackTextSize] = useState(54);
+
     const frontContentRef = useRef<HTMLSpanElement>(null);
     const backContentRef = useRef<HTMLSpanElement>(null);
     const frontContainerRef = useRef<HTMLDivElement>(null);
@@ -59,12 +61,21 @@ const CCCard: React.FC<CCCardProps> = ({
 
             // Get the actual width of the container, accounting for padding
             const containerWidth = container.clientWidth - 18; // 20px for padding
+            console.log("containerWidth", containerWidth, "container.clientWidth", container.clientWidth)
+            // console.log("text_size", frontContent && !frontContent.match('^[A-E][1-5]$'))
+            console.log("content.scrollWidth", content.scrollWidth)
+            
+            if (frontContent && !frontContent.match('^[A-E][1-5]$')) {
+                while (content.scrollWidth > containerWidth && currentSize > 8) {
+                    currentSize -= 2;
+                    content.style.fontSize = `${currentSize}px`;
+                }
+                setFrontTextSize(currentSize);
 
-            while (content.scrollWidth > containerWidth && currentSize > 8) {
-                currentSize -= 2;
-                content.style.fontSize = `${currentSize}px`;
+            } else {
+                content.style.fontSize = `${container.clientHeight*0.5}px`;
+                setFrontTextSize(container.clientHeight*0.5);
             }
-            setFrontTextSize(currentSize);
         }
     }, [frontContent]);
 
@@ -83,6 +94,8 @@ const CCCard: React.FC<CCCardProps> = ({
                 content.style.fontSize = `${currentSize}px`;
             }
             setBackTextSize(currentSize);
+
+
         }
     }, [backContent]);
 
@@ -93,12 +106,14 @@ const CCCard: React.FC<CCCardProps> = ({
 
     const correctCardClasses = `border-green-500`;
     const incorrectCardClasses = `border-red-500`;
+    const closeCardClasses = `border-orange-400`;
 
     const cardClickHandler = () => {
         if (!isFlipped && !clueCell) {
             setTimeout(() => {
-                setClickEffectClass(correctCard ? correctCardClasses : incorrectCardClasses);
-            }, 350);
+                setClickEffectClass(correctCard == 'correct' ? correctCardClasses : correctCard == 'close' ? closeCardClasses : incorrectCardClasses);
+            }, 0);
+            
         }
         handleCardFlip(rowIndex, colIndex, clueCell);
     }
@@ -109,7 +124,7 @@ const CCCard: React.FC<CCCardProps> = ({
             onClick={frontContent != '?' && clueCell ? undefined : () => cardClickHandler()}
         >
             <div className="flip-card-inner">
-                <div className={`flip-card-front bg-white flex items-center justify-center ${frontClassName}`}>
+                <div className={`flip-card-front ${ clueCell ? 'bg-grey-400' : 'bg-white'} flex items-center justify-center ${frontClassName}`}>
                     {/* {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
                         <span
                             className="max-md:hidden text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
@@ -137,11 +152,11 @@ const CCCard: React.FC<CCCardProps> = ({
                 </div>
                 <div className={`flip-card-back bg-white flex items-center justify-center ${backClassName}`}>
                     <div ref={backContainerRef} className="w-full h-full flex items-center justify-center p-2">
-                        <span 
+                        <span
                             ref={backContentRef}
                             style={{ fontSize: `${backTextSize}px` }}
-                        > 
-                            {backContent} 
+                        >
+                            {backContent}
                         </span>
                     </div>
                 </div>
