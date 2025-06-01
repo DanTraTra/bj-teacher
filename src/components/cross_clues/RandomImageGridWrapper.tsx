@@ -141,15 +141,18 @@ const RandomImageGridWrapper: React.FC = () => {
         const rowPaths = image_numbers.slice(0, 5).map(num => `${rootPath}image_${num}.png`);
         const colPaths = image_numbers.slice(5, 10).map(num => `${rootPath}image_${num}.png`);
 
+        console.log(correctlyGuessedGrid)
+        console.log("rowHeaders", correctlyGuessedGrid[4].every(col => col === true))
+
         setRowHeaders(
             rowPaths.map((src, i) => (
-                <img key={`row-${i}`} src={src} alt={`row-${i}`} className="w-full h-full object-contain grayscale" />
+                <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[4].every(card => card === true) ? '' : 'grayscale'}`} />
             ))
         );
 
         setColHeaders(
             colPaths.map((src, i) => (
-                <img key={`col-${i}`} src={src} alt={`col-${i}`} className="w-full h-full object-contain grayscale" />
+                <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col=> col[i]) ? '' : 'grayscale'}`} />
             ))
         );
     };
@@ -289,6 +292,8 @@ const RandomImageGridWrapper: React.FC = () => {
         } else {
             setPlayerTurn('One')
         }
+
+        regenerateImages()
     }, [completedCards])
 
     useEffect(() => {
