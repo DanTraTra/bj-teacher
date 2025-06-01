@@ -10,9 +10,9 @@ const encodeState = (state: {
     image_numbers: number[],
     randomCO: { rowIndex: number, colIndex: number } | null,
     clueCellContent: string | null,
-    frontCellContent: string[][],
+    frontCellContent: string[],
     completedCards: string[],
-    correctlyGuessedGrid: boolean[][],
+    correctlyGuessedGrid: boolean[],
     incorrectGuessCountP1: number[],
     incorrectGuessCountP2: number[],
     playerNames: { 'One': string | null, 'Two': string | null }
@@ -58,13 +58,25 @@ const decodeState = (encoded: string) => {
 //     ));
 //
 // };
-const testGrid = [[1,2,3], [1,23,4], [2,412,2]]
-const testArray = [1,2,3,1,23,4,2,412,2]
+const testGrid = [[1, 2, 3], [1, 23, 4], [2, 412, 2]]
+const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
 // TODO
-// const OneDim2TwoDim: any[][] = (OneDimArray: [], twoDimLength: number) => {
-//     OneDimArray
-//     return [][]
-// }
+
+function OneDim2TwoDim<T>(OneDimArray: any[], columns: number): T[][] {
+    if (columns <= 0) throw new Error("number od columns must be greater than 0");
+    const result: T[][] = [];
+    for (let i = 0; i < OneDimArray.length; i += columns) {
+        result.push(OneDimArray.slice(i, i + columns))
+    }
+
+    return result;
+}
+
+function TwoDim2OneDim<T>(TwoDimArray: T[][]): T[] {
+    return TwoDimArray.flat();
+}
+
+console.log('testFunc', OneDim2TwoDim(testArray, 3))
 
 
 const RandomImageGridWrapper: React.FC = () => {
@@ -110,10 +122,10 @@ const RandomImageGridWrapper: React.FC = () => {
                 console.log("Loading state from URL:", decodedState);
                 setImageNumbers(decodedState.image_numbers);
                 setRandomCO(decodedState.randomCO);
-                setFrontCellContentState(decodedState.frontCellContent);
+                setFrontCellContentState(OneDim2TwoDim(decodedState.frontCellContent, numCols));
                 setCompletedCards(decodedState.completedCards);
                 setClueCellContent(decodedState.clueCellContent);
-                setCorrectlyGuessedGrid(decodedState.correctlyGuessedGrid);
+                setCorrectlyGuessedGrid(OneDim2TwoDim(decodedState.correctlyGuessedGrid, numCols));
                 setIncorrectGuessCountP1(decodedState.incorrectGuessCountP1);
                 setIncorrectGuessCountP2(decodedState.incorrectGuessCountP2);
                 setPlayerNames(decodedState.playerNames);
@@ -235,9 +247,9 @@ const RandomImageGridWrapper: React.FC = () => {
             image_numbers: image_numbers,
             randomCO,
             clueCellContent,
-            frontCellContent: frontCellContentState,
+            frontCellContent: TwoDim2OneDim(frontCellContentState),
             completedCards,
-            correctlyGuessedGrid,
+            correctlyGuessedGrid: TwoDim2OneDim(correctlyGuessedGrid),
             incorrectGuessCountP1,
             incorrectGuessCountP2,
             playerNames,
@@ -475,29 +487,32 @@ const RandomImageGridWrapper: React.FC = () => {
                 </div>
                 <div className='w-full px-1'>
                     <table className="w-full">
-                        {([
-                            { player: "One", data: incorrectGuessCountP1, bg: "bg-playerOne", rounded: "rounded-t" },
-                            { player: "Two", data: incorrectGuessCountP2, bg: "bg-playerTwo", rounded: "rounded-b" }
-                        ] as const)
-                            .map(({ player, data, bg, rounded }) => (
-                                <tr key={player} className={`${bg} ${rounded}`}>
-                                    <td className="text-xs text-gray-500 font-bold whitespace-nowrap p-1.5 pl-3 align-center text-right">
-                                        {playerNames[player]}:
-                                    </td>
-                                    <td className="w-full py-1.5">
-                                        <div className="flex flex-row flex-nowrap items-center space-x-1">
-                                            {data.map((count, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="flex justify-center items-center font-bold text-xs text-red-400 size-4 rounded-full"
-                                                >
-                                                    {count}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody>
+                            {([
+                                { player: "One", data: incorrectGuessCountP1, bg: "bg-playerOne", rounded: "rounded-t" },
+                                { player: "Two", data: incorrectGuessCountP2, bg: "bg-playerTwo", rounded: "rounded-b" }
+                            ] as const)
+                                .map(({ player, data, bg, rounded }) => (
+
+                                    <tr key={player} className={`${bg} ${rounded}`}>
+                                        <td className="text-xs text-gray-500 font-bold whitespace-nowrap p-1.5 pl-3 align-center text-right">
+                                            {playerNames[player]}:
+                                        </td>
+                                        <td className="w-full py-1.5">
+                                            <div className="flex flex-row flex-nowrap items-center space-x-1">
+                                                {data.map((count, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="flex justify-center items-center font-bold text-xs text-red-400 size-4 rounded-full"
+                                                    >
+                                                        {count}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                        </tbody>
                     </table>
                 </div>
                 <div className="w-full relative flex flex-row justify-end items-center space-x-2 pt-2 px-1">
