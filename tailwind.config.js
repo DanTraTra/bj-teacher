@@ -24,7 +24,9 @@ export default {
             },
             colors: {
                 pastelBlue: '#A2C7D3',  // Define your custom color
-                grey: '#D9D9D9'
+                grey: '#D9D9D9',
+                playerOne: '#E1EDCB',
+                playerTwo: '#D6CBE6'
             },
             width: {
                 '420px': '420px',

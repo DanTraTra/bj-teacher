@@ -61,9 +61,9 @@ const CCCard: React.FC<CCCardProps> = ({
 
             // Get the actual width of the container, accounting for padding
             const containerWidth = container.clientWidth - 18; // 20px for padding
-            console.log("containerWidth", containerWidth, "container.clientWidth", container.clientWidth)
+            // console.log("containerWidth", containerWidth, "container.clientWidth", container.clientWidth)
             // console.log("text_size", frontContent && !frontContent.match('^[A-E][1-5]$'))
-            console.log("content.scrollWidth", content.scrollWidth)
+            // console.log("content.scrollWidth", content.scrollWidth)
             
             if (frontContent && !frontContent.match('^[A-E][1-5]$')) {
                 while (content.scrollWidth > containerWidth && currentSize > 8) {
@@ -124,7 +124,7 @@ const CCCard: React.FC<CCCardProps> = ({
             onClick={frontContent != '?' && clueCell ? undefined : () => cardClickHandler()}
         >
             <div className="flip-cross-clues-card-inner">
-                <div className={`flip-cross-clues-card-front ${ clueCell ? 'bg-grey-400' : 'bg-white'} flex items-center justify-center ${frontClassName}`}>
+                <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
                     {/* {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
                         <span
                             className="max-md:hidden text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"

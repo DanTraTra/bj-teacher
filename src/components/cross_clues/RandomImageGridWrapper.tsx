@@ -15,8 +15,9 @@ const encodeState = (state: {
     correctlyGuessedGrid: boolean[][],
     incorrectGuessCountP1: number[],
     incorrectGuessCountP2: number[],
+    playerNames: { 'One': string | null, 'Two': string | null }
 }) => {
-    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2 } = state;
+    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames } = state;
     return btoa(JSON.stringify({
         in: image_numbers,
         rc: randomCO,
@@ -26,6 +27,7 @@ const encodeState = (state: {
         cg: correctlyGuessedGrid,
         igc1: incorrectGuessCountP1,
         igc2: incorrectGuessCountP2,
+        pn: playerNames,
     }));
 };
 
@@ -41,6 +43,7 @@ const decodeState = (encoded: string) => {
             correctlyGuessedGrid: decoded.cg,
             incorrectGuessCountP1: decoded.igc1,
             incorrectGuessCountP2: decoded.igc2,
+            playerNames: decoded.pn
         };
     } catch (e) {
         return null;
@@ -55,11 +58,18 @@ const decodeState = (encoded: string) => {
 //     ));
 //
 // };
+const testGrid = [[1,2,3], [1,23,4], [2,412,2]]
+const testArray = [1,2,3,1,23,4,2,412,2]
+// TODO
+// const OneDim2TwoDim: any[][] = (OneDimArray: [], twoDimLength: number) => {
+//     OneDimArray
+//     return [][]
+// }
 
 
 const RandomImageGridWrapper: React.FC = () => {
     const [playerTurn, setPlayerTurn] = useState<'One' | 'Two'>('One')
-    const [playerAction, setPlayerAction] = useState<'view card & give clue' | 'guess the card'>('view card & give clue')
+    const [playerAction, setPlayerAction] = useState<'View Card & Give Clue' | 'guess the card'>('View Card & Give Clue')
     const [searchParams, setSearchParams] = useSearchParams();
     const [viewingClue, setViewingClue] = useState<boolean>(false);
     const [gridView, setGridView] = useState<boolean>(true)
@@ -78,8 +88,14 @@ const RandomImageGridWrapper: React.FC = () => {
     const [editValue, setEditValue] = useState<string>("?");
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [buttonState, setButtonState] = useState<'view' | 'give' | 'input' | null>('view');
+    const [playerColours, setPlayerColours] = useState<{ player1: string, player2: string }>({ player1: '#F2F6A9', player2: '#D5D1E9' })
+    const [playerNames, setPlayerNames] = useState<{ One: string | null, Two: string | null }>({ One: null, Two: null })
+
     const numRows = 5;
     const numCols = 5;
+
+    const player1Color = '#E38B83'
+    const player2Color = '#9893AC'
 
     const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
@@ -100,6 +116,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setCorrectlyGuessedGrid(decodedState.correctlyGuessedGrid);
                 setIncorrectGuessCountP1(decodedState.incorrectGuessCountP1);
                 setIncorrectGuessCountP2(decodedState.incorrectGuessCountP2);
+                setPlayerNames(decodedState.playerNames);
             }
         } else {
             // Only generate new random numbers if there's no URL state
@@ -128,8 +145,24 @@ const RandomImageGridWrapper: React.FC = () => {
                 )
             )
             setCorrectlyGuessedGrid(boolGrid);
+
+
+            if (playerNames['One'] === null && playerNames['Two'] === null) {
+                const p1 = prompt('Enter your name')
+                const p2 = prompt('Enter your partners name')
+                setPlayerNames({ One: p1, Two: p2 })
+            }
         }
+
     }, []); // Only run on mount
+
+    // useEffect(() => {
+    //     if (playerNames['One'] === null && playerNames['Two'] === null) {
+    //         const p1 = prompt('Enter your name')
+    //         const p2 = prompt('Enter your partners name')
+    //         setPlayerNames({ One: p1, Two: p2 })
+    //     }
+    // }, [playerNames])
 
     const regenerateImages = () => {
         if (image_numbers.length !== 10) {
@@ -152,7 +185,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
         setColHeaders(
             colPaths.map((src, i) => (
-                <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col=> col[i]) ? '' : 'grayscale'}`} />
+                <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col => col[i]) ? '' : 'grayscale'}`} />
             ))
         );
     };
@@ -173,16 +206,19 @@ const RandomImageGridWrapper: React.FC = () => {
 
         // Convert to coordinate string (e.g., "A1", "B2", etc.)
         const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-
-        while (completedCards.includes(coordString)) {
-            tempCO = {
-                rowIndex: Math.floor(Math.random() * numRows),
-                colIndex: Math.floor(Math.random() * numCols)
-            };
-            const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-            if (!completedCards.includes(newCoordString)) {
-                break;
+        if (completedCards.length != numRows * numCols) {
+            while (completedCards.includes(coordString)) {
+                tempCO = {
+                    rowIndex: Math.floor(Math.random() * numRows),
+                    colIndex: Math.floor(Math.random() * numCols)
+                };
+                const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
+                if (!completedCards.includes(newCoordString)) {
+                    break;
+                }
             }
+        } else {
+
         }
         console.log("Generated coordinate:", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
         setRandomCO(tempCO);
@@ -204,9 +240,10 @@ const RandomImageGridWrapper: React.FC = () => {
             correctlyGuessedGrid,
             incorrectGuessCountP1,
             incorrectGuessCountP2,
+            playerNames,
         };
         setSearchParams({ state: encodeState(state) });
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2,]);
+    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -224,7 +261,7 @@ const RandomImageGridWrapper: React.FC = () => {
         // console.log("rowIndex", rowIndex)
         // console.log("colIndex", colIndex)
         if (clueCellContent === "?" && !clueCell) {
-            alert("Your partner needs to give a clue first!");
+            alert(`${playerNames[playerTurn]} needs to give a clue first! Press View Card button`);
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
             // setFlippedCardState(null);
             // console.log("setting flippedCardState to null", flippedCardState)
@@ -248,7 +285,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 // Correct card chosen
                 setClueCellContent("?");
                 setEditValue("?");
-                setPlayerAction("view card & give clue")
+                setPlayerAction("View Card & Give Clue")
 
                 setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
                     const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
@@ -375,10 +412,10 @@ const RandomImageGridWrapper: React.FC = () => {
         setBigImage(header)
     }
 
-    const buttonClasses = "text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+    const buttonClasses = "text-sm h-8 px-3 py-1 bg-blue-500 text-white rounded-none bg-gray-500"
 
     return (
-        <div className='flex flex-col h-full justify-center pb-4'>
+        <div className='flex flex-col h-full justify-center items-center pb-4'>
             <div className="flex flex-col flex-start max-h-[50vh]" onClick={() => setBigImage(null)}>
                 {bigImage}
             </div>
@@ -391,7 +428,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 </span>
             </div> */}
             <div className="flex flex-row justify-center py-2">
-                <span className='text-xs text-gray-400'>Player {playerTurn}'s turn to {playerAction}</span>
+                <span className='text-sm text-gray-800'>{playerNames[playerTurn]}'s turn to {playerAction}</span>
             </div>
             {clueCellContent != '?' && <div className='flex flex-col items-center justify-start'>
                 {/* <span className='text-xs text-gray-400'>
@@ -401,7 +438,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     {clueCellContent}
                 </span>
             </div>}
-            <div className="flex flex-col flex-start items-center space-y-1 py-3 overflow-y-auto">
+            <div className="flex flex-col flex-start items-center space-y-1 pt-1 pb-3 overflow-y-auto w-fit">
                 <div className="h-full overflow-y-auto">
                     {
                         gridView ?
@@ -409,7 +446,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             <CCGrid
                                 rowHeaders={rowHeaders}
                                 colHeaders={colHeaders}
-                                cellSize="size-[calc(100vw/6)] max-w-[80px] max-h-[80px]"
+                                cellSize="size-[calc(100vw/6)] max-w-[90px] max-h-[90px]"
                                 randomCO={randomCO}
                                 numRows={numRows}
                                 numCols={numCols}
@@ -436,23 +473,34 @@ const RandomImageGridWrapper: React.FC = () => {
                     {Array.from({ length: incorrectGuesses }).map((_, idx) => (
                         <div key={idx} className='h-1.5 w-full my-0.5 mx-1 bg-red-300'></div>))}
                 </div>
-                <div className='w-full px-3 py-1'>
-                    <div className="flex flex-row w-full justify-start py-1 items-center">
-                        <span className='text-xs text-gray-400 pr-1 font-bold w-[90px]'>PLAYER ONE:</span>
-                        <div className='flex flex-row space-x-1 pr-1'>
-                            {incorrectGuessCountP1.map((count, idx) => (
-                                <div key={idx} className='flex justify-center items-start font-bold text-xs text-bold text-red-600 size-4 bg-gray-100 rounded-full'>{count}</div>))}
-                        </div>
-                    </div>
-                    <div className="flex flex-row w-full justify-start py-1 items-center">
-                        <span className='text-xs text-gray-400 pr-1 font-bold w-[90px]'>PLAYER TWO:</span>
-                        <div className='flex flex-row space-x-1 pr-1'>
-                            {incorrectGuessCountP2.map((count, idx) => (
-                                <div key={idx} className='flex justify-center items-start font-bold text-xs text-bold text-red-600 size-4 bg-gray-100 rounded-full'>{count}</div>))}
-                        </div>
-                    </div>
+                <div className='w-full px-1'>
+                    <table className="w-full">
+                        {([
+                            { player: "One", data: incorrectGuessCountP1, bg: "bg-playerOne", rounded: "rounded-t" },
+                            { player: "Two", data: incorrectGuessCountP2, bg: "bg-playerTwo", rounded: "rounded-b" }
+                        ] as const)
+                            .map(({ player, data, bg, rounded }) => (
+                                <tr key={player} className={`${bg} ${rounded}`}>
+                                    <td className="text-xs text-gray-500 font-bold whitespace-nowrap p-1.5 pl-3 align-center text-right">
+                                        {playerNames[player]}:
+                                    </td>
+                                    <td className="w-full py-1.5">
+                                        <div className="flex flex-row flex-nowrap items-center space-x-1">
+                                            {data.map((count, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex justify-center items-center font-bold text-xs text-red-400 size-4 rounded-full"
+                                                >
+                                                    {count}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                    </table>
                 </div>
-                <div className="w-full relative flex flex-row justify-end items-center space-x-2">
+                <div className="w-full relative flex flex-row justify-end items-center space-x-2 pt-2 px-1">
                     <div className="flex items-center space-x-2">
                         {(buttonState == 'view' || buttonState == 'input') && (
                             <button
@@ -474,20 +522,20 @@ const RandomImageGridWrapper: React.FC = () => {
                             <input
                                 type="text"
                                 value={editValue === '?' ? '' : editValue}
-                                placeholder="Give a clue for:"
+                                placeholder="Give a clue for your partner"
                                 onChange={handleInputChange}
                                 onKeyDown={handleInputKeyDown}
                                 onBlur={handleInputBlur}
                                 onFocus={handleInputFocus}
-                                className="w-32 text-center text-sm px-2 py-1 placeholder:text-gray-300
+                                className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-300
                             focus:outline-none focus:ring-0 focus:border-gray-500 border-b-2 border-gray-500
-                            bg-transparent border-t-0 border-l-0 border-r-0"
+                            bg-transparent border-t-0 border-l-0 border-r-0 h-8"
                                 autoFocus
                             />
                         )}
                     </div>
 
-                    <button
+                    {/* <button
                         onClick={() => {
                             setGridView(!gridView);
                         }}
@@ -505,7 +553,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                         d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                                 </svg>
                         }
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
