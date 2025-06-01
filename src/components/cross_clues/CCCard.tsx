@@ -99,7 +99,7 @@ const CCCard: React.FC<CCCardProps> = ({
         }
     }, [backContent]);
 
-    const baseClasses = `flip-card 
+    const baseClasses = `flip-cross-clues-card 
         aspect-square flex items-center justify-center
         overflow-hidden text-center border border-4 ${cellSize} 
         cursor-pointer`;
@@ -123,8 +123,8 @@ const CCCard: React.FC<CCCardProps> = ({
             className={`${baseClasses} ${highlightClass} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : ''}`}
             onClick={frontContent != '?' && clueCell ? undefined : () => cardClickHandler()}
         >
-            <div className="flip-card-inner">
-                <div className={`flip-card-front ${ clueCell ? 'bg-grey-400' : 'bg-white'} flex items-center justify-center ${frontClassName}`}>
+            <div className="flip-cross-clues-card-inner">
+                <div className={`flip-cross-clues-card-front ${ clueCell ? 'bg-grey-400' : 'bg-white'} flex items-center justify-center ${frontClassName}`}>
                     {/* {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
                         <span
                             className="max-md:hidden text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
@@ -150,7 +150,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         )}
                     </div>
                 </div>
-                <div className={`flip-card-back bg-white flex items-center justify-center ${backClassName}`}>
+                <div className={`flip-cross-clues-card-back bg-white flex items-center justify-center ${backClassName}`}>
                     <div ref={backContainerRef} className="w-full h-full flex items-center justify-center p-2">
                         <span
                             ref={backContentRef}

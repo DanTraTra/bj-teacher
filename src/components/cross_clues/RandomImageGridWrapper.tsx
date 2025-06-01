@@ -146,7 +146,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
         setRowHeaders(
             rowPaths.map((src, i) => (
-                <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[4].every(card => card === true) ? '' : 'grayscale'}`} />
+                <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
             ))
         );
 

@@ -72,7 +72,7 @@ const CCGrid: React.FC<GridProps> = ({
         key: string | number,
         isHeader: boolean = false
     ) => {
-        const baseClasses = `flip-card 
+        const baseClasses = `flip-cross-clues-card 
       aspect-square flex items-center justify-center
       overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4 ${cellSize} 
     `; // Added overflow-hidden, padding, text-center
@@ -147,7 +147,8 @@ const CCGrid: React.FC<GridProps> = ({
                     {row.map((cellContent, colIndex) => {
                         const highlightCard = viewingClue && cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`;
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
-                        if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
+                        if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-gray-800"};
+                        // if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
                         // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
                         // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
                         const correct_card = cellContent == `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'correct' : (cellContent[0] == `${colLetters[randomCO!.colIndex]}` || cellContent[1] == `${randomCO!.rowIndex + 1}`) ? 'close': 'incorrect'
