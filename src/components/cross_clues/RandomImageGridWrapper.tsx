@@ -94,6 +94,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const [colHeaders, setColHeaders] = useState<React.JSX.Element[]>([]);
     const [bigImage, setBigImage] = useState<React.ReactNode | null>(null);
     const [bigCO, setBigCO] = useState<string>('');
+    const [currentBigImageIndex, setCurrentBigImageIndex] = useState<number | null>(null); // New state for tracking current big image index
+    const [allHeaderImages, setAllHeaderImages] = useState<{ element: React.JSX.Element, co: string }[]>([]); // Store all headers with CO
 
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -196,25 +198,31 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log(correctlyGuessedGrid)
         console.log("rowHeaders", correctlyGuessedGrid[4].every(col => col === true))
 
-        setRowHeaders(
-            rowPaths.map((src, i) => (
-                <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
-            ))
-        );
+        const generatedRowHeaders = rowPaths.map((src, i) => (
+            <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
+        ));
+        setRowHeaders(generatedRowHeaders);
 
-        setColHeaders(
-            colPaths.map((src, i) => (
-                <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col => col[i]) ? '' : 'grayscale'}`} />
-            ))
-        );
+
+        const generatedColHeaders = colPaths.map((src, i) => (
+            <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col => col[i]) ? '' : 'grayscale'}`} />
+        ));
+        setColHeaders(generatedColHeaders);
+
+        // Combine headers and their CO for easier traversal
+        const combinedHeaders = [
+            ...generatedRowHeaders.map((el, i) => ({ element: el, co: `${i + 1}` })), // Assign a simple CO for rows
+            ...generatedColHeaders.map((el, i) => ({ element: el, co: `${String.fromCharCode(65 + i)}` })) // Assign a simple CO for cols
+        ];
+        setAllHeaderImages(combinedHeaders);
     };
 
-    // Generate headers when image numbers are available
+    // Generate headers when image numbers are available or correctlyGuessedGrid changes
     useEffect(() => {
         if (image_numbers.length === 10) {
             regenerateImages();
         }
-    }, [image_numbers]);
+    }, [image_numbers, correctlyGuessedGrid]); // Added correctlyGuessedGrid as dependency
 
     const regenerateRandomCO = () => {
         let tempCO = {
@@ -224,20 +232,27 @@ const RandomImageGridWrapper: React.FC = () => {
         // console.log("completedCards", completedCards);
 
         // Convert to coordinate string (e.g., "A1", "B2", etc.)
-        const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-        if (completedCards.length != numRows * numCols) {
-            while (completedCards.includes(coordString)) {
+        // Check against correctlyGuessedGrid instead of completedCards
+        // const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
+        // Check if all cells are completed
+        const allCompleted = correctlyGuessedGrid.every(row => row.every(cell => cell === true));
+
+        if (!allCompleted) {
+            while (correctlyGuessedGrid[tempCO.rowIndex][tempCO.colIndex]) { // Check correctlyGuessedGrid
                 tempCO = {
                     rowIndex: Math.floor(Math.random() * numRows),
                     colIndex: Math.floor(Math.random() * numCols)
                 };
-                const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-                if (!completedCards.includes(newCoordString)) {
+                // const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
+                if (!correctlyGuessedGrid[tempCO.rowIndex][tempCO.colIndex]) { // Check correctlyGuessedGrid
                     break;
                 }
             }
         } else {
-
+            // Handle case where all cards are completed (e.g., game over)
+            console.log("All cards completed. Cannot regenerate random CO.");
+            setRandomCO(null); // Or handle game over state appropriately
+            return; // Exit the function if all completed
         }
         console.log("Generated coordinate:", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
         setRandomCO(tempCO);
@@ -255,9 +270,9 @@ const RandomImageGridWrapper: React.FC = () => {
             randomCO,
             clueCellContent,
             frontCellContent: TwoDim2OneDim(frontCellContentState),
-            completedCards,
-            incorrectGuessCountP1,
-            incorrectGuessCountP2,
+            completedCards, // completedCards is still in encodeState, will remove later
+            incorrectGuessCountP1, // These are still arrays, will change later
+            incorrectGuessCountP2, // These are still arrays, will change later
             playerNames,
         };
         setSearchParams({ state: encodeState(state) });
@@ -270,7 +285,7 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("incorrectGuessCountP1", incorrectGuessCountP1)
         console.log("incorrectGuessCountP2", incorrectGuessCountP2)
         console.log("playerNames", playerNames)
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
+    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -319,9 +334,9 @@ const RandomImageGridWrapper: React.FC = () => {
                     newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
                     return newCorrectlyGuessedGrid;
                 });
-                setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]);
+                setCompletedCards(prevCompletedCards => [...prevCompletedCards, `${colLetters[colIndex]}${rowIndex + 1}`]); // completedCards still updated here
 
-                playerTurn == 'One' ? setIncorrectGuessCountP1(current => [...current, incorrectGuesses]) : setIncorrectGuessCountP2(current => [...current, incorrectGuesses])
+                playerTurn == 'One' ? setIncorrectGuessCountP1(current => [...current, incorrectGuesses]) : setIncorrectGuessCountP2(current => [...current, incorrectGuesses]) // incorrect guess counts still arrays
                 setIncorrectGuesses(0)
 
                 setTimeout(() => {
@@ -347,30 +362,46 @@ const RandomImageGridWrapper: React.FC = () => {
 
     useEffect(() => {
         console.log("completedCards:", completedCards)
-        setTimeout(() => {
-            regenerateRandomCO();
-        }, 1500)
+        // Determine total completed cards by counting true in correctlyGuessedGrid
+        const totalCompleted = correctlyGuessedGrid.reduce((count, row) => count + row.filter(cell => cell).length, 0);
 
-        if (completedCards.length % 2 != 0) {
-            setPlayerTurn('Two')
+        setTimeout(() => {
+            // Only regenerate if not all cards are completed
+            if (totalCompleted < numRows * numCols) {
+                regenerateRandomCO();
+            } else {
+                console.log("Game Over - All cards completed.");
+                setRandomCO(null); // Or handle game over state
+            }
+        }, 1500);
+
+        // Determine player turn based on total completed cards
+        if (totalCompleted % 2 !== 0) {
+            setPlayerTurn('Two');
         } else {
-            setPlayerTurn('One')
+            setPlayerTurn('One');
         }
 
         regenerateImages()
-    }, [completedCards])
+    }, [completedCards, correctlyGuessedGrid]) // Depend on both
 
     useEffect(() => {
         if (clueCellContent !== "?") {
             setButtonState(null);
             setPlayerAction('guess the card');
-            if (completedCards.length % 2 != 0) {
-                setPlayerTurn('One')
+            // Player turn changes when clue is given, for the guessing phase
+            if (playerTurn === 'One') {
+                setPlayerTurn('Two');
             } else {
-                setPlayerTurn('Two')
+                setPlayerTurn('One');
             }
         } else {
-            // setPlayerTurn(current => current == 'One' ? 'Two' : 'One')
+            // Player turn reverts for the clue-giving phase
+            if (playerTurn === 'One') {
+                setPlayerTurn('Two');
+            } else {
+                setPlayerTurn('One');
+            }
             setButtonState("view")
         }
     }, [clueCellContent])
@@ -413,7 +444,8 @@ const RandomImageGridWrapper: React.FC = () => {
                 setButtonState('view');
                 setFlippedCardState(null);
                 setBigImage(null);
-                setPlayerAction('guess the card');
+                setPlayerAction('guess the card'); // Player action changes after clue is given
+                // Player turn change is now in useEffect based on clueCellContent
             }
         }
     };
@@ -427,6 +459,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setEditValue('?');
             setButtonState('view');
             setFlippedCardState(null);
+            // Player turn change is now in useEffect based on clueCellContent
         }
 
     };
@@ -436,22 +469,71 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     const handleHeaderClick = (header: React.ReactNode, CO: string) => {
-        setBigImage(header)
-        console.log("Big CO", CO)
-        setBigCO(CO)
+        setBigImage(header);
+        setBigCO(CO);
+        // Find the index of the clicked header in the combined list
+        const index = allHeaderImages.findIndex(item => item.element === header);
+        setCurrentBigImageIndex(index);
     }
+
+    const handlePrevImage = () => {
+        if (currentBigImageIndex !== null && allHeaderImages.length > 0) {
+            const prevIndex = (currentBigImageIndex - 1 + allHeaderImages.length) % allHeaderImages.length;
+            const prevImage = allHeaderImages[prevIndex];
+            setBigImage(prevImage.element);
+            setBigCO(prevImage.co);
+            setCurrentBigImageIndex(prevIndex);
+        }
+    };
+
+    const handleNextImage = () => {
+        if (currentBigImageIndex !== null && allHeaderImages.length > 0) {
+            const nextIndex = (currentBigImageIndex + 1) % allHeaderImages.length;
+            const nextImage = allHeaderImages[nextIndex];
+            setBigImage(nextImage.element);
+            setBigCO(nextImage.co);
+            setCurrentBigImageIndex(nextIndex);
+        }
+    };
+
 
     const buttonClasses = "text-sm h-8 px-3 py-1 bg-blue-500 text-white rounded-none bg-gray-500"
 
     return (
         <div className='flex flex-col h-full justify-center items-center pb-4'>
-            <div className="relative flex flex-col flex-start max-h-[50vh]" onClick={() => setBigImage(null)}> {/* Added relative positioning here */}
+            <div className="relative flex flex-col flex-start max-h-[50vh]" onClick={() => {
+                setBigImage(null);
+                setBigCO('');
+                setCurrentBigImageIndex(null); // Reset index when image is closed
+            }}> {/* Added relative positioning here and reset state on click */}
                 {bigImage} {/* This will render first and be the base layer */}
                 {bigCO && ( // Only render bigCO if it's not an empty string
-                    <div className='absolute -bottom-8 left-0 text-[100px] p-4 text-black tracking-wide font-bold z-10 opacity-80'> 
-                    {/* Added absolute positioning, bottom/left, padding, text color, and z-index */}
+                    <div className='absolute -bottom-8 left-0 text-[100px] p-4 text-black tracking-wide font-bold z-10 opacity-80'>
+                        {/* Added absolute positioning, bottom/left, padding, text color, and z-index */}
                         {bigCO}
                     </div>
+                )}
+                {currentBigImageIndex !== null && ( // Only show buttons if an image is displayed
+                    <>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                handlePrevImage();
+                            }}
+                            className="absolute h-full w-12 text-center -left-12 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                        >
+                            &#9664; {/* Left arrow character */}
+                        </button>
+                        <button
+                             onClick={(e) => {
+                                e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                handleNextImage();
+                            }}
+                            className="absolute h-full w-12 text-center -right-12 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                        >
+                            &#9654; {/* Right arrow character */}
+                        </button>
+                    </>
                 )}
             </div>
             {/* <div className='flex flex-col items-center justify-start pt-5'>
