@@ -400,11 +400,11 @@ const RandomImageGridWrapper: React.FC = () => {
             }
         } else {
             // Player turn reverts for the clue-giving phase
-            if (playerTurn === 'One') {
-                setPlayerTurn('Two');
-            } else {
-                setPlayerTurn('One');
-            }
+            // if (playerTurn === 'One') {
+            //     setPlayerTurn('Two');
+            // } else {
+            //     setPlayerTurn('One');
+            // }
             setButtonState("view")
         }
     }, [clueCellContent])
