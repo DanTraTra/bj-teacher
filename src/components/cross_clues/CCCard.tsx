@@ -143,6 +143,7 @@ const CCCard: React.FC<CCCardProps> = ({
                                     whitespace-nowrap
                                     text-center
                                     overflow-hidden
+                                    font-bold
                                 `}
                             >
                                 {frontContent}
@@ -155,6 +156,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         <span
                             ref={backContentRef}
                             style={{ fontSize: `${backTextSize}px` }}
+                            className='font-bold'
                         >
                             {backContent}
                         </span>
