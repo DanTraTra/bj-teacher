@@ -81,7 +81,7 @@ const CCGrid: React.FC<GridProps> = ({
         // Ensure images within cells are contained and centered
         const contentWrapperClasses = 'max-w-full max-h-full object-contain flex items-center justify-center'; // Added flex centering here too
 
-        console.log("headerText", headerText)
+        // console.log("headerText", headerText)
         return (
             <div key={key} className={`${baseClasses} ${headerClasses}`} onClick={() => { handleHeaderClick(content, headerText) }}>
                 {/* Wrap content, especially useful if it's an image */}
@@ -118,7 +118,7 @@ const CCGrid: React.FC<GridProps> = ({
                     // clueCellContent
                     " "
                 }
-                backContent={`${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`}
+                backContent={randomCO ? `${colLetters[randomCO.colIndex]}${randomCO.rowIndex + 1}` : ""}
                 beginsFlipped={false}
                 cellSize={cellSize}
                 frontClassName="text-gray-500 bg-gray"

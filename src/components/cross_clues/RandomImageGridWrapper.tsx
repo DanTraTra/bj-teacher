@@ -85,6 +85,9 @@ console.log('convertFrontCellContentStateToBool', convertFrontCellContentStateTo
 
 
 const RandomImageGridWrapper: React.FC = () => {
+    const numRows = 5;
+    const numCols = 5;
+
     const [playerTurn, setPlayerTurn] = useState<'One' | 'Two'>('One')
     const [playerAction, setPlayerAction] = useState<'View Card & Give Clue' | 'guess the card'>('View Card & Give Clue')
     const [searchParams, setSearchParams] = useSearchParams();
@@ -100,7 +103,9 @@ const RandomImageGridWrapper: React.FC = () => {
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
-    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>([]);
+    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>(Array.from({ length: numCols}, () =>
+        Array(numCols).fill(false)
+    ));
     const [completedCards, setCompletedCards] = useState<string[]>([]);
     const [incorrectGuessCountP1, setIncorrectGuessCountP1] = useState<number[]>([]);
     const [incorrectGuessCountP2, setIncorrectGuessCountP2] = useState<number[]>([]);
@@ -111,9 +116,6 @@ const RandomImageGridWrapper: React.FC = () => {
     const [buttonState, setButtonState] = useState<'view' | 'give' | 'input' | null>('view');
     const [playerColours, setPlayerColours] = useState<{ player1: string, player2: string }>({ player1: '#F2F6A9', player2: '#D5D1E9' })
     const [playerNames, setPlayerNames] = useState<{ One: string | null, Two: string | null }>({ One: null, Two: null })
-
-    const numRows = 5;
-    const numCols = 5;
 
     const player1Color = '#E38B83'
     const player2Color = '#9893AC'
@@ -195,8 +197,7 @@ const RandomImageGridWrapper: React.FC = () => {
         const rowPaths = image_numbers.slice(0, 5).map(num => `${rootPath}image_${num}.png`);
         const colPaths = image_numbers.slice(5, 10).map(num => `${rootPath}image_${num}.png`);
 
-        console.log(correctlyGuessedGrid)
-        console.log("rowHeaders", correctlyGuessedGrid[4].every(col => col === true))
+        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
         const generatedRowHeaders = rowPaths.map((src, i) => (
             <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
@@ -235,7 +236,9 @@ const RandomImageGridWrapper: React.FC = () => {
         // Check against correctlyGuessedGrid instead of completedCards
         // const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
         // Check if all cells are completed
-        const allCompleted = correctlyGuessedGrid.every(row => row.every(cell => cell === true));
+        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+
+        const allCompleted = correctlyGuessedGrid.every(row => row.every(cell => cell === true)) && correctlyGuessedGrid.length;
 
         if (!allCompleted) {
             while (correctlyGuessedGrid[tempCO.rowIndex][tempCO.colIndex]) { // Check correctlyGuessedGrid
@@ -525,7 +528,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             &#9664; {/* Left arrow character */}
                         </button>
                         <button
-                             onClick={(e) => {
+                            onClick={(e) => {
                                 e.stopPropagation(); // Prevent the parent div's onClick from firing
                                 handleNextImage();
                             }}
