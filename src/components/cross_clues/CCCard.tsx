@@ -104,9 +104,9 @@ const CCCard: React.FC<CCCardProps> = ({
         overflow-hidden text-center border border-4 ${cellSize} 
         cursor-pointer`;
 
-    const correctCardClasses = `border-green-500`;
-    const incorrectCardClasses = `border-red-500`;
-    const closeCardClasses = `border-orange-400`;
+    const correctCardClasses = `border-correct`;
+    const incorrectCardClasses = `border-wrong`;
+    const closeCardClasses = `border-close`;
 
     const cardClickHandler = () => {
         if (!isFlipped && !clueCell) {

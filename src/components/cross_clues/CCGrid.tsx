@@ -28,7 +28,7 @@ interface GridProps {
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
-    handleHeaderClick: (header: React.ReactNode) => void;
+    handleHeaderClick: (header: React.ReactNode, CO:string) => void;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -70,7 +70,8 @@ const CCGrid: React.FC<GridProps> = ({
     const renderCell = (
         content: React.ReactNode,
         key: string | number,
-        isHeader: boolean = false
+        isHeader: boolean = false,
+        headerText: string,
     ) => {
         const baseClasses = `flip-cross-clues-card 
       aspect-square flex items-center justify-center
@@ -80,8 +81,9 @@ const CCGrid: React.FC<GridProps> = ({
         // Ensure images within cells are contained and centered
         const contentWrapperClasses = 'max-w-full max-h-full object-contain flex items-center justify-center'; // Added flex centering here too
 
+        console.log("headerText", headerText)
         return (
-            <div key={key} className={`${baseClasses} ${headerClasses}`} onClick={() => { handleHeaderClick(content) }}>
+            <div key={key} className={`${baseClasses} ${headerClasses}`} onClick={() => { handleHeaderClick(content, headerText) }}>
                 {/* Wrap content, especially useful if it's an image */}
                 <div className={contentWrapperClasses}>{content}</div>
             </div>
@@ -137,7 +139,7 @@ const CCGrid: React.FC<GridProps> = ({
 
             {/* Column Headers */}
             {colHeaders.map((header, index) =>
-                renderCell(header, `col-header-${index}`, true)
+                renderCell(header, `col-header-${index}`, true, `${String.fromCharCode(65 + index)}`)
             )}
 
 
@@ -146,7 +148,7 @@ const CCGrid: React.FC<GridProps> = ({
                 // Using React.Fragment for key prop on the group of elements per row
                 <React.Fragment key={`row-${rowIndex}`}>
                     {/* Row Header */}
-                    {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true)}
+                    {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true, `${rowIndex + 1}`)}
 
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
@@ -156,9 +158,9 @@ const CCGrid: React.FC<GridProps> = ({
 
                             if (completedCards.findIndex((card) => card == `${colLetters[colIndex]}${rowIndex + 1}`) % 2 == 0) {
                 
-                                highlightClasses = "text-gray-800 bg-playerOne"
-                            } else {
                                 highlightClasses = "text-gray-800 bg-playerTwo"
+                            } else {
+                                highlightClasses = "text-gray-800 bg-playerOne"
                             }
                         } else {
                             highlightClasses = `${highlightClasses} bg-white`
@@ -176,7 +178,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 beginsFlipped={false}
                                 cellSize={cellSize}
                                 frontClassName={`${highlightClasses}`}
-                                backClassName={correct_card == 'correct' ? 'text-green-500' : correct_card == 'close' ? 'text-orange-400' : 'text-red-500'}
+                                backClassName={correct_card == 'correct' ? 'text-correct' : correct_card == 'close' ? 'text-close' : 'text-wrong'}
                                 clueCell={false}
                                 correctCard={correct_card}
                                 isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}

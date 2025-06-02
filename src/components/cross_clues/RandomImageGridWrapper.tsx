@@ -12,19 +12,17 @@ const encodeState = (state: {
     clueCellContent: string | null,
     frontCellContent: string[],
     completedCards: string[],
-    correctlyGuessedGrid: boolean[],
     incorrectGuessCountP1: number[],
     incorrectGuessCountP2: number[],
     playerNames: { 'One': string | null, 'Two': string | null }
 }) => {
-    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames } = state;
+    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, incorrectGuessCountP1, incorrectGuessCountP2, playerNames } = state;
     return btoa(JSON.stringify({
         in: image_numbers,
         rc: randomCO,
         ccc: clueCellContent,
         fc: frontCellContent,
         cc: completedCards,
-        cg: correctlyGuessedGrid,
         igc1: incorrectGuessCountP1,
         igc2: incorrectGuessCountP2,
         pn: playerNames,
@@ -40,7 +38,6 @@ const decodeState = (encoded: string) => {
             clueCellContent: decoded.ccc,
             frontCellContent: decoded.fc,
             completedCards: decoded.cc,
-            correctlyGuessedGrid: decoded.cg,
             incorrectGuessCountP1: decoded.igc1,
             incorrectGuessCountP2: decoded.igc2,
             playerNames: decoded.pn
@@ -60,6 +57,7 @@ const decodeState = (encoded: string) => {
 // };
 const testGrid = [[1, 2, 3], [1, 23, 4], [2, 412, 2]]
 const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
+const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2', 'jjejej']
 // TODO
 
 function OneDim2TwoDim<T>(OneDimArray: any[], columns: number): T[][] {
@@ -76,7 +74,14 @@ function TwoDim2OneDim<T>(TwoDimArray: T[][]): T[] {
     return TwoDimArray.flat();
 }
 
+function convertFrontCellContentStateToBool<T>(FCCST: string[], columns: number): boolean[][] {
+    const result = FCCST.map(co => co.match(`[A-${[String.fromCharCode(65 + columns - 1)]}][1-${columns}]`) ? false : true)
+    return OneDim2TwoDim(result, columns)
+}
+
+
 console.log('testFunc', OneDim2TwoDim(testArray, 3))
+console.log('convertFrontCellContentStateToBool', convertFrontCellContentStateToBool(testArray1, 3))
 
 
 const RandomImageGridWrapper: React.FC = () => {
@@ -88,6 +93,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const [rowHeaders, setRowHeaders] = useState<React.JSX.Element[]>([]);
     const [colHeaders, setColHeaders] = useState<React.JSX.Element[]>([]);
     const [bigImage, setBigImage] = useState<React.ReactNode | null>(null);
+    const [bigCO, setBigCO] = useState<string>('');
+
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
@@ -125,7 +132,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setFrontCellContentState(OneDim2TwoDim(decodedState.frontCellContent, numCols));
                 setCompletedCards(decodedState.completedCards);
                 setClueCellContent(decodedState.clueCellContent);
-                setCorrectlyGuessedGrid(OneDim2TwoDim(decodedState.correctlyGuessedGrid, numCols));
+                setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(decodedState.frontCellContent, numCols));
                 setIncorrectGuessCountP1(decodedState.incorrectGuessCountP1);
                 setIncorrectGuessCountP2(decodedState.incorrectGuessCountP2);
                 setPlayerNames(decodedState.playerNames);
@@ -249,13 +256,21 @@ const RandomImageGridWrapper: React.FC = () => {
             clueCellContent,
             frontCellContent: TwoDim2OneDim(frontCellContentState),
             completedCards,
-            correctlyGuessedGrid: TwoDim2OneDim(correctlyGuessedGrid),
             incorrectGuessCountP1,
             incorrectGuessCountP2,
             playerNames,
         };
         setSearchParams({ state: encodeState(state) });
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
+        console.log("image_numbers", image_numbers)
+        console.log("randomCO", randomCO)
+        console.log("frontCellContentState", frontCellContentState)
+        console.log("completedCards", completedCards)
+        console.log("clueCellContent", clueCellContent)
+        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+        console.log("incorrectGuessCountP1", incorrectGuessCountP1)
+        console.log("incorrectGuessCountP2", incorrectGuessCountP2)
+        console.log("playerNames", playerNames)
+    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -420,16 +435,24 @@ const RandomImageGridWrapper: React.FC = () => {
         setButtonState('input')
     }
 
-    const handleHeaderClick = (header: React.ReactNode) => {
+    const handleHeaderClick = (header: React.ReactNode, CO: string) => {
         setBigImage(header)
+        console.log("Big CO", CO)
+        setBigCO(CO)
     }
 
     const buttonClasses = "text-sm h-8 px-3 py-1 bg-blue-500 text-white rounded-none bg-gray-500"
 
     return (
         <div className='flex flex-col h-full justify-center items-center pb-4'>
-            <div className="flex flex-col flex-start max-h-[50vh]" onClick={() => setBigImage(null)}>
-                {bigImage}
+            <div className="relative flex flex-col flex-start max-h-[50vh]" onClick={() => setBigImage(null)}> {/* Added relative positioning here */}
+                {bigImage} {/* This will render first and be the base layer */}
+                {bigCO && ( // Only render bigCO if it's not an empty string
+                    <div className='absolute -bottom-8 left-0 text-[100px] p-4 text-black tracking-wide font-bold z-10 opacity-80'> 
+                    {/* Added absolute positioning, bottom/left, padding, text color, and z-index */}
+                        {bigCO}
+                    </div>
+                )}
             </div>
             {/* <div className='flex flex-col items-center justify-start pt-5'>
                 <span className='text-xs text-gray-400'>
@@ -503,7 +526,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                                 {data.map((count, idx) => (
                                                     <div
                                                         key={idx}
-                                                        className="flex justify-center items-center font-bold text-xs text-red-400 size-4 rounded-full"
+                                                        className="flex justify-center items-center font-bold text-xs text-wrong size-4 rounded-full"
                                                     >
                                                         {count}
                                                     </div>
