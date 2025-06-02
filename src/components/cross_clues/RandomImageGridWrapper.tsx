@@ -383,15 +383,15 @@ const RandomImageGridWrapper: React.FC = () => {
         //     }
         // }, 1500);
 
-        // // Determine player turn based on total completed cards
-        // if (totalCompleted % 2 !== 0) {
-        //     setPlayerTurn('Two');
-        // } else {
+        // Determine player turn based on total completed cards
+        // if (completedCards.length % 2 === 0 && clueCellContent != '?') {
         //     setPlayerTurn('One');
+        // } else {
+        //     setPlayerTurn('Two');
         // }
 
         // regenerateImages()
-    }, [completedCards, correctlyGuessedGrid]) // Depend on both
+    }, [completedCards]) // Depend on both
 
     useEffect(() => {
         if (clueCellContent !== "?") {
