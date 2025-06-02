@@ -58,7 +58,7 @@ const decodeState = (encoded: string) => {
 const testGrid = [[1, 2, 3], [1, 23, 4], [2, 412, 2]]
 const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
 const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2', 'jjejej']
-// TODO
+// TODO Fix the randomCO changing for deployed app
 
 function OneDim2TwoDim<T>(OneDimArray: any[], columns: number): T[][] {
     if (columns <= 0) throw new Error("number od columns must be greater than 0");
@@ -80,8 +80,8 @@ function convertFrontCellContentStateToBool<T>(FCCST: string[], columns: number)
 }
 
 
-console.log('testFunc', OneDim2TwoDim(testArray, 3))
-console.log('convertFrontCellContentStateToBool', convertFrontCellContentStateToBool(testArray1, 3))
+// console.log('testFunc', OneDim2TwoDim(testArray, 3))
+// console.log('convertFrontCellContentStateToBool', convertFrontCellContentStateToBool(testArray1, 3))
 
 
 const RandomImageGridWrapper: React.FC = () => {
@@ -132,6 +132,7 @@ const RandomImageGridWrapper: React.FC = () => {
             if (decodedState) {
                 console.log("Loading state from URL:", decodedState);
                 setImageNumbers(decodedState.image_numbers);
+                console.log("setRandomCO(decodedState.randomCO):", `${colLetters[decodedState.randomCO.colIndex]}${decodedState.randomCO.rowIndex + 1}`);
                 setRandomCO(decodedState.randomCO);
                 setFrontCellContentState(OneDim2TwoDim(decodedState.frontCellContent, numCols));
                 setCompletedCards(decodedState.completedCards);
@@ -154,6 +155,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setImageNumbers(randomNumbers);
 
             // Initialize randomCO and frontCellContentState for new games
+            console.log("setRandomCO(Random1)");
             setRandomCO({ rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) });
             const frontCellContent = Array.from({ length: numRows }, (_, rowIndex) =>
                 Array.from({ length: numCols }, (_, colIndex) =>
@@ -189,15 +191,15 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const regenerateImages = () => {
         if (image_numbers.length !== 10) {
-            console.log("No image numbers available yet");
+            // console.log("No image numbers available yet");
             return;
         }
 
-        console.log("Regenerating images with numbers:", image_numbers);
+        // console.log("Regenerating images with numbers:", image_numbers);
         const rowPaths = image_numbers.slice(0, 5).map(num => `${rootPath}image_${num}.png`);
         const colPaths = image_numbers.slice(5, 10).map(num => `${rootPath}image_${num}.png`);
 
-        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+        // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
         const generatedRowHeaders = rowPaths.map((src, i) => (
             <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
@@ -236,7 +238,7 @@ const RandomImageGridWrapper: React.FC = () => {
         // Check against correctlyGuessedGrid instead of completedCards
         // const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
         // Check if all cells are completed
-        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+        // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
         const allCompleted = correctlyGuessedGrid.every(row => row.every(cell => cell === true)) && correctlyGuessedGrid.length;
 
@@ -254,10 +256,10 @@ const RandomImageGridWrapper: React.FC = () => {
         } else {
             // Handle case where all cards are completed (e.g., game over)
             console.log("All cards completed. Cannot regenerate random CO.");
-            setRandomCO(null); // Or handle game over state appropriately
+            setRandomCO({rowIndex:100, colIndex:100}); // Or handle game over state appropriately
             return; // Exit the function if all completed
         }
-        console.log("Generated coordinate:", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
+        console.log("setRandomCO(tempCO):", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
         setRandomCO(tempCO);
     }
 
@@ -346,8 +348,10 @@ const RandomImageGridWrapper: React.FC = () => {
                     console.log("User flipped the correct card")
                     setFlippedCardState(null);
                     setViewingClue(false);
+                    
 
                 }, 1000);
+                
 
                 setTimeout(() => {
                     setFrontCellContentState(prevFrontCellContent => {
@@ -355,8 +359,9 @@ const RandomImageGridWrapper: React.FC = () => {
                         newFrontCellContent[rowIndex][colIndex] = clueCellContent;
                         return newFrontCellContent;
                     });
-                    // regenerateRandomCO();
+                    regenerateRandomCO();
                 }, 1500);
+
             } else if (!clueCell) {
                 setIncorrectGuesses(current => current + 1)
             }
@@ -364,28 +369,28 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     useEffect(() => {
-        console.log("completedCards:", completedCards)
-        // Determine total completed cards by counting true in correctlyGuessedGrid
-        const totalCompleted = correctlyGuessedGrid.reduce((count, row) => count + row.filter(cell => cell).length, 0);
+        // console.log("completedCards:", completedCards)
+        // // Determine total completed cards by counting true in correctlyGuessedGrid
+        // const totalCompleted = correctlyGuessedGrid.reduce((count, row) => count + row.filter(cell => cell).length, 0);
 
-        setTimeout(() => {
-            // Only regenerate if not all cards are completed
-            if (totalCompleted < numRows * numCols) {
-                regenerateRandomCO();
-            } else {
-                console.log("Game Over - All cards completed.");
-                setRandomCO(null); // Or handle game over state
-            }
-        }, 1500);
+        // setTimeout(() => {
+        //     // Only regenerate if not all cards are completed
+        //     if (totalCompleted < numRows * numCols) {
+        //         regenerateRandomCO();
+        //     } else {
+        //         console.log("Game Over - All cards completed.");
+        //         setRandomCO({rowIndex: 100, colIndex: 100}); // Or handle game over state
+        //     }
+        // }, 1500);
 
-        // Determine player turn based on total completed cards
-        if (totalCompleted % 2 !== 0) {
-            setPlayerTurn('Two');
-        } else {
-            setPlayerTurn('One');
-        }
+        // // Determine player turn based on total completed cards
+        // if (totalCompleted % 2 !== 0) {
+        //     setPlayerTurn('Two');
+        // } else {
+        //     setPlayerTurn('One');
+        // }
 
-        regenerateImages()
+        // regenerateImages()
     }, [completedCards, correctlyGuessedGrid]) // Depend on both
 
     useEffect(() => {
