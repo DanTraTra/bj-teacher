@@ -1,60 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import supabase from '../../services/supabaseClient'; // Adjust path as needed
+import { useParams, useNavigate } from 'react-router-dom';
+import GameIdModal from './GameIdModal';
 import CCGrid from './CCGrid'; // Adjust the import path based on your structure
 import CCRows from './CCRows'; // Adjust the import path based on your structure
+import { generateSlug } from "random-word-slugs";
+import { createClient } from '@supabase/supabase-js';
 
 const rootPath = 'images/'
 
-// Helper functions for URL state management
-const encodeState = (state: {
-    image_numbers: number[],
-    randomCO: { rowIndex: number, colIndex: number } | null,
-    clueCellContent: string | null,
-    frontCellContent: string[],
-    completedCards: string[],
-    incorrectGuessCountP1: number[],
-    incorrectGuessCountP2: number[],
-    playerNames: { 'One': string | null, 'Two': string | null }
-}) => {
-    const { image_numbers, randomCO, clueCellContent, frontCellContent, completedCards, incorrectGuessCountP1, incorrectGuessCountP2, playerNames } = state;
-    return btoa(JSON.stringify({
-        in: image_numbers,
-        rc: randomCO,
-        ccc: clueCellContent,
-        fc: frontCellContent,
-        cc: completedCards,
-        igc1: incorrectGuessCountP1,
-        igc2: incorrectGuessCountP2,
-        pn: playerNames,
-    }));
-};
 
-const decodeState = (encoded: string) => {
-    try {
-        const decoded = JSON.parse(atob(encoded));
-        return {
-            image_numbers: decoded.in,
-            randomCO: decoded.rc,
-            clueCellContent: decoded.ccc,
-            frontCellContent: decoded.fc,
-            completedCards: decoded.cc,
-            incorrectGuessCountP1: decoded.igc1,
-            incorrectGuessCountP2: decoded.igc2,
-            playerNames: decoded.pn
-        };
-    } catch (e) {
-        return null;
-    }
-};
+const getRandomImages = (imagePaths: string[], count: number): React.JSX.Element[] => {
+    const shuffled = [...imagePaths].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count).map((src, i) => (
+        <img key={i} src={src} alt={`${src}`} className="w-full h-full object-contain" />
+        // <img key={i} src={src} alt={`header-${i}`} className="w-full h-full object-contain" />
+    ));
 
-// const getRandomImages = (imagePaths: string[], count: number): React.JSX.Element[] => {
-//     const shuffled = [...imagePaths].sort(() => 0.5 - Math.random());
-//     return shuffled.slice(0, count).map((src, i) => (
-//         <img key={i} src={src} alt={`${src}`} className="w-full h-full object-contain"/>
-//         // <img key={i} src={src} alt={`header-${i}`} className="w-full h-full object-contain" />
-//     ));
-//
-// };
+};
 const testGrid = [[1, 2, 3], [1, 23, 4], [2, 412, 2]]
 const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
 const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2', 'jjejej']
@@ -74,9 +37,16 @@ function TwoDim2OneDim<T>(TwoDimArray: T[][]): T[] {
     return TwoDimArray.flat();
 }
 
-function convertFrontCellContentStateToBool<T>(FCCST: string[], columns: number): boolean[][] {
-    const result = FCCST.map(co => co.match(`[A-${[String.fromCharCode(65 + columns - 1)]}][1-${columns}]`) ? false : true)
-    return OneDim2TwoDim(result, columns)
+function convertFrontCellContentStateToBool<T>(FCCST: string[] | string[][], columns: number): boolean[][] {
+    // Flatten if it's a 2D array
+    let flat: string[];
+    if (Array.isArray(FCCST[0])) {
+        flat = (FCCST as string[][]).flat();
+    } else {
+        flat = FCCST as string[];
+    }
+    const result = flat.map(co => typeof co === 'string' && co.match(`[A-${String.fromCharCode(65 + columns - 1)}][1-${columns}]`) ? false : true);
+    return OneDim2TwoDim(result, columns);
 }
 
 
@@ -84,13 +54,23 @@ function convertFrontCellContentStateToBool<T>(FCCST: string[], columns: number)
 // console.log('convertFrontCellContentStateToBool', convertFrontCellContentStateToBool(testArray1, 3))
 
 
+// --- Supabase integration variables ---
+const GAME_TABLE = 'Hyperlink'; // Your table name
+// GAME_ID is now sourced from the route param
+
 const RandomImageGridWrapper: React.FC = () => {
+    // Get game id from route: /image_link/:id
+    const { id: GAME_ID } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(!GAME_ID);
+    const [creating, setCreating] = useState(false);
+
     const numRows = 5;
     const numCols = 5;
 
     const [playerTurn, setPlayerTurn] = useState<'One' | 'Two'>('One')
     const [playerAction, setPlayerAction] = useState<'View Card & Give Clue' | 'guess the card'>('View Card & Give Clue')
-    const [searchParams, setSearchParams] = useSearchParams();
+
     const [viewingClue, setViewingClue] = useState<boolean>(false);
     const [gridView, setGridView] = useState<boolean>(true)
     const [rowHeaders, setRowHeaders] = useState<React.JSX.Element[]>([]);
@@ -103,7 +83,7 @@ const RandomImageGridWrapper: React.FC = () => {
     const [image_numbers, setImageNumbers] = useState<number[]>([]);
     const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
-    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>(Array.from({ length: numCols}, () =>
+    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>(Array.from({ length: numCols }, () =>
         Array(numCols).fill(false)
     ));
     const [completedCards, setCompletedCards] = useState<string[]>([]);
@@ -120,74 +100,119 @@ const RandomImageGridWrapper: React.FC = () => {
     const player1Color = '#E38B83'
     const player2Color = '#9893AC'
 
+    interface StateType {
+        image_numbers: number[];
+        randomCO: { rowIndex: number, colIndex: number } | null;
+        clueCellContent: string;
+        frontCellContent: string[];
+        completedCards: string[];
+        incorrectGuessCountP1: number[];
+        incorrectGuessCountP2: number[];
+        playerNames: { One: string | null; Two: string | null };
+    }
+
+    const handleJoin = async (gameId: string) => {
+        if (gameId.trim()) {
+            // Fetch game state from Supabase
+            const { data, error } = await supabase
+                .from(GAME_TABLE)
+                .select('state')
+                .eq('id', gameId.trim())
+                .single();
+            if (error || !data || !data.state) {
+                alert('Could not find game with that ID.');
+                return;
+            }
+            const s = data.state;
+            setImageNumbers(s.image_numbers || []);
+            setRandomCO(s.randomCO || null);
+            setFrontCellContentState(OneDim2TwoDim(s.frontCellContent || [], numCols));
+            setCompletedCards(s.completedCards || []);
+            setClueCellContent(s.clueCellContent || '?');
+            setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent || [], numCols));
+            setIncorrectGuessCountP1(s.incorrectGuessCountP1 || [0]);
+            setIncorrectGuessCountP2(s.incorrectGuessCountP2 || [0]);
+            setPlayerNames(s.playerNames || { One: null, Two: null });
+            // Now navigate to the game page
+            navigate(`/image_link/${gameId.trim()}`);
+        }
+    };
+
+    const handleCreate = async () => {
+        setCreating(true);
+
+        // Only generate new random numbers if there's no URL state
+        const randomNumbers: number[] = [];
+        for (let i = 0; i < 10; i++) {
+            let num;
+            do {
+                num = Math.floor(Math.random() * 1000) + 1;
+            } while (randomNumbers.includes(num));
+            randomNumbers.push(num);
+        }
+        // setImageNumbers(randomNumbers);
+
+        // Initialize randomCO and frontCellContentState for new games
+        console.log("setRandomCO(Random1)");
+        const random = { rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) }
+        setRandomCO(random);
+        const frontCellContent2D = Array.from({ length: numRows }, (_, rowIndex) =>
+            Array.from({ length: numCols }, (_, colIndex) =>
+                `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`
+            )
+        );  
+        const frontCellContent = frontCellContent2D.flat(); // 1D array for backend
+
+        // setFrontCellContentState(frontCellContent);
+
+        const boolGrid = Array.from({ length: numRows }, (_, rowIndex) =>
+            Array.from({ length: numCols }, (_, colIndex) =>
+                false
+            )
+        )
+        // setCorrectlyGuessedGrid(boolGrid);
+
+        const p1 = prompt('Enter your name')
+        const p2 = prompt('Enter your partners name')
+
+        const game_code = generateSlug(2)
+        console.log("game_code", game_code)
+
+        // Create new game in Supabase
+        const { data, error } = await supabase
+            .from('Hyperlink')
+            .insert([{
+                state: {
+                    image_numbers: randomNumbers,
+                    randomCO: random,
+                    clueCellContent: '?',
+                    frontCellContent: frontCellContent,
+                    completedCards: [],
+                    incorrectGuessCountP1: [],
+                    incorrectGuessCountP2: [],
+                    playerNames: { One: p1, Two: p2 },
+                },
+                game_code: game_code
+            }])
+            .select('id')
+            .single();
+        setCreating(false);
+
+        if (data && data.id) {
+            navigate(`/image_link/${data.id}`);
+        } else {
+            alert('Failed to create game. Please try again.');
+        }
+    };
+
     const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
     );
 
-    // Initialize state from URL on mount
-    useEffect(() => {
-        const stateParam = searchParams.get('state');
-        if (stateParam) {
-            const decodedState = decodeState(stateParam);
-            if (decodedState) {
-                console.log("Loading state from URL:", decodedState);
-                setImageNumbers(decodedState.image_numbers);
-                console.log("setRandomCO(decodedState.randomCO):", `${colLetters[decodedState.randomCO.colIndex]}${decodedState.randomCO.rowIndex + 1}`);
-                setRandomCO(decodedState.randomCO);
-                setFrontCellContentState(OneDim2TwoDim(decodedState.frontCellContent, numCols));
-                setCompletedCards(decodedState.completedCards);
-                setClueCellContent(decodedState.clueCellContent);
-                setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(decodedState.frontCellContent, numCols));
-                setIncorrectGuessCountP1(decodedState.incorrectGuessCountP1);
-                setIncorrectGuessCountP2(decodedState.incorrectGuessCountP2);
-                setPlayerNames(decodedState.playerNames);
-            }
-        } else {
-            // Only generate new random numbers if there's no URL state
-            const randomNumbers: number[] = [];
-            for (let i = 0; i < 10; i++) {
-                let num;
-                do {
-                    num = Math.floor(Math.random() * 1000) + 1;
-                } while (randomNumbers.includes(num));
-                randomNumbers.push(num);
-            }
-            setImageNumbers(randomNumbers);
-
-            // Initialize randomCO and frontCellContentState for new games
-            console.log("setRandomCO(Random1)");
-            setRandomCO({ rowIndex: Math.floor(Math.random() * numRows), colIndex: Math.floor(Math.random() * numCols) });
-            const frontCellContent = Array.from({ length: numRows }, (_, rowIndex) =>
-                Array.from({ length: numCols }, (_, colIndex) =>
-                    `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`
-                )
-            );
-            setFrontCellContentState(frontCellContent);
-
-            const boolGrid = Array.from({ length: numRows }, (_, rowIndex) =>
-                Array.from({ length: numCols }, (_, colIndex) =>
-                    false
-                )
-            )
-            setCorrectlyGuessedGrid(boolGrid);
+    // Render modal if no GAME_ID
+    const shouldShowModal = !GAME_ID;
 
 
-            if (playerNames['One'] === null && playerNames['Two'] === null) {
-                const p1 = prompt('Enter your name')
-                const p2 = prompt('Enter your partners name')
-                setPlayerNames({ One: p1, Two: p2 })
-            }
-        }
-
-    }, []); // Only run on mount
-
-    // useEffect(() => {
-    //     if (playerNames['One'] === null && playerNames['Two'] === null) {
-    //         const p1 = prompt('Enter your name')
-    //         const p2 = prompt('Enter your partners name')
-    //         setPlayerNames({ One: p1, Two: p2 })
-    //     }
-    // }, [playerNames])
 
     const regenerateImages = () => {
         if (image_numbers.length !== 10) {
@@ -196,8 +221,8 @@ const RandomImageGridWrapper: React.FC = () => {
         }
 
         // console.log("Regenerating images with numbers:", image_numbers);
-        const rowPaths = image_numbers.slice(0, 5).map(num => `${rootPath}image_${num}.png`);
-        const colPaths = image_numbers.slice(5, 10).map(num => `${rootPath}image_${num}.png`);
+        const rowPaths = image_numbers.slice(0, 5).map(num => `/${rootPath}image_${num}.png`);
+        const colPaths = image_numbers.slice(5, 10).map(num => `/${rootPath}image_${num}.png`);
 
         // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
@@ -256,7 +281,7 @@ const RandomImageGridWrapper: React.FC = () => {
         } else {
             // Handle case where all cards are completed (e.g., game over)
             console.log("All cards completed. Cannot regenerate random CO.");
-            setRandomCO({rowIndex:100, colIndex:100}); // Or handle game over state appropriately
+            setRandomCO({ rowIndex: 100, colIndex: 100 }); // Or handle game over state appropriately
             return; // Exit the function if all completed
         }
         console.log("setRandomCO(tempCO):", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
@@ -268,29 +293,93 @@ const RandomImageGridWrapper: React.FC = () => {
         setClueCellContent(newContent);
     };
 
-    // Update URL when state changes
+    // --- Supabase: Load and subscribe to game state ---
+    const initialLoad = useRef(false);
     useEffect(() => {
-        const state = {
-            image_numbers: image_numbers,
-            randomCO,
-            clueCellContent,
-            frontCellContent: TwoDim2OneDim(frontCellContentState),
-            completedCards, // completedCards is still in encodeState, will remove later
-            incorrectGuessCountP1, // These are still arrays, will change later
-            incorrectGuessCountP2, // These are still arrays, will change later
-            playerNames,
+        if (!GAME_ID) {
+            handleCreate();
+            return;
+        }
+        // Define the expected state type for Supabase
+
+        const fetchGameState = async () => {
+            const { data, error } = await supabase
+                .from(GAME_TABLE)
+                .select('state')
+                .eq('id', GAME_ID)
+                .single<any>(); // Use any for runtime guard
+            if (
+                data &&
+                typeof data === 'object' &&
+                Object.keys(data).length > 0 &&
+                'state' in data &&
+                data.state
+            ) {
+                console.log("data.state", data.state)
+                const s = data.state as StateType;
+                setImageNumbers(s.image_numbers);
+                setRandomCO(s.randomCO);
+                setFrontCellContentState(OneDim2TwoDim(s.frontCellContent, numCols));
+                
+                setCompletedCards(s.completedCards);
+                setClueCellContent(s.clueCellContent);
+                setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent, numCols));
+                setIncorrectGuessCountP1(s.incorrectGuessCountP1);
+                setIncorrectGuessCountP2(s.incorrectGuessCountP2);
+                setPlayerNames(s.playerNames);
+            }
+            initialLoad.current = true;
         };
-        setSearchParams({ state: encodeState(state) });
-        console.log("image_numbers", image_numbers)
-        console.log("randomCO", randomCO)
-        console.log("frontCellContentState", frontCellContentState)
-        console.log("completedCards", completedCards)
-        console.log("clueCellContent", clueCellContent)
-        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
-        console.log("incorrectGuessCountP1", incorrectGuessCountP1)
-        console.log("incorrectGuessCountP2", incorrectGuessCountP2)
-        console.log("playerNames", playerNames)
+        fetchGameState();
+
+        // Real-time subscription
+        const channel = supabase
+            .channel('realtime:game_' + GAME_ID)
+            .on('postgres_changes', { event: '*', schema: 'public', table: GAME_TABLE, filter: `id=eq.${GAME_ID}` }, payload => {
+                if (
+                    payload.new &&
+                    typeof payload.new === 'object' &&
+                    Object.keys(payload.new).length > 0 &&
+                    'state' in payload.new &&
+                    payload.new.state
+                ) {
+                    const s = payload.new.state as StateType;
+                    setImageNumbers(s.image_numbers);
+                    setRandomCO(s.randomCO);
+                    setFrontCellContentState(OneDim2TwoDim(s.frontCellContent, numCols) );
+                    setCompletedCards(s.completedCards);
+                    setClueCellContent(s.clueCellContent ?? '?');
+                    setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent, numCols));
+                    setIncorrectGuessCountP1(s.incorrectGuessCountP1);
+                    setIncorrectGuessCountP2(s.incorrectGuessCountP2);
+                    setPlayerNames(s.playerNames);
+                }
+            })
+            .subscribe();
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [GAME_ID]);
+
+    // --- Supabase: Push state changes ---
+    useEffect(() => {
+        if (!initialLoad.current) return;
+        const updateGameState = async () => {
+            const state = {
+                image_numbers,
+                randomCO,
+                clueCellContent,
+                frontCellContent: TwoDim2OneDim(frontCellContentState),
+                completedCards,
+                incorrectGuessCountP1,
+                incorrectGuessCountP2,
+                playerNames,
+            };
+            await supabase.from(GAME_TABLE).update({ state }).eq('id', GAME_ID);
+        };
+        updateGameState();
     }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
+
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
@@ -348,10 +437,10 @@ const RandomImageGridWrapper: React.FC = () => {
                     console.log("User flipped the correct card")
                     setFlippedCardState(null);
                     setViewingClue(false);
-                    
+
 
                 }, 1000);
-                
+
 
                 setTimeout(() => {
                     setFrontCellContentState(prevFrontCellContent => {
@@ -369,31 +458,6 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     useEffect(() => {
-        // console.log("completedCards:", completedCards)
-        // // Determine total completed cards by counting true in correctlyGuessedGrid
-        // const totalCompleted = correctlyGuessedGrid.reduce((count, row) => count + row.filter(cell => cell).length, 0);
-
-        // setTimeout(() => {
-        //     // Only regenerate if not all cards are completed
-        //     if (totalCompleted < numRows * numCols) {
-        //         regenerateRandomCO();
-        //     } else {
-        //         console.log("Game Over - All cards completed.");
-        //         setRandomCO({rowIndex: 100, colIndex: 100}); // Or handle game over state
-        //     }
-        // }, 1500);
-
-        // Determine player turn based on total completed cards
-        // if (completedCards.length % 2 === 0 && clueCellContent != '?') {
-        //     setPlayerTurn('One');
-        // } else {
-        //     setPlayerTurn('Two');
-        // }
-
-        // regenerateImages()
-    }, [completedCards]) // Depend on both
-
-    useEffect(() => {
         if (clueCellContent !== "?") {
             setButtonState(null);
             setPlayerAction('guess the card');
@@ -404,12 +468,6 @@ const RandomImageGridWrapper: React.FC = () => {
                 setPlayerTurn('One');
             }
         } else {
-            // Player turn reverts for the clue-giving phase
-            // if (playerTurn === 'One') {
-            //     setPlayerTurn('Two');
-            // } else {
-            //     setPlayerTurn('One');
-            // }
             setButtonState("view")
         }
     }, [clueCellContent])

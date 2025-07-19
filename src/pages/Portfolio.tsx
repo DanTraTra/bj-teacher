@@ -7,8 +7,8 @@ const Portfolio: React.FC = () => {
     const handleGoToBlackjack = () => {
         navigate('/blackjack');
     };
-    const handleGoToCrossClues = () => {
-        navigate('/crossclues');
+    const handleGoToImageLink = () => {
+        navigate('/image_link');
     };
     const handleGoToBananagrams = () => {
         navigate('/orangagrams');
@@ -31,10 +31,10 @@ const Portfolio: React.FC = () => {
                 {/*    Play Bananagrams*/}
                 {/*</button>*/}
                 <button
-                    onClick={handleGoToCrossClues}
+                    onClick={handleGoToImageLink}
                     className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-300"
                 >
-                    Play Cross Clues
+                    Play Image Link
                 </button>
             </div>
             {/* Add more profile/menu options here */}

@@ -1,0 +1,25 @@
+{
+  "purpose": "A single website for all my side projects - most likely will be games.",
+  "current_status": "Has a completed blackjack game and currently working on a two player Cross Clues inspired game",
+  "key_features": [
+    "Black Jack: Single player game with multiple modes where players can either play for a high score, train basic strategy and/or count cards and lastly, learn how to play blackjack",
+    "Cross Clues: Two player game where players work together to solve a cross image puzzle"
+  ],
+  "architecture_overview": "React, typscript, tailwind, vite, supabase",
+  "important_decisions": [
+    {
+      "date": "2025-07-19",
+      "decision": "Decided to use supabase for database and authentication to make cross clues game real-time multiplayer"
+    }
+  ],
+  "next_steps": [
+    "Finish Cross Clues game by connecting it to supabase and implementing real-time multiplayer"
+  ],
+  "contacts": [
+    {
+      "name": "Dan",
+      "role": "Owner",
+      "contact": "dantra@gmail.com"
+    }
+  ]
+}

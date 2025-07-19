@@ -38,32 +38,9 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({LeaderboardData, Loading}) => 
     const toggleRow = (index: number) => {
         setExpandedRowIndex(ExpandedRowIndex === index ? null : index);
     }
-    //
-    // const [Leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
-    // const [LeaderboardData, setLeaderboardData] = useState<GameLogDataEntries[]>([]);
-    //
+
     useEffect(() => {
 
-        // let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => ({
-        //     rank: 1,
-        //     player: d.username,
-        //     cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
-        //     hands: d.game_log_data.length,
-        //     win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.some(hand => hand.winMultiplier > 1)).length / d.game_log_data.length) * 100).toFixed(0)),
-        //     db_index: index,
-        // }));
-        //
-        // updatedBoard.sort((a, b) => b.cashOut - a.cashOut).forEach((row, index) => {
-        //     row.rank = index + 1;
-        // });
-        //
-        // updatedBoard = updatedBoard.splice(0, 20)
-        //
-        // setLeaderboard(updatedBoard);
-        //
-        // if (Leaderboard.length) {
-        //     ////// // console.log("Leaderboard", Leaderboard)
-        // }
     }, [LeaderboardData, Loading])
 
     return (

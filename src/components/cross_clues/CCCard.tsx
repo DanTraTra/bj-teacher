@@ -65,7 +65,7 @@ const CCCard: React.FC<CCCardProps> = ({
             // console.log("text_size", frontContent && !frontContent.match('^[A-E][1-5]$'))
             // console.log("content.scrollWidth", content.scrollWidth)
             
-            if (frontContent && !frontContent.match('^[A-E][1-5]$')) {
+            if (typeof frontContent === 'string' && !frontContent.match('^[A-E][1-5]$')) {
                 while (content.scrollWidth > containerWidth && currentSize > 8) {
                     currentSize -= 2;
                     content.style.fontSize = `${currentSize}px`;

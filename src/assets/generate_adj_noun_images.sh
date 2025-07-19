@@ -3,7 +3,7 @@
 # --- Configuration ---
 ADJECTIVE_FILE="src/assets/adjectives.csv" # CSV file with adjectives (header row, first column)
 NOUN_FILE="src/assets/most-common-nouns-english.csv"           # CSV file with nouns (header row, first column)
-NUM_IMAGES=1000                  # How many images to generate
+NUM_IMAGES=5                 # How many images to generate
 OUTPUT_DIR="public/images" # Directory to save the images
 ACCOUNT_ID="d85c1a22f832cacd74de9477aa1661e0" # Your Cloudflare Account ID
 API_TOKEN="lDFbQlPVJV_mbZrRwtLnI6-8TjpaqIqG9pIZCM0i" # Your Cloudflare API Token (BE CAREFUL!)
