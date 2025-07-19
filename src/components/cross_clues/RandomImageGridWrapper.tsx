@@ -318,16 +318,10 @@ const RandomImageGridWrapper: React.FC = () => {
     const handleClueCellEdit = (newContent: string) => {
         setGameState({ ...gameState, clueCellContent: newContent });
         console.log("handleClueCellEdit", newContent)
-        // updateGameState({
-        //     image_numbers,
-        //     randomCO,
-        //     clueCellContent: newContent,
-        //     frontCellContent: TwoDim2OneDim(frontCellContentState),
-        //     completedCards,
-        //     incorrectGuessCountP1,
-        //     incorrectGuessCountP2,
-        //     playerNames,
-        // });
+        updateGameState({
+            ...gameState,
+            clueCellContent: newContent,
+        });
     };
 
     // --- Supabase: Load and subscribe to game state ---
