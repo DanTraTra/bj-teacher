@@ -133,6 +133,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setIncorrectGuessCountP1(s.incorrectGuessCountP1 || [0]);
             setIncorrectGuessCountP2(s.incorrectGuessCountP2 || [0]);
             setPlayerNames(s.playerNames || { One: null, Two: null });
+            updateGameState();
             // Now navigate to the game page
             navigate(`/image_link/${gameId.trim()}`);
         }
@@ -282,10 +283,12 @@ const RandomImageGridWrapper: React.FC = () => {
             // Handle case where all cards are completed (e.g., game over)
             console.log("All cards completed. Cannot regenerate random CO.");
             setRandomCO({ rowIndex: 100, colIndex: 100 }); // Or handle game over state appropriately
+            updateGameState();
             return; // Exit the function if all completed
         }
         console.log("setRandomCO(tempCO):", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
         setRandomCO(tempCO);
+        updateGameState();
     }
 
     // Handler for clue cell content updates
@@ -361,24 +364,40 @@ const RandomImageGridWrapper: React.FC = () => {
         };
     }, [GAME_ID]);
 
-    // --- Supabase: Push state changes ---
-    useEffect(() => {
-        if (!initialLoad.current) return;
-        const updateGameState = async () => {
-            const state = {
-                image_numbers,
-                randomCO,
-                clueCellContent,
-                frontCellContent: TwoDim2OneDim(frontCellContentState),
-                completedCards,
-                incorrectGuessCountP1,
-                incorrectGuessCountP2,
-                playerNames,
-            };
-            await supabase.from(GAME_TABLE).update({ state }).eq('id', GAME_ID);
+    const updateGameState = async () => {
+        const state = {
+            image_numbers,
+            randomCO,
+            clueCellContent,
+            frontCellContent: TwoDim2OneDim(frontCellContentState),
+            completedCards,
+            incorrectGuessCountP1,
+            incorrectGuessCountP2,
+            playerNames,
         };
-        updateGameState();
-    }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
+        console.log("updateGameState", state);
+        await supabase.from(GAME_TABLE).update({ state }).eq('id', GAME_ID);
+    };
+
+    // --- Supabase: Push state changes ---
+    // useEffect(() => {
+    //     if (!initialLoad.current) return;
+    //     const updateGameState = async () => {
+    //         const state = {
+    //             image_numbers,
+    //             randomCO,
+    //             clueCellContent,
+    //             frontCellContent: TwoDim2OneDim(frontCellContentState),
+    //             completedCards,
+    //             incorrectGuessCountP1,
+    //             incorrectGuessCountP2,
+    //             playerNames,
+    //         };
+    //         console.log("updateGameState", state);
+    //         await supabase.from(GAME_TABLE).update({ state }).eq('id', GAME_ID);
+    //     };
+    //     updateGameState();
+    // }, [image_numbers, randomCO, frontCellContentState, completedCards, clueCellContent, correctlyGuessedGrid, incorrectGuessCountP1, incorrectGuessCountP2, playerNames]);
 
 
     // Add state to track the currently flipped card
@@ -421,6 +440,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 // Correct card chosen
                 setClueCellContent("?");
                 setEditValue("?");
+                updateGameState();
                 setPlayerAction("View Card & Give Clue")
 
                 setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
@@ -483,6 +503,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEditValue(e.target.value);
+        updateGameState();
     };
 
     const handleViewCard = () => {
@@ -497,6 +518,7 @@ const RandomImageGridWrapper: React.FC = () => {
         setViewingClue(false);
         setIsEditing(false);
         setFlippedCardState(null);
+        updateGameState();
     };
 
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -507,6 +529,7 @@ const RandomImageGridWrapper: React.FC = () => {
             else if (editValue !== '') {
                 handleClueCellEdit(editValue);
                 setEditValue('?');
+                updateGameState();
                 setButtonState('view');
                 setFlippedCardState(null);
                 setBigImage(null);
@@ -523,6 +546,7 @@ const RandomImageGridWrapper: React.FC = () => {
         else if (editValue !== '') {
             handleClueCellEdit(editValue);
             setEditValue('?');
+            updateGameState();
             setButtonState('view');
             setFlippedCardState(null);
             // Player turn change is now in useEffect based on clueCellContent

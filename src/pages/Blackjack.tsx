@@ -18,14 +18,16 @@ import SVGTeacherPoint2 from "../assets/Teacher3.svg?react";
 import Arrow1 from "../assets/arrow1.svg?react";
 
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, Suspense} from "react";
 import {useSpring, animated} from 'react-spring';
-import MainContent, {PlayerHandProps} from "../components/MainContent";
-import LeaderBoard, {GameLogDataEntries, LeaderboardRow} from "../components/LeaderBoard";
+const MainContent = React.lazy(() => import("../components/MainContent"));
+const LeaderBoard = React.lazy(() => import("../components/LeaderBoard"));
+const GameMenu = React.lazy(() => import("../components/GameMenu"));
+const Tutorial = React.lazy(() => import("../components/Tutorial"));
+import type {PlayerHandProps} from "../components/MainContent";
+import type {GameLogDataEntries, LeaderboardRow} from "../components/LeaderBoard";
 import {FaDumbbell} from "react-icons/fa6";
 import ScrollableButtonContainer from "../components/ScrollableButtons";
-import GameMenu from "../components/GameMenu";
-import Tutorial from "../components/Tutorial";
 import TeacherAnimation from "../components/TeacherAnimation";
 import SVGAnimator from "../components/SVGAnimator";
 import SVGInterpolator from "../components/SVGAnimator";
