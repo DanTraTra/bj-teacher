@@ -9,6 +9,27 @@ import { createClient } from '@supabase/supabase-js';
 
 const rootPath = 'images/'
 
+// Utility to fetch all image paths from Supabase Storage bucket 'image-link-images'
+const fetchSupabaseImagePaths = async (): Promise<string[]> => {
+
+    // List all files in the bucket
+    const { data, error } = await supabase.storage.from('image-link-images').list('', { limit: 1000 });
+    if (error) {
+        console.error('Error listing images from Supabase:', error.message);
+        return [];
+    }
+    // Build public URLs for each image
+    return (data?.map(file =>
+        supabase.storage.from('image-link-images').getPublicUrl(file.name).data.publicUrl
+    ) || []).filter(Boolean);
+};
+
+// Fetch 10 random images from Supabase Storage
+const fetchRandomSupabaseImages = async (count: number = 10): Promise<string[]> => {
+    const allImages = await fetchSupabaseImagePaths();
+    const shuffled = allImages.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
 
 const getRandomImages = (imagePaths: string[], count: number): React.JSX.Element[] => {
     const shuffled = [...imagePaths].sort(() => 0.5 - Math.random());
@@ -97,7 +118,7 @@ const RandomImageGridWrapper: React.FC = () => {
     const [playerColours, setPlayerColours] = useState<{ player1: string, player2: string }>({ player1: '#F2F6A9', player2: '#D5D1E9' })
 
     const [gameState, setGameState] = useState<StateType>({
-        image_numbers: [],
+        imageUrls: [],
         randomCO: null,
         clueCellContent: "?",
         frontCellContent: [],
@@ -107,11 +128,15 @@ const RandomImageGridWrapper: React.FC = () => {
         playerNames: { One: null, Two: null },
     });
 
+    // State for storing Cloudinary image URLs
+    const [supaBaseImages, setsupaBaseImages] = useState<string[]>([]);
+    const [isLoadingImages, setIsLoadingImages] = useState<boolean>(false);
+
     const player1Color = '#E38B83'
     const player2Color = '#9893AC'
 
     interface StateType {
-        image_numbers: number[];
+        imageUrls: string[];
         randomCO: { rowIndex: number, colIndex: number } | null;
         clueCellContent: string;
         frontCellContent: string[];
@@ -120,6 +145,20 @@ const RandomImageGridWrapper: React.FC = () => {
         incorrectGuessCountP2: number[];
         playerNames: { One: string | null; Two: string | null };
     }
+
+    const fetchImages = async () => {
+        setIsLoadingImages(true);
+        try {
+            const images = await fetchRandomSupabaseImages(1000); // Fetch up to 100 images
+            setsupaBaseImages(images);
+            console.log(`Fetched ${images.length} Supabase images`);
+        } catch (error) {
+            console.error('Error fetching Supabase images:', error);
+        } finally {
+            setIsLoadingImages(false);
+        }
+    };
+
 
     const handleJoin = async (gameId: string) => {
         if (gameId.trim()) {
@@ -143,6 +182,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setIncorrectGuessCountP1(s.incorrectGuessCountP1 || [0]);
             setIncorrectGuessCountP2(s.incorrectGuessCountP2 || [0]);
 
+            console.log("joining s", s)
             setGameState(s)
             // Now navigate to the game page
             navigate(`/image_link/${gameId.trim()}`);
@@ -152,15 +192,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const handleCreate = async () => {
         setCreating(true);
 
-        // Only generate new random numbers if there's no URL state
-        const randomNumbers: number[] = [];
-        for (let i = 0; i < 10; i++) {
-            let num;
-            do {
-                num = Math.floor(Math.random() * 1000) + 1;
-            } while (randomNumbers.includes(num));
-            randomNumbers.push(num);
-        }
+        const images = await fetchRandomSupabaseImages(10);
+        console.log("images", images)
         // setImageNumbers(randomNumbers);
 
         // Initialize randomCO and frontCellContentState for new games
@@ -190,7 +223,7 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("game_code", game_code)
 
         const newState = {
-            image_numbers: randomNumbers,
+            imageUrls: images,
             randomCO: random,
             clueCellContent: '?',
             frontCellContent: frontCellContent,
@@ -201,6 +234,8 @@ const RandomImageGridWrapper: React.FC = () => {
         }
 
         setGameState(newState)
+
+        console.log("newState", newState)
 
         // Create new game in Supabase
         const { data, error } = await supabase
@@ -230,14 +265,16 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
     const regenerateImages = () => {
-        if (gameState.image_numbers.length !== 10) {
-            // console.log("No image numbers available yet");
+        if (gameState.imageUrls.length < 10) {
+            console.log("No images available yet");
             return;
         }
 
-        // console.log("Regenerating images with numbers:", image_numbers);
-        const rowPaths = gameState.image_numbers.slice(0, 5).map(num => `/${rootPath}image_${num}.png`);
-        const colPaths = gameState.image_numbers.slice(5, 10).map(num => `/${rootPath}image_${num}.png`);
+        // console.log("Regenerating images with numbers:", gameState.image_numbers);
+        // Use Cloudinary images instead of local images
+        const rowPaths = gameState.imageUrls.slice(0, 5);
+
+        const colPaths = gameState.imageUrls.slice(5, 10);
 
         // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
@@ -260,12 +297,35 @@ const RandomImageGridWrapper: React.FC = () => {
         setAllHeaderImages(combinedHeaders);
     };
 
-    // Generate headers when image numbers are available or correctlyGuessedGrid changes
+    // Fetch Cloudinary images when component mounts
     useEffect(() => {
-        if (gameState.image_numbers.length === 10) {
-            regenerateImages();
+
+        console.log("gameState", gameState)
+
+        // run handleJoin using the gameId from the URL
+        if (GAME_ID) {
+            handleJoin(GAME_ID);
         }
-    }, [gameState.image_numbers, correctlyGuessedGrid]); // Added correctlyGuessedGrid as dependency
+
+    }, []);
+
+    useEffect(() => {
+        if (creating) {
+            fetchImages();
+        }
+
+    }, [creating]);
+
+    useEffect(() => {
+        regenerateImages();
+    }, [gameState.imageUrls]);
+
+    // Generate headers when image numbers are available or correctlyGuessedGrid changes
+    // useEffect(() => {
+    //     if (correctlyGuessedGrid.flat().every(card => card)) {
+    //         regenerateImages();
+    //     }
+    // }, [correctlyGuessedGrid]); // Added supaBaseImages as dependency
 
     const regenerateRandomCO: () => { rowIndex: number, colIndex: number } = () => {
         let tempCO = {
@@ -345,17 +405,17 @@ const RandomImageGridWrapper: React.FC = () => {
                 'state' in data &&
                 data.state
             ) {
-                console.log("data.state", data.state)
+                // console.log("data.state", data.state)
                 const s = data.state as StateType;
                 // setImageNumbers(s.image_numbers);
-                setGameState({ ...gameState, randomCO: s.randomCO });
+                // setGameState({ ...gameState, randomCO: s.randomCO });
                 // setFrontCellContentState(OneDim2TwoDim(s.frontCellContent, numCols));
 
                 // setCompletedCards(s.completedCards);
                 // setClueCellContent(s.clueCellContent);
                 setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent, numCols));
-                setIncorrectGuessCountP1(s.incorrectGuessCountP1);
-                setIncorrectGuessCountP2(s.incorrectGuessCountP2);
+                // setIncorrectGuessCountP1(s.incorrectGuessCountP1);
+                // setIncorrectGuessCountP2(s.incorrectGuessCountP2);
                 setGameState(s)
             }
             initialLoad.current = true;
