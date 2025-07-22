@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-interface GameIdModalProps {
+interface ImageLinkGameIdModalProps {
   onJoin: (gameId: string) => void;
   onCreate: () => void;
 }
 
-const GameIdModal: React.FC<GameIdModalProps> = ({ onJoin, onCreate }) => {
+const ImageLinkGameIdModal: React.FC<ImageLinkGameIdModalProps> = ({ onJoin, onCreate }) => {
   const [gameIdInput, setGameIdInput] = useState('');
 
   return (
@@ -42,4 +42,4 @@ const GameIdModal: React.FC<GameIdModalProps> = ({ onJoin, onCreate }) => {
   );
 };
 
-export default GameIdModal;
+export default ImageLinkGameIdModal;

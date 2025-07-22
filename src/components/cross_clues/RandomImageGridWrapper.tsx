@@ -6,6 +6,7 @@ import CCGrid from './CCGrid'; // Adjust the import path based on your structure
 import CCRows from './CCRows'; // Adjust the import path based on your structure
 import { generateSlug } from "random-word-slugs";
 import { createClient } from '@supabase/supabase-js';
+import ChoosePlayerModal from './ChoosePlayerModal';
 
 const rootPath = 'images/'
 
@@ -89,9 +90,13 @@ const RandomImageGridWrapper: React.FC = () => {
     const numRows = 5;
     const numCols = 5;
 
-    const [playerTurn, setPlayerTurn] = useState<'One' | 'Two'>('One')
+    const [playerTurn, setPlayerTurn] = useState<'One' | 'Two' >('One')
+    const [playerOnThisDevice, setPlayerOnThisDevice] = useState<'One' | 'Two' | null>(null)
     const [playerAction, setPlayerAction] = useState<'View Card & Give Clue' | 'guess the card'>('View Card & Give Clue')
 
+    const [playerOneName, setPlayerOneName] = useState<string | null>(null);
+    const [playerTwoName, setPlayerTwoName] = useState<string | null>(null);
+    
     const [viewingClue, setViewingClue] = useState<boolean>(false);
     const [gridView, setGridView] = useState<boolean>(true)
     const [rowHeaders, setRowHeaders] = useState<React.JSX.Element[]>([]);
@@ -218,6 +223,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
         const p1 = prompt('Enter your name')
         const p2 = prompt('Enter your partners name')
+
+        setPlayerOneName(p1)
+        setPlayerTwoName(p2)
 
         const game_code = generateSlug(2)
         console.log("game_code", game_code)
@@ -494,7 +502,7 @@ const RandomImageGridWrapper: React.FC = () => {
         // console.log("rowIndex", rowIndex)
         // console.log("colIndex", colIndex)
         if (gameState.clueCellContent === "?" && !clueCell) {
-            alert(`${gameState.playerNames[playerTurn]} needs to give a clue first! Press View Card button`);
+            alert(`${gameState.playerNames[playerOnThisDevice]} needs to give a clue first! Press View Card button`);
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
             // setFlippedCardState(null);
             // console.log("setting flippedCardState to null", flippedCardState)
@@ -720,6 +728,10 @@ const RandomImageGridWrapper: React.FC = () => {
         }
     };
 
+    const handleSelectPlayerTurn = (player: 'One' | 'Two') => {
+        setPlayerOnThisDevice(player);
+    };
+
     useEffect(() => {
         console.log("buttonState", buttonState)
     }, [buttonState])
@@ -733,6 +745,16 @@ const RandomImageGridWrapper: React.FC = () => {
             <GameIdModal
                 onJoin={handleJoin}
                 onCreate={handleCreate}
+            />
+        );
+    }
+
+    if (playerOnThisDevice === null) {
+        return (
+            <ChoosePlayerModal
+                onSelectPlayer={handleSelectPlayerTurn}
+                playerOneName={gameState.playerNames.One || "Player One"}
+                playerTwoName={gameState.playerNames.Two || "Player Two"}
             />
         );
     }
