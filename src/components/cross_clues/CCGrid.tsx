@@ -15,7 +15,8 @@ interface GridProps {
     className?: string;
     /** Optional: Tailwind size class for cells (e.g., 'w-16', 'h-16'). If not provided, relies purely on aspect-square and grid layout. */
     cellSize?: string; // Changed from 'size' to 'cellSize' for clarity
-    randomCO: { rowIndex: number, colIndex: number } | null;
+    givenRandomCO: { rowIndex: number, colIndex: number } | null;
+    otherPlayersRandomCO: { rowIndex: number, colIndex: number }[];
     numRows: number;
     numCols: number;
     clueCellContent: string;
@@ -29,6 +30,7 @@ interface GridProps {
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
     handleHeaderClick: (header: React.ReactNode, CO:string) => void;
+    cellColour: string;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -36,7 +38,8 @@ const CCGrid: React.FC<GridProps> = ({
     colHeaders,
     className = '',
     cellSize = '',
-    randomCO,
+    givenRandomCO,
+    otherPlayersRandomCO,
     numRows,
     numCols,
     clueCellContent,
@@ -50,6 +53,7 @@ const CCGrid: React.FC<GridProps> = ({
     setViewingClue,
     viewingClue,
     handleHeaderClick,
+    cellColour,
 }) => {
 
     // TODO: Add the clue to the chosen correct cell
@@ -118,7 +122,7 @@ const CCGrid: React.FC<GridProps> = ({
                     // clueCellContent
                     " "
                 }
-                backContent={randomCO ? `${colLetters[randomCO.colIndex]}${randomCO.rowIndex + 1}` : ""}
+                backContent={""}
                 beginsFlipped={false}
                 cellSize={cellSize}
                 frontClassName="text-gray-500 bg-gray"
@@ -152,16 +156,12 @@ const CCGrid: React.FC<GridProps> = ({
 
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
-                        const highlightCard = viewingClue && cellContent === `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}`;
+                        const highlightCard = viewingClue && cellContent === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                         if (correctlyGuessedGrid[rowIndex][colIndex]) {
 
-                            if (completedCards.findIndex((card) => card == `${colLetters[colIndex]}${rowIndex + 1}`) % 2 == 0) {
-                
-                                highlightClasses = "text-gray-800 bg-playerTwo"
-                            } else {
-                                highlightClasses = "text-gray-800 bg-playerOne"
-                            }
+                            highlightClasses = `text-gray-800 bg-${cellColour}`
+
                         } else {
                             highlightClasses = `${highlightClasses} bg-white`
                         };
@@ -169,16 +169,16 @@ const CCGrid: React.FC<GridProps> = ({
                         // if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
                         // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
                         // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
-                        const correct_card = cellContent == `${colLetters[randomCO!.colIndex]}${randomCO!.rowIndex + 1}` ? 'correct' : (cellContent[0] == `${colLetters[randomCO!.colIndex]}` || cellContent[1] == `${randomCO!.rowIndex + 1}`) ? 'close' : 'incorrect'
+                        const correct_card = otherPlayersRandomCO.some((CO) => CO.rowIndex == rowIndex && CO.colIndex == colIndex) ? 'correct' : 'incorrect'
                         return (
                             <CCCard
                                 key={`cell-${colIndex}-${rowIndex}`}
                                 frontContent={cellContent}
-                                backContent={correct_card == 'correct' ? '✓' : correct_card == 'close' ? '○' : '✗'}
+                                backContent={correct_card == 'correct' ? '✓' : '✗'}
                                 beginsFlipped={false}
                                 cellSize={cellSize}
                                 frontClassName={`${highlightClasses}`}
-                                backClassName={correct_card == 'correct' ? 'text-correct' : correct_card == 'close' ? 'text-close' : 'text-wrong'}
+                                backClassName={correct_card == 'correct' ? 'text-correct' : 'text-wrong'}
                                 clueCell={false}
                                 correctCard={correct_card}
                                 isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
