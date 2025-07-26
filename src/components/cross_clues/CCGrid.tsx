@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CCCard from './CCCard';
-
+import { FrontCellContent } from './RandomImageGridWrapper';
 // Define the types for header content
 // React.ReactNode allows strings, numbers, JSX elements (like <img>), etc.
 type HeaderContent = React.ReactNode;
@@ -23,7 +23,7 @@ interface GridProps {
     handleClueCellEdit: (newContent: string) => void;
     flippedCard: { rowIndex: number, colIndex: number } | null;
     resetFlippedCardState: () => void;
-    frontCellContent: string[][];
+    frontCellContent: FrontCellContent[][];
     correctlyGuessedGrid: boolean[][];
     handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
     completedCards: string[];
@@ -120,7 +120,7 @@ const CCGrid: React.FC<GridProps> = ({
             <CCCard
                 frontContent={
                     // clueCellContent
-                    " "
+                    {content: " ", color: "white"}
                 }
                 backContent={""}
                 beginsFlipped={false}
@@ -156,11 +156,11 @@ const CCGrid: React.FC<GridProps> = ({
 
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
-                        const highlightCard = viewingClue && cellContent === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
+                        const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                         if (correctlyGuessedGrid[rowIndex][colIndex]) {
 
-                            highlightClasses = `text-gray-800 bg-${cellColour}`
+                            highlightClasses = `text-gray-800 bg-${cellContent.color}`
 
                         } else {
                             highlightClasses = `${highlightClasses} bg-white`

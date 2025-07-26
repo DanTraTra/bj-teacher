@@ -10,6 +10,22 @@ import ChoosePlayerModal from './ChoosePlayerModal';
 
 const rootPath = 'images/'
 
+export type GridCellCO = { rowIndex: number; colIndex: number };
+export type FrontCellContent = { content: string, color: string };
+
+interface StateType {
+    imageUrls: string[];
+    randomCO: GridCellCO[] //should only be four;
+    availiableRandomCo: GridCellCO[];
+    clueCellContent: string[];
+    frontCellContent: FrontCellContent[];
+    completedCards: string[];
+    incorrectGuessCount: number;
+    playerCount: number;
+    playerNames: (string | null)[];
+}
+
+
 // Utility to fetch all image paths from Supabase Storage bucket 'image-link-images'
 const fetchSupabaseImagePaths = async (): Promise<string[]> => {
 
@@ -59,15 +75,15 @@ function TwoDim2OneDim<T>(TwoDimArray: T[][]): T[] {
     return TwoDimArray.flat();
 }
 
-function convertFrontCellContentStateToBool<T>(FCCST: string[] | string[][], columns: number): boolean[][] {
+function convertFrontCellContentStateToBool<T>(FCCST: FrontCellContent[] | FrontCellContent[][], columns: number): boolean[][] {
     // Flatten if it's a 2D array
-    let flat: string[];
+    let flat: FrontCellContent[];
     if (Array.isArray(FCCST[0])) {
-        flat = (FCCST as string[][]).flat();
+        flat = (FCCST as FrontCellContent[][]).flat();
     } else {
-        flat = FCCST as string[];
+        flat = FCCST as FrontCellContent[];
     }
-    const result = flat.map(co => typeof co === 'string' && co.match(`[A-${String.fromCharCode(65 + columns - 1)}][1-${columns}]`) ? false : true);
+    const result = flat.map(co => co.content.match(`[A-${String.fromCharCode(65 + columns - 1)}][1-${columns}]`) ? false : true);
     return OneDim2TwoDim(result, columns);
 }
 
@@ -133,23 +149,6 @@ const RandomImageGridWrapper: React.FC = () => {
     // State for storing Cloudinary image URLs
     const [supaBaseImages, setsupaBaseImages] = useState<string[]>([]);
     const [isLoadingImages, setIsLoadingImages] = useState<boolean>(false);
-
-    const player1Color = '#E38B83'
-    const player2Color = '#9893AC'
-
-    type GridCell = { rowIndex: number; colIndex: number };
-
-    interface StateType {
-        imageUrls: string[];
-        randomCO: GridCell[] //should only be four;
-        availiableRandomCo: GridCell[];
-        clueCellContent: string[];
-        frontCellContent: string[];
-        completedCards: string[];
-        incorrectGuessCount: number;
-        playerCount: number;
-        playerNames: (string | null)[];
-    }
 
 
     const fetchImages = async () => {
@@ -221,7 +220,10 @@ const RandomImageGridWrapper: React.FC = () => {
 
         const frontCellContent2D = Array.from({ length: numRows }, (_, rowIndex) =>
             Array.from({ length: numCols }, (_, colIndex) =>
-                `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`
+            ({
+                content: `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`,
+                color: ''
+            })
             )
         );
         const frontCellContent = frontCellContent2D.flat(); // 1D array for backend
@@ -276,9 +278,9 @@ const RandomImageGridWrapper: React.FC = () => {
         }
     };
 
-    function generateAllRandomCO(numRows: number, numCols: number): GridCell[] {
+    function generateAllRandomCO(numRows: number, numCols: number): GridCellCO[] {
         // Generate all possible grid pairs
-        const allPairs: GridCell[] = [];
+        const allPairs: GridCellCO[] = [];
         for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
             for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 allPairs.push({ rowIndex, colIndex });
@@ -529,8 +531,9 @@ const RandomImageGridWrapper: React.FC = () => {
         // console.log("colIndex", colIndex)
         if (gameState.clueCellContent.filter((player, index) => index !== playerOnThisDevice).every((player) => player === "?") && !clueCell) {
 
-            const playersWithNoClues: (string | null)[] = gameState.playerNames.slice(1, gameState.playerNames.length).filter((player, index) => index !== playerOnThisDevice && gameState.clueCellContent[index + 1] === "?");
-            // console.log("playersWithNoClues", playersWithNoClues)
+            const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
+
+            console.log("playersWithNoClues", playersWithNoClues)
             // console.log("gameState", gameState)
             alert(`${playersWithNoClues.concat().join(", ")} needs to give a clue first! Go tell 'em!`);
 
@@ -580,9 +583,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
                 setTimeout(() => {
-                    const frontCellContent2D = OneDim2TwoDim<string>(gameState.frontCellContent, numCols);
+                    const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, numCols);
                     const newFrontCellContent2D = [...frontCellContent2D];
-                    newFrontCellContent2D[rowIndex][colIndex] = currentClueContent[guessedClueBelongingToPlayer];
+                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[playerOnThisDevice] };
                     const newClues = [...gameState.clueCellContent];
                     newClues[guessedClueBelongingToPlayer] = "?";
 
@@ -599,7 +602,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         clueCellContent: newClues,
                         randomCO: newRandomCO,
                         availiableRandomCo: newAvailiableRandomCo,
-                        frontCellContent: TwoDim2OneDim<string>(newFrontCellContent2D),
+                        frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
                         completedCards: [...gameState.completedCards, `${colLetters[colIndex]}${rowIndex + 1}`],
                         incorrectGuessCount: gameState.incorrectGuessCount,
 
@@ -745,7 +748,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [gameState]);
 
 
-    const buttonClasses = "text-sm h-8 px-3 py-1 bg-blue-500 text-white rounded-none bg-gray-500"
+    const buttonClasses = "text-xs h-8 px-5 py-2 bg-blue-500 text-white rounded-md bg-gray-500 font-bold"
 
     // Show modal if no GAME_ID
     if (!GAME_ID) {
@@ -769,6 +772,8 @@ const RandomImageGridWrapper: React.FC = () => {
 
     // console.log("playerOnThisDevice", playerOnThisDevice)
     // console.log("gameState", gameState)
+
+    const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
 
     return (
         <div className='flex flex-col h-full justify-center items-center pb-4'>
@@ -815,15 +820,22 @@ const RandomImageGridWrapper: React.FC = () => {
                     {clueCellContent}
                 </span>
             </div> */}
-            <div className="flex flex-row justify-center py-2">
+            <div className="flex flex-row h-fit w-full items-center justify-between p-1 mb-3">
                 {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => (
-                    clue != '?' && index + 1 !== playerOnThisDevice ?
-                        <span key={index} className='text-sm text-gray-800'>{gameState.playerNames[index + 1] + "'s clue is: "}
-                            <span className='text-2xl text-gray-800'>
-                                {gameState.clueCellContent[index + 1]}
-                            </span>
-                        </span> : index + 1 !== playerOnThisDevice &&
-                        <span key={index} className='text-sm text-gray-800'>{gameState.playerNames[index + 1] + " is thinking of a clue"}</span>
+                    <div key={index} className={`flex flex-col text-xs p-4 h-full w-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${index === 0 ? 'rounded-tl-2xl' : index === gameState.clueCellContent.length - 2 ? 'rounded-tr-2xl' : ''}`}>
+                        {
+                            <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 === playerOnThisDevice ? 'font-bold' : ''}`}>{
+                                (clue != '?' ?
+                                    gameState.playerNames[index + 1] + "'s clue: " : index + 1 === playerOnThisDevice ?
+                                    "View your card and Give a clue" :
+                                    gameState.playerNames[index + 1] + " is thinking of a clue"
+                                )}
+                                <span className='flex flex-col text-center text-2xl text-gray-800'>
+                                    {clue != '?' ? gameState.clueCellContent[index + 1] : ""}
+                                </span>
+                            </div>
+                        }
+                    </div>
                 ))}
             </div>
             {gameState.clueCellContent[playerOnThisDevice] != '?' && <div className='flex flex-col items-center justify-start'>
@@ -847,7 +859,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 otherPlayersRandomCO={gameState.randomCO.filter((CO, index) => index != playerOnThisDevice)}
                                 numRows={numRows}
                                 numCols={numCols}
-                                frontCellContent={OneDim2TwoDim<string>(gameState.frontCellContent, numCols)}
+                                frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, numCols)}
                                 handleCardFlip={handleCardFlip}
                                 clueCellContent={gameState.clueCellContent[playerOnThisDevice]}
                                 handleClueCellEdit={handleClueCellEdit}
@@ -893,7 +905,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             <input
                                 type="text"
                                 value={editValue === '?' ? '' : editValue}
-                                placeholder="Give a clue for your partner"
+                                placeholder={`Give a clue for ${String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}${gameState.randomCO[playerOnThisDevice].rowIndex + 1}`}
                                 onChange={handleInputChange}
                                 onKeyDown={handleInputKeyDown}
                                 onBlur={handleInputBlur}
@@ -904,9 +916,10 @@ const RandomImageGridWrapper: React.FC = () => {
                                 autoFocus
                             />
                         )}
-                        {gameState.clueCellContent[playerOnThisDevice] != '?' && (
-                            <span className='text-sm text-gray-800'>Your given clue was: {gameState.clueCellContent[playerOnThisDevice]}</span>
-                        )}
+                        {
+                            gameState.clueCellContent[playerOnThisDevice] != '?' && (
+                                <span className='text-sm text-gray-800'>Wait for {playersWithNoClues.concat().join(", ")} to give a clue... </span>
+                            )}
                     </div>
 
                     {/* <button

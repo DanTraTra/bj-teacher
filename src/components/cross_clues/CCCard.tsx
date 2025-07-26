@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { FrontCellContent } from './RandomImageGridWrapper';
 
 interface CCCardProps {
-    frontContent: string;
+    frontContent: FrontCellContent;
     backContent: string | null;
     beginsFlipped: boolean;
     /** Optional: Tailwind size class for the card (e.g., 'w-16', 'h-16') */
@@ -65,7 +66,7 @@ const CCCard: React.FC<CCCardProps> = ({
             // console.log("text_size", frontContent && !frontContent.match('^[A-E][1-5]$'))
             // console.log("content.scrollWidth", content.scrollWidth)
             
-            if (typeof frontContent === 'string' && !frontContent.match('^[A-E][1-5]$')) {
+            if (typeof frontContent.content === 'string' && !frontContent.content.match('^[A-E][1-5]$')) {
                 while (content.scrollWidth > containerWidth && currentSize > 8) {
                     currentSize -= 2;
                     content.style.fontSize = `${currentSize}px`;
@@ -121,7 +122,7 @@ const CCCard: React.FC<CCCardProps> = ({
     return (
         <div
             className={`${baseClasses} ${highlightClass} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : ''}`}
-            onClick={frontContent != '?' && clueCell ? undefined : () => cardClickHandler()}
+            onClick={frontContent.content != '?' && clueCell ? undefined : () => cardClickHandler()}
         >
             <div className="flip-cross-clues-card-inner">
                 <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
@@ -146,7 +147,7 @@ const CCCard: React.FC<CCCardProps> = ({
                                     font-bold
                                 `}
                             >
-                                {frontContent}
+                                {frontContent.content}
                             </span>
                         )}
                     </div>
