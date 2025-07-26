@@ -11,7 +11,7 @@ interface CCCardProps {
     frontClassName?: string;
     backClassName?: string;
     clueCell?: boolean;
-    correctCard?: 'correct' | 'incorrect' | 'close';
+    correctCard?: 'correct' | 'incorrect';
     /** Optional: Callback when content is edited */
     onContentEdit?: (newContent: string) => void;
     /** Whether the card is currently flipped */
@@ -105,19 +105,22 @@ const CCCard: React.FC<CCCardProps> = ({
         overflow-hidden text-center border border-4 ${cellSize} 
         cursor-pointer`;
 
-    const correctCardClasses = `border-correct`;
-    const incorrectCardClasses = `border-wrong`;
-    const closeCardClasses = `border-close`;
-
-    const cardClickHandler = () => {
-        if (!isFlipped && !clueCell) {
-            setTimeout(() => {
-                setClickEffectClass(correctCard == 'correct' ? correctCardClasses : correctCard == 'close' ? closeCardClasses : incorrectCardClasses);
-            }, 0);
+        const correctCardClasses = `border-[#10563F]`;
+        const incorrectCardClasses = `border-[#C44104]`;
+        const closeCardClasses = `border-[#F37332]`;
+        
+        const cardClickHandler = () => {
+            handleCardFlip(rowIndex, colIndex, clueCell);
             
+            if (!clueCell) {
+                // Set the border class after the flip animation starts
+                setTimeout(() => {
+                    setClickEffectClass(correctCard === 'correct' ? correctCardClasses : 
+                                      correctCard === 'incorrect' ? incorrectCardClasses : 
+                                      correctCard === 'close' ? closeCardClasses : '');
+                }, 1); // Small delay to ensure flip state is updated
+            }
         }
-        handleCardFlip(rowIndex, colIndex, clueCell);
-    }
 
     return (
         <div

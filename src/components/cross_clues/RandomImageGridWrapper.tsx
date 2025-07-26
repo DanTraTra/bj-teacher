@@ -7,6 +7,8 @@ import CCRows from './CCRows'; // Adjust the import path based on your structure
 import { generateSlug } from "random-word-slugs";
 import { createClient } from '@supabase/supabase-js';
 import ChoosePlayerModal from './ChoosePlayerModal';
+import { BiArrowToRight } from 'react-icons/bi';
+import { BsArrowRight } from 'react-icons/bs';
 
 const rootPath = 'images/'
 
@@ -748,7 +750,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [gameState]);
 
 
-    const buttonClasses = "text-xs h-8 px-5 py-2 bg-blue-500 text-white rounded-md bg-gray-500 font-bold"
+    const buttonClasses = "text-xs h-8 px-5 py-2 text-white rounded-sm bg-gray-500 font-semibold"
 
     // Show modal if no GAME_ID
     if (!GAME_ID) {
@@ -824,11 +826,11 @@ const RandomImageGridWrapper: React.FC = () => {
                 {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => (
                     <div key={index} className={`flex flex-col text-xs p-4 h-full w-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${index === 0 ? 'rounded-tl-2xl' : index === gameState.clueCellContent.length - 2 ? 'rounded-tr-2xl' : ''}`}>
                         {
-                            <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 === playerOnThisDevice ? 'font-bold' : ''}`}>{
+                            <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 === playerOnThisDevice ? 'font-semibold' : ''}`}>{
                                 (clue != '?' ?
                                     gameState.playerNames[index + 1] + "'s clue: " : index + 1 === playerOnThisDevice ?
-                                    "View your card and Give a clue" :
-                                    gameState.playerNames[index + 1] + " is thinking of a clue"
+                                        (<div className='flex flex-row items-center gap-2'><span>View card</span><BsArrowRight/><span>Give clue</span></div>) :
+                                        gameState.playerNames[index + 1] + " is thinking of a clue"
                                 )}
                                 <span className='flex flex-col text-center text-2xl text-gray-800'>
                                     {clue != '?' ? gameState.clueCellContent[index + 1] : ""}
@@ -888,11 +890,13 @@ const RandomImageGridWrapper: React.FC = () => {
                         {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?') && (
                             <button
                                 onClick={handleViewCard}
-                                className={buttonClasses}
+                                className={buttonClasses + (buttonState == 'view' ? 'animate-pulse' : '')}
                             >
                                 View your card
                             </button>
+
                         )}
+
                         {buttonState == 'give' && (
                             <button
                                 onClick={handleGiveClue}
@@ -910,12 +914,23 @@ const RandomImageGridWrapper: React.FC = () => {
                                 onKeyDown={handleInputKeyDown}
                                 onBlur={handleInputBlur}
                                 onFocus={handleInputFocus}
-                                className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-300
-                            focus:outline-none focus:ring-0 focus:border-gray-500 border-b-2 border-gray-500
+                                className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-500
+                            focus:outline-none focus:ring-0 focus:border-gray-400 border-b-2 border-gray-400
                             bg-transparent border-t-0 border-l-0 border-r-0 h-8"
                                 autoFocus
                             />
+
                         )}
+
+                        {buttonState == 'input' && (
+                            <button
+                                onClick={handleViewCard}
+                                className={"text-md h-8 p-2 bg-gray-400 font-semibold rounded-sm text-white"}
+                            >
+                                <BsArrowRight />
+                            </button>
+                        )}
+
                         {
                             gameState.clueCellContent[playerOnThisDevice] != '?' && (
                                 <span className='text-sm text-gray-800'>Wait for {playersWithNoClues.concat().join(", ")} to give a clue... </span>
