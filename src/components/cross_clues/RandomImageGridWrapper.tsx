@@ -586,6 +586,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
                 const guessedClueBelongingToPlayer = gameState.randomCO.findIndex((co) => co.rowIndex === rowIndex && co.colIndex === colIndex)
+                
                 console.log("guessedClueBelongingToPlayer", guessedClueBelongingToPlayer)
 
                 const currentClueContent = gameState.clueCellContent;
@@ -609,7 +610,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setTimeout(() => {
                     const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
                     const newFrontCellContent2D = [...frontCellContent2D];
-                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[playerOnThisDevice] };
+                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer] };
                     const newClues = [...gameState.clueCellContent];
                     newClues[guessedClueBelongingToPlayer] = "?";
 
