@@ -318,7 +318,33 @@ const RandomImageGridWrapper: React.FC = () => {
     // Render modal if no GAME_ID
     const shouldShowModal = !GAME_ID;
 
+    // Add responsive cell size calculation
+    const getResponsiveCellSize = () => {
+        // Detect if device is mobile based on screen width and touch capability
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
 
+        if (isMobile) {
+            // For mobile: use screen width
+            return `${100 / (gameState.numCols + 1.5)}vw`;
+        } else {
+            // For laptops: use screen height
+            return `${100 / (gameState.numCols + 3)}vh`;
+        }
+    };
+
+    // Add responsive grid container size calculation
+    const getResponsiveGridSize = () => {
+        // Detect if device is mobile based on screen width and touch capability
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
+
+        if (isMobile) {
+            // For mobile: use screen width (leave some margin)
+            return `${Math.min(100, 100)}vw`;
+        } else {
+            // For laptops: use screen height (leave some margin) 
+            return `${Math.min(80, 100)}vh`;
+        }
+    };
 
     const regenerateImages = () => {
         if (gameState.imageUrls.length < gameState.numRows * 2) {
@@ -586,7 +612,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
                 const guessedClueBelongingToPlayer = gameState.randomCO.findIndex((co) => co.rowIndex === rowIndex && co.colIndex === colIndex)
-                
+
                 console.log("guessedClueBelongingToPlayer", guessedClueBelongingToPlayer)
 
                 const currentClueContent = gameState.clueCellContent;
@@ -847,7 +873,7 @@ const RandomImageGridWrapper: React.FC = () => {
             </div> */}
             <div
                 className="grid grid-cols-6 h-fit mb-3 px-1"
-                style={{ width: `${100 / (gameState.numCols + 3) * (gameState.numCols + 1)}vh` }}
+                style={{ width: getResponsiveGridSize() }}
             >
                 {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => {
                     const totalClues = gameState.clueCellContent.length - 1;
@@ -861,7 +887,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                                 totalClues === 6 && index >= 4 ? 'col-span-2' : '';
 
                     let roundedClass = '';
-                    if (totalClues >=5 || totalClues === 3) {
+                    if (totalClues >= 5 || totalClues === 3) {
                         if (index === 0) {
                             roundedClass = 'rounded-tl-2xl';
                         }
@@ -912,7 +938,13 @@ const RandomImageGridWrapper: React.FC = () => {
                             <CCGrid
                                 rowHeaders={rowHeaders}
                                 colHeaders={colHeaders}
-                                cellSize={`${100 / (gameState.numCols + 3)}vh`}
+                                cellSize="auto"
+                                className="mx-auto"
+                                style={{
+                                    width: getResponsiveGridSize(),
+                                    height: getResponsiveGridSize(),
+                                    aspectRatio: '1'
+                                }}
                                 // cellSize="size-[calc(100vw/6)] max-w-[90px] max-h-[90px]"
                                 givenRandomCO={gameState.randomCO[playerOnThisDevice]}
                                 otherPlayersRandomCO={gameState.randomCO.filter((CO, index) => index != playerOnThisDevice)}

@@ -13,6 +13,8 @@ interface GridProps {
     colHeaders: HeaderContent[];
     /** Optional: Additional CSS classes for the main grid container */
     className?: string;
+    /** Optional: Inline styles for the main grid container */
+    style?: React.CSSProperties;
     /** Optional: Tailwind size class for cells (e.g., 'w-16', 'h-16'). If not provided, relies purely on aspect-square and grid layout. */
     cellSize?: string; // Changed from 'size' to 'cellSize' for clarity
     givenRandomCO: { rowIndex: number, colIndex: number } | null;
@@ -37,6 +39,7 @@ const CCGrid: React.FC<GridProps> = ({
     rowHeaders,
     colHeaders,
     className = '',
+    style = {},
     cellSize = '',
     givenRandomCO,
     otherPlayersRandomCO,
@@ -123,7 +126,8 @@ const CCGrid: React.FC<GridProps> = ({
             className={`grid gap-0 ${className}`}
             style={{
                 width: 'fit-content',
-                gridTemplateColumns: `repeat(${numCols + 1}, 1fr)`
+                gridTemplateColumns: `repeat(${numCols + 1}, 1fr)`,
+                ...style
             }}
         >
             {/* Top-left clue cell */}
