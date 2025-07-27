@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 
 interface ImageLinkGameIdModalProps {
   onJoin: (gameId: string) => void;
-  onCreate: (difficulty: 'easy' | 'medium' | 'hard', playerCount: number) => void;
+  onCreate: (difficulty: 'easy' | 'normal', playerCount: number) => void;
 }
 
 const ImageLinkGameIdModal: React.FC<ImageLinkGameIdModalProps> = ({ onJoin, onCreate }) => {
   const [gameIdInput, setGameIdInput] = useState('');
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [difficulty, setDifficulty] = useState<'easy' | 'normal' >('normal');
   const [playerCount, setPlayerCount] = useState<number>(2);
 
   return (
@@ -48,12 +48,11 @@ const ImageLinkGameIdModal: React.FC<ImageLinkGameIdModalProps> = ({ onJoin, onC
               {/* <label className="block text-xs text-gray-600 mb-1">Difficulty</label> */}
               <select
                 value={difficulty}
-                onChange={e => setDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                onChange={e => setDifficulty(e.target.value as 'easy' | 'normal')}
                 className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-playerTwo"
               >
                 <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
+                <option value="normal">Normal</option>
               </select>
             </div>
             <div className="flex-1">

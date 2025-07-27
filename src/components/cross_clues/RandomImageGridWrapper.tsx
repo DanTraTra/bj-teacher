@@ -201,16 +201,14 @@ const RandomImageGridWrapper: React.FC = () => {
         }
     };
 
-    const handleCreate = async (difficulty: 'easy' | 'medium' | 'hard', playerCount: number) => {
+    const handleCreate = async (difficulty: 'easy' | 'normal', playerCount: number) => {
         console.log("handleCreate")
         setCreating(true);
         let length = 0;
 
         if (difficulty === 'easy') {
-            length = 2;
-        } else if (difficulty === 'medium') {
             length = 3;
-        } else if (difficulty === 'hard') {
+        } else if (difficulty === 'normal') {
             length = 5;
         }
 
