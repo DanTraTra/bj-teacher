@@ -29,7 +29,7 @@ interface GridProps {
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
-    handleHeaderClick: (header: React.ReactNode, CO:string) => void;
+    handleHeaderClick: (header: React.ReactNode, CO: string) => void;
     cellColour: string;
 }
 
@@ -79,15 +79,22 @@ const CCGrid: React.FC<GridProps> = ({
     ) => {
         const baseClasses = `flip-cross-clues-card 
       aspect-square flex items-center justify-center
-      overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4 ${cellSize} 
-    `; // Added overflow-hidden, padding, text-center
+      overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4`; // Added overflow-hidden, padding, text-center
+
+        //   const baseClasses = `flip-cross-clues-card 
+        //   aspect-square flex items-center justify-center
+        //   overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4 ${cellSize}`; // Added overflow-hidden, padding, text-center
+
         const headerClasses = isHeader ? 'bg-gray-100 font-semibold' : 'bg-white';
         // Ensure images within cells are contained and centered
         const contentWrapperClasses = 'max-w-full max-h-full object-contain flex items-center justify-center'; // Added flex centering here too
 
         // console.log("headerText", headerText)
         return (
-            <div key={key} className={`${baseClasses} ${headerClasses}`} onClick={() => { handleHeaderClick(content, headerText) }}>
+            <div key={key}
+                className={`${baseClasses} ${headerClasses}`}
+                style={{ maxWidth: cellSize, maxHeight: cellSize }}
+                onClick={() => { handleHeaderClick(content, headerText) }}>
                 {/* Wrap content, especially useful if it's an image */}
                 <div className={contentWrapperClasses}>{content}</div>
             </div>
@@ -113,14 +120,17 @@ const CCGrid: React.FC<GridProps> = ({
 
 
         <div
-            className={`grid grid-cols-6 gap-0 ${className}`}
-            style={{ width: 'fit-content' }} // Ensure container shrinks to fit content if no specific width/cellSize is given
+            className={`grid gap-0 ${className}`}
+            style={{
+                width: 'fit-content',
+                gridTemplateColumns: `repeat(${numCols + 1}, 1fr)`
+            }}
         >
             {/* Top-left clue cell */}
             <CCCard
                 frontContent={
                     // clueCellContent
-                    {content: " ", color: "white"}
+                    { content: " ", color: "white" }
                 }
                 backContent={""}
                 beginsFlipped={false}

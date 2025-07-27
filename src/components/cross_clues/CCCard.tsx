@@ -53,7 +53,7 @@ const CCCard: React.FC<CCCardProps> = ({
     const frontContainerRef = useRef<HTMLDivElement>(null);
     const backContainerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
+    const calculateFrontTextSize = () => {
         if (frontContentRef.current && frontContainerRef.current) {
             const content = frontContentRef.current;
             const container = frontContainerRef.current;
@@ -62,10 +62,7 @@ const CCCard: React.FC<CCCardProps> = ({
 
             // Get the actual width of the container, accounting for padding
             const containerWidth = container.clientWidth - 18; // 20px for padding
-            // console.log("containerWidth", containerWidth, "container.clientWidth", container.clientWidth)
-            // console.log("text_size", frontContent && !frontContent.match('^[A-E][1-5]$'))
-            // console.log("content.scrollWidth", content.scrollWidth)
-            
+
             if (typeof frontContent.content === 'string' && !frontContent.content.match('^[A-E][1-5]$')) {
                 while (content.scrollWidth > containerWidth && currentSize > 8) {
                     currentSize -= 2;
@@ -74,13 +71,13 @@ const CCCard: React.FC<CCCardProps> = ({
                 setFrontTextSize(currentSize);
 
             } else {
-                content.style.fontSize = `${container.clientHeight*0.5}px`;
-                setFrontTextSize(container.clientHeight*0.5);
+                content.style.fontSize = `${container.clientHeight * 0.5}px`;
+                setFrontTextSize(container.clientHeight * 0.5);
             }
         }
-    }, [frontContent]);
+    };
 
-    useEffect(() => {
+    const calculateBackTextSize = () => {
         if (backContentRef.current && backContainerRef.current) {
             const content = backContentRef.current;
             const container = backContainerRef.current;
@@ -95,37 +92,108 @@ const CCCard: React.FC<CCCardProps> = ({
                 content.style.fontSize = `${currentSize}px`;
             }
             setBackTextSize(currentSize);
-
-
         }
+    };
+
+    // Trigger text resizing when content changes
+    useEffect(() => {
+        // Use requestAnimationFrame to ensure DOM has updated
+        const frameId = requestAnimationFrame(() => {
+            calculateFrontTextSize();
+        });
+        return () => cancelAnimationFrame(frameId);
+    }, [frontContent]);
+
+    useEffect(() => {
+        // Use requestAnimationFrame to ensure DOM has updated
+        const frameId = requestAnimationFrame(() => {
+            calculateBackTextSize();
+        });
+        return () => cancelAnimationFrame(frameId);
     }, [backContent]);
+
+    // Also recalculate on mount and when refs become available
+    useEffect(() => {
+        if (frontContainerRef.current && frontContentRef.current) {
+            calculateFrontTextSize();
+        }
+    }, [frontContainerRef.current, frontContentRef.current]);
+
+    useEffect(() => {
+        if (backContainerRef.current && backContentRef.current) {
+            calculateBackTextSize();
+        }
+    }, [backContainerRef.current, backContentRef.current]);
+
+    // Add ResizeObserver to monitor container size changes
+    useEffect(() => {
+        const frontContainer = frontContainerRef.current;
+        if (!frontContainer) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            // Use requestAnimationFrame to ensure DOM has updated
+            requestAnimationFrame(() => {
+                calculateFrontTextSize();
+            });
+        });
+
+        resizeObserver.observe(frontContainer);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [frontContainerRef.current]);
+
+    useEffect(() => {
+        const backContainer = backContainerRef.current;
+        if (!backContainer) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            // Use requestAnimationFrame to ensure DOM has updated
+            requestAnimationFrame(() => {
+                calculateBackTextSize();
+            });
+        });
+
+        resizeObserver.observe(backContainer);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [backContainerRef.current]);
 
     const baseClasses = `flip-cross-clues-card 
         aspect-square flex items-center justify-center
-        overflow-hidden text-center border border-4 ${cellSize} 
+        overflow-hidden text-center border border-4
         cursor-pointer`;
 
-        const correctCardClasses = `border-[#10563F]`;
-        const incorrectCardClasses = `border-[#C44104]`;
-        const closeCardClasses = `border-[#F37332]`;
-        
-        const cardClickHandler = () => {
-            handleCardFlip(rowIndex, colIndex, clueCell);
-            
-            if (!clueCell) {
-                // Set the border class after the flip animation starts
-                setTimeout(() => {
-                    setClickEffectClass(correctCard === 'correct' ? correctCardClasses : 
-                                      correctCard === 'incorrect' ? incorrectCardClasses : 
-                                      correctCard === 'close' ? closeCardClasses : '');
-                }, 1); // Small delay to ensure flip state is updated
-            }
+    // const baseClasses = `flip-cross-clues-card 
+    //     aspect-square flex items-center justify-center
+    //     overflow-hidden text-center border border-4 ${cellSize} 
+    //     cursor-pointer`;
+
+    const correctCardClasses = `border-[#10563F]`;
+    const incorrectCardClasses = `border-[#C44104]`;
+    const closeCardClasses = `border-[#F37332]`;
+
+    const cardClickHandler = () => {
+        handleCardFlip(rowIndex, colIndex, clueCell);
+
+        if (!clueCell) {
+            // Set the border class after the flip animation starts
+            setTimeout(() => {
+                setClickEffectClass(correctCard === 'correct' ? correctCardClasses :
+                    correctCard === 'incorrect' ? incorrectCardClasses :
+                        correctCard === 'close' ? closeCardClasses : '');
+            }, 1); // Small delay to ensure flip state is updated
         }
+    }
 
     return (
         <div
             className={`${baseClasses} ${highlightClass} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : ''}`}
             onClick={frontContent.content != '?' && clueCell ? undefined : () => cardClickHandler()}
+            style={{ maxWidth: cellSize, maxHeight: cellSize }}
         >
             <div className="flip-cross-clues-card-inner">
                 <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>

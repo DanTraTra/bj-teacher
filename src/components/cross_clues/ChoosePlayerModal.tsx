@@ -10,6 +10,19 @@ const ChoosePlayerModal: React.FC<ChoosePlayerModalProps> = ({ playerNames, play
 
   // console.log("playerNames", playerNames)
 
+  // Map color names to complete Tailwind classes
+  const getColorClasses = (colorName: string) => {
+    const colorMap: { [key: string]: string } = {
+      'playerOne': 'bg-playerOne hover:bg-playerOne',
+      'playerTwo': 'bg-playerTwo hover:bg-playerTwo',
+      'playerThree': 'bg-playerThree hover:bg-playerThree',
+      'playerFour': 'bg-playerFour hover:bg-playerFour',
+      'playerFive': 'bg-playerFive hover:bg-playerFive',
+      'playerSix': 'bg-playerSix hover:bg-playerSix',
+    };
+    return colorMap[colorName] || 'bg-gray-200 hover:bg-gray-300';
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md flex flex-col items-center">
@@ -19,22 +32,11 @@ const ChoosePlayerModal: React.FC<ChoosePlayerModalProps> = ({ playerNames, play
             <button
               key={index}
               onClick={() => onSelectPlayer(index + 1)}
-              className={`w-full bg-${playerColours[index + 1]} hover:bg-${playerColours[index + 1]} text-gray-500 font-semibold py-2 rounded transition`}
+              className={`w-full ${getColorClasses(playerColours[index + 1])} text-gray-500 font-semibold py-2 rounded transition`}
             >
               {name}
             </button>
           ))}
-          {/* <button
-            onClick={() => onSelectPlayer(1)}
-            className="w-full bg-playerOne hover:bg-playerOne text-gray-500 font-semibold py-2 rounded transition"          >
-            {playerOneName}
-          </button>
-          <button
-            onClick={() => onSelectPlayer(2)}
-            className="w-full bg-playerTwo hover:bg-playerTwo text-gray-500 font-semibold py-2 rounded transition"
-          >
-            {playerTwoName}
-          </button> */}
         </div>
       </div>
     </div>
