@@ -343,7 +343,7 @@ const RandomImageGridWrapper: React.FC = () => {
             return `${Math.min(100, 100)}vw`;
         } else {
             // For laptops: use screen height (leave some margin) 
-            return `${Math.min(80 - (Math.ceil(gameState.playerCount/2) * 5), 100)}vh`;
+            return `${Math.min(80 - (Math.ceil(gameState.playerCount / 2) * 5), 100)}vh`;
         }
     };
 
@@ -694,20 +694,24 @@ const RandomImageGridWrapper: React.FC = () => {
         setFlippedCardState(null);
     };
 
+    const enterClue = () => {
+        if (editValue.split(' ').length >= 2) {
+            alert('Please enter a single word');
+        }
+        else if (editValue !== '') {
+            handleClueCellEdit(editValue);
+            setEditValue('?');
+            setButtonState('view');
+            setFlippedCardState(null);
+            setBigImage(null);
+            setPlayerAction('guess the card'); // Player action changes after clue is given
+            // Player turn change is now in useEffect based on clueCellContent
+        }
+    }
+
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            if (editValue.split(' ').length >= 2) {
-                alert('Please enter a single word');
-            }
-            else if (editValue !== '') {
-                handleClueCellEdit(editValue);
-                setEditValue('?');
-                setButtonState('view');
-                setFlippedCardState(null);
-                setBigImage(null);
-                setPlayerAction('guess the card'); // Player action changes after clue is given
-                // Player turn change is now in useEffect based on clueCellContent
-            }
+            enterClue()
         }
     };
 
@@ -799,6 +803,7 @@ const RandomImageGridWrapper: React.FC = () => {
     // console.log("gameState", gameState)
 
     const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
+    const playersWithClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] !== "?" && name !== null);
 
     return (
         <div className='flex flex-col h-full justify-center items-center pb-4'>
@@ -881,7 +886,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         <div key={index} className={`flex flex-col text-xs p-2 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
                             {/* <div key={index} className={`flex flex-col text-xs p-4 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass} [calc(100vw/${gameState.clueCellContent.length - 1})]`}>     */}
                             {
-                                <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 === playerOnThisDevice ? 'font-semibold' : ''}`}>{
+                                <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? 'font-semibold' : ''}`}>{
                                     (clue != '?' ?
                                         index + 1 == playerOnThisDevice ? "Your clue: " :
                                             gameState.playerNames[index + 1] + "'s clue: " :
@@ -958,7 +963,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 onClick={handleViewCard}
                                 className={buttonClasses + (buttonState == 'view' ? 'animate-pulse' : '')}
                             >
-                                View your card
+                                View card
                             </button>
 
                         )}
@@ -990,7 +995,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
                         {buttonState == 'input' && (
                             <button
-                                onClick={handleViewCard}
+                                onClick={enterClue}
                                 className={"text-md h-8 p-2 bg-gray-400 font-semibold rounded-sm text-white"}
                             >
                                 <BsArrowRight />
@@ -999,7 +1004,11 @@ const RandomImageGridWrapper: React.FC = () => {
 
                         {
                             gameState.clueCellContent[playerOnThisDevice] != '?' && (
-                                <span className='text-sm text-gray-800'>Wait for {playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + " and " + playersWithNoClues.slice(playersWithNoClues.length - 1).concat().join(", ") + " to give a clue..."}</span>
+                                <span className='text-sm text-gray-800'>
+                                    {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ? 
+                                        "Wait for " + playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + " and " + playersWithNoClues.slice(playersWithNoClues.length - 1) + " to give a clue..." : 
+                                        "Guess " + playersWithClues.slice(0, playersWithClues.length - 1).concat().join("'s, ") + (playersWithClues.length - 1 >= 1 ? "'s and " : "") + playersWithClues.slice(playersWithClues.length - 1) + "'s card" + (playersWithClues.length - 1 > 1 ? "s!" : "!" )}
+                                </span>
                             )}
                     </div>
 

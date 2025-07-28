@@ -199,7 +199,7 @@ const CCGrid: React.FC<GridProps> = ({
                             const matchingCard = recentlyFlippedCardsNColours.find((card) => 
                                 card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
                             );
-                            if (matchingCard) {
+                            if (matchingCard && !highlightCard) {
                                 highlightClasses = `text-${matchingCard.colour} bg-white`
                             } else {
                                 highlightClasses = `${highlightClasses} bg-white`
