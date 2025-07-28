@@ -7,6 +7,12 @@ export default {
         "./components/**/*.{html,js,jsx,ts,tsx}",
         "./node_modules/flowbite/**/*.js"
     ],
+    safelist: [
+        // Ensure player color classes are always generated
+        'text-playerOne', 'text-playerTwo', 'text-playerThree', 'text-playerFour', 'text-playerFive', 'text-playerSix',
+        'bg-playerOne', 'bg-playerTwo', 'bg-playerThree', 'bg-playerFour', 'bg-playerFive', 'bg-playerSix',
+        'border-playerOne', 'border-playerTwo', 'border-playerThree', 'border-playerFour', 'border-playerFive', 'border-playerSix'
+    ],
     theme: {
         extend: {
             fontFamily: {
@@ -71,4 +77,3 @@ export default {
 
     plugins: [require("daisyui"), defaultTheme, require('flowbite/plugin')],
 }
-

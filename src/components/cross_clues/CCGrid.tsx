@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CCCard from './CCCard';
 import { FrontCellContent } from './RandomImageGridWrapper';
+import { GridCellCO } from './RandomImageGridWrapper';
 // Define the types for header content
 // React.ReactNode allows strings, numbers, JSX elements (like <img>), etc.
 type HeaderContent = React.ReactNode;
@@ -33,6 +34,7 @@ interface GridProps {
     viewingClue: boolean;
     handleHeaderClick: (header: React.ReactNode, CO: string) => void;
     cellColour: string;
+    recentlyFlippedCardsNColours: ({ CO: GridCellCO | null, colour: string } | null)[];
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -57,9 +59,23 @@ const CCGrid: React.FC<GridProps> = ({
     viewingClue,
     handleHeaderClick,
     cellColour,
+    recentlyFlippedCardsNColours,
 }) => {
 
     // TODO: Add the clue to the chosen correct cell
+
+    // Map player color names to Tailwind border classes
+    const getBorderColorClass = (colorName: string) => {
+        const borderColorMap: { [key: string]: string } = {
+            'playerOne': 'border-playerOne',
+            'playerTwo': 'border-playerTwo', 
+            'playerThree': 'border-playerThree',
+            'playerFour': 'border-playerFour',
+            'playerFive': 'border-playerFive',
+            'playerSix': 'border-playerSix',
+        };
+        return borderColorMap[colorName] || 'border-gray-100';
+    };
 
     // Basic validation (optional, but good practice in larger apps)
     if (rowHeaders.length !== numRows || colHeaders.length !== numCols) {
@@ -140,7 +156,7 @@ const CCGrid: React.FC<GridProps> = ({
                 beginsFlipped={false}
                 cellSize={cellSize}
                 frontClassName="text-gray-500 bg-gray"
-                backClassName="text-gray-500 bg-gray"
+                backClassName="text-gray-500"
                 clueCell={true}
                 // onContentEdit={handleClueCellEdit}
                 isFlipped={
@@ -171,15 +187,38 @@ const CCGrid: React.FC<GridProps> = ({
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
                         const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
+                        
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                         if (correctlyGuessedGrid[rowIndex][colIndex]) {
+                            // set classes for when user chooses the correct card
 
                             highlightClasses = `text-gray-800 bg-${cellContent.color}`
 
                         } else {
-                            highlightClasses = `${highlightClasses} bg-white`
+
+                            const matchingCard = recentlyFlippedCardsNColours.find((card) => 
+                                card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
+                            );
+                            if (matchingCard) {
+                                highlightClasses = `text-${matchingCard.colour} bg-white`
+                            } else {
+                                highlightClasses = `${highlightClasses} bg-white`
+                            }
                         };
 
+                        
+                        let borderClasses = "border-gray-100"
+                        if (highlightCard) {
+                            // To see what other players choose incorrectly
+                            borderClasses = "border-gray-500"
+                        } else {
+                            const matchingCard = recentlyFlippedCardsNColours.find((card) => 
+                                card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
+                            );
+                            if (matchingCard) {
+                                borderClasses = `border-${matchingCard.colour}`;
+                            }
+                        }
                         // if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
                         // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
                         // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
@@ -201,7 +240,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 colIndex={colIndex}
                                 resetFlippedCardState={resetFlippedCardState}
                                 setViewingClue={setViewingClue}
-                                highlightClass={highlightCard ? `border-gray-500` : `border-gray-100`}
+                                highlightClass={borderClasses}
                             />
                         )
                     })}
