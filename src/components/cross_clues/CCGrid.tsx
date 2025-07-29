@@ -62,21 +62,6 @@ const CCGrid: React.FC<GridProps> = ({
     recentlyFlippedCardsNColours,
 }) => {
 
-    // TODO: Add the clue to the chosen correct cell
-
-    // Map player color names to Tailwind border classes
-    const getBorderColorClass = (colorName: string) => {
-        const borderColorMap: { [key: string]: string } = {
-            'playerOne': 'border-playerOne',
-            'playerTwo': 'border-playerTwo', 
-            'playerThree': 'border-playerThree',
-            'playerFour': 'border-playerFour',
-            'playerFive': 'border-playerFive',
-            'playerSix': 'border-playerSix',
-        };
-        return borderColorMap[colorName] || 'border-gray-100';
-    };
-
     // Basic validation (optional, but good practice in larger apps)
     if (rowHeaders.length !== numRows || colHeaders.length !== numCols) {
         console.warn(

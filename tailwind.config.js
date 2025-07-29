@@ -11,7 +11,10 @@ export default {
         // Ensure player color classes are always generated
         'text-playerOne', 'text-playerTwo', 'text-playerThree', 'text-playerFour', 'text-playerFive', 'text-playerSix',
         'bg-playerOne', 'bg-playerTwo', 'bg-playerThree', 'bg-playerFour', 'bg-playerFive', 'bg-playerSix',
-        'border-playerOne', 'border-playerTwo', 'border-playerThree', 'border-playerFour', 'border-playerFive', 'border-playerSix'
+        'border-playerOne', 'border-playerTwo', 'border-playerThree', 'border-playerFour', 'border-playerFive', 'border-playerSix',
+        'text-playerOneDark', 'text-playerTwoDark', 'text-playerThreeDark', 'text-playerFourDark', 'text-playerFiveDark', 'text-playerSixDark',
+        'bg-playerOneDark', 'bg-playerTwoDark', 'bg-playerThreeDark', 'bg-playerFourDark', 'bg-playerFiveDark', 'bg-playerSixDark',
+        'border-playerOneDark', 'border-playerTwoDark', 'border-playerThreeDark', 'border-playerFourDark', 'border-playerFiveDark', 'border-playerSixDark'
     ],
     theme: {
         extend: {
@@ -33,10 +36,16 @@ export default {
                 grey: '#D9D9D9',
                 playerOne: '#E1EDCB',
                 playerTwo: '#D6CBE6',
-                playerThree: '#CBDEED',
-                playerFour: '#FEC4C5',
-                playerFive: '#FFE6B9',
-                playerSix: '#FFC2DE',
+                playerThree: '#CBE5E6',
+                playerFour: '#F5EEB7',
+                playerFive: '#F7CDA8',
+                playerSix: '#EDCBCE',
+                playerOneDark: '#ADD2AE',
+                playerTwoDark: '#ABABC5',
+                playerThreeDark: '#A5D6ED',
+                playerFourDark: '#FFE29E',
+                playerFiveDark: '#FFBA7C',
+                playerSixDark: '#FCCDD3',
                 correct: '#10563F',
                 wrong: '#C44104',
                 close: '#F37332',

@@ -555,7 +555,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
             console.log("playersWithNoClues", playersWithNoClues)
             // console.log("gameState", gameState)
-            alert(`${playersWithNoClues.concat().join(", ")} needs to give a clue first! Go tell 'em!`);
+            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
 
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
             // setFlippedCardState(null);
@@ -814,7 +814,7 @@ const RandomImageGridWrapper: React.FC = () => {
             }}> {/* Added relative positioning here and reset state on click */}
                 {bigImage} {/* This will render first and be the base layer */}
                 {bigCO && ( // Only render bigCO if it's not an empty string
-                    <div className='absolute -bottom-8 left-0 text-[100px] p-4 text-black tracking-wide font-bold z-10 opacity-80'>
+                    <div className='absolute -bottom-8 left-0 text-[80px] p-4 text-black tracking-wide font-bold z-10 opacity-60'>
                         {/* Added absolute positioning, bottom/left, padding, text color, and z-index */}
                         {bigCO}
                     </div>
@@ -826,7 +826,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 e.stopPropagation(); // Prevent the parent div's onClick from firing
                                 handlePrevImage();
                             }}
-                            className="absolute h-full w-12 text-center -left-12 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                            className="absolute h-full w-12 text-center left-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
                         >
                             &#9664; {/* Left arrow character */}
                         </button>
@@ -835,7 +835,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 e.stopPropagation(); // Prevent the parent div's onClick from firing
                                 handleNextImage();
                             }}
-                            className="absolute h-full w-12 text-center -right-12 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                            className="absolute h-full w-12 text-center right-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
                         >
                             &#9654; {/* Right arrow character */}
                         </button>
@@ -856,21 +856,25 @@ const RandomImageGridWrapper: React.FC = () => {
             >
                 {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => {
                     const totalClues = gameState.clueCellContent.length - 1;
-                    const colSpanClass =
-                        totalClues === 2 ? 'col-span-3' :
-                            totalClues === 3 ? 'col-span-2' :
-                                totalClues === 4 ? 'col-span-3' :
-                                    totalClues === 5 && index < 3 ? 'col-span-2' :
-                                        totalClues === 5 && index >= 3 ? 'col-span-3' :
-                                            totalClues === 6 && index < 4 ? 'col-span-2' :
-                                                totalClues === 6 && index >= 4 ? 'col-span-2' : '';
+                    let colSpanClass = '';
+                    if (totalClues % 2 === 0) {
+                        colSpanClass = 'col-span-3';
+                    } else {
+                        if (index + 1 < totalClues) {
+                            colSpanClass = 'col-span-3';
+                        } else {
+                            colSpanClass = 'col-span-6';
+                        }
+                    }
+
+                                        
 
                     let roundedClass = '';
                     if (totalClues >= 5 || totalClues === 3) {
                         if (index === 0) {
                             roundedClass = 'rounded-tl-2xl';
                         }
-                        if (index === 2) {
+                        if (index === 1) {
                             roundedClass = 'rounded-tr-2xl';
                         }
                     } else {
@@ -883,10 +887,10 @@ const RandomImageGridWrapper: React.FC = () => {
                     }
 
                     return (
-                        <div key={index} className={`flex flex-col text-xs p-2 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
+                        <div key={index} className={`flex flex-col text-xs px-2 py-3 h-full justify-center items-center overflow-hidden text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
                             {/* <div key={index} className={`flex flex-col text-xs p-4 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass} [calc(100vw/${gameState.clueCellContent.length - 1})]`}>     */}
                             {
-                                <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? 'font-semibold' : ''}`}>{
+                                <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? '' : ''}`}>{
                                     (clue != '?' ?
                                         index + 1 == playerOnThisDevice ? "Your clue: " :
                                             gameState.playerNames[index + 1] + "'s clue: " :
@@ -996,17 +1000,17 @@ const RandomImageGridWrapper: React.FC = () => {
                         {buttonState == 'input' && (
                             <button
                                 onClick={enterClue}
-                                className={"text-md h-8 p-2 bg-gray-400 font-semibold rounded-sm text-white"}
+                                className={`text-md h-8 p-2 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800 `}
                             >
-                                <BsArrowRight />
+                                <BsArrowRight/>
                             </button>
                         )}
 
                         {
                             gameState.clueCellContent[playerOnThisDevice] != '?' && (
-                                <span className='text-sm text-gray-800'>
+                                <span className='text-sm text-gray-800 text-right'>
                                     {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ? 
-                                        "Wait for " + playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + " and " + playersWithNoClues.slice(playersWithNoClues.length - 1) + " to give a clue..." : 
+                                        "Wait for " + playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join("'s, ") + (playersWithNoClues.length - 1 >= 1 ? "'s and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1) + " to give a clue..." : 
                                         "Guess " + playersWithClues.slice(0, playersWithClues.length - 1).concat().join("'s, ") + (playersWithClues.length - 1 >= 1 ? "'s and " : "") + playersWithClues.slice(playersWithClues.length - 1) + "'s card" + (playersWithClues.length - 1 > 1 ? "s!" : "!" )}
                                 </span>
                             )}
