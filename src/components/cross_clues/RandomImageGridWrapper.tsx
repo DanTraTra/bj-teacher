@@ -14,11 +14,12 @@ const rootPath = 'images/'
 
 export type GridCellCO = { rowIndex: number; colIndex: number };
 export type FrontCellContent = { content: string, color: string };
+export type GameLog = { player: number, action: string, detail: GridCellCO | string | null };
 
 interface StateType {
     imageUrls: string[];
     randomCO: GridCellCO[] //should only be four;
-    availiableRandomCo: GridCellCO[];
+    availiableRandomCo: GridCellCO[]; //remaining COs that haven't been guessed yet
     clueCellContent: string[];
     frontCellContent: FrontCellContent[];
     completedCards: string[];
@@ -28,6 +29,7 @@ interface StateType {
     numRows: number;
     numCols: number;
     recentlyFlippedCard: ({ CO: GridCellCO | null, colour: string } | null)[];
+    gamelog: GameLog[];
 }
 
 
@@ -151,12 +153,13 @@ const RandomImageGridWrapper: React.FC = () => {
         numRows: 0,
         numCols: 0,
         recentlyFlippedCard: [null, null],
+        gamelog: [],
     });
-
+    const [demoState, setDemoState] = useState(0)
     // State for storing Cloudinary image URLs
     const [supaBaseImages, setsupaBaseImages] = useState<string[]>([]);
     const [isLoadingImages, setIsLoadingImages] = useState<boolean>(false);
-
+    const [hintCO, setHintCO] = useState<GridCellCO | null>(null)
 
     const fetchImages = async () => {
         setIsLoadingImages(true);
@@ -271,6 +274,7 @@ const RandomImageGridWrapper: React.FC = () => {
             numRows: length,
             numCols: length,
             recentlyFlippedCard: Array(playerCount + 1).fill(null),
+            gamelog: [],
         }
 
 
@@ -360,10 +364,10 @@ const RandomImageGridWrapper: React.FC = () => {
         const rowPaths = gameState.imageUrls.slice(0, gameState.numRows);
 
         const colPaths = gameState.imageUrls.slice(gameState.numRows, gameState.numRows * 2);
-        console.log("rowPaths", rowPaths)
-        console.log("colPaths", colPaths)
+        // console.log("rowPaths", rowPaths)
+        // console.log("colPaths", colPaths)
 
-        console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+        // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
         const generatedRowHeaders = rowPaths.map((src, i) => (
             // <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
@@ -461,6 +465,7 @@ const RandomImageGridWrapper: React.FC = () => {
         updateGameState({
             ...gameState,
             clueCellContent: newClueCellContent,
+            gamelog: newContent == '?' ? [...gameState.gamelog] : [...gameState.gamelog, { player: playerOnThisDevice, action: 'gave clue', detail: newContent }],
         });
     };
 
@@ -528,6 +533,7 @@ const RandomImageGridWrapper: React.FC = () => {
         };
     }, [GAME_ID]);
 
+
     const updateGameState = async (newState: StateType) => {
         const state = { ...newState }
         console.log("updateGameState", state);
@@ -535,9 +541,9 @@ const RandomImageGridWrapper: React.FC = () => {
     };
 
     // Add state to track the currently flipped card
-    const [flippedCardState, setFlippedCardState] = useState<{ rowIndex: number, colIndex: number } | null>(null);
+    const [flippedCardState, setFlippedCardState] = useState<GridCellCO | null>(null);
 
-    const changeflippedCardState = (coOrdinate: { rowIndex: number, colIndex: number } | null) => {
+    const changeflippedCardState = (coOrdinate: GridCellCO | null) => {
         setFlippedCardState(coOrdinate);
     }
 
@@ -579,7 +585,6 @@ const RandomImageGridWrapper: React.FC = () => {
             console.log("gameState.randomCO", gameState.randomCO.some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex))
             if (gameState.randomCO.filter((_, index) => gameState.clueCellContent[index] !== "?").some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex)) {
                 // Correct card chosen - capture the clue content before resetting
-
 
                 const guessedClueBelongingToPlayer = gameState.randomCO.findIndex((co) => co.rowIndex === rowIndex && co.colIndex === colIndex)
 
@@ -626,6 +631,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
                         completedCards: [...gameState.completedCards, `${colLetters[colIndex]}${rowIndex + 1}`],
                         incorrectGuessCount: gameState.incorrectGuessCount,
+                        gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }],
 
                     };
 
@@ -642,7 +648,12 @@ const RandomImageGridWrapper: React.FC = () => {
                 // update the incorrect guess count for the player
                 const newRecentCardFlipped = [...gameState.recentlyFlippedCard];
                 newRecentCardFlipped[playerOnThisDevice] = { CO: { rowIndex, colIndex }, colour: playerColours[playerOnThisDevice] };
-                updateGameState({ ...gameState, incorrectGuessCount: gameState.incorrectGuessCount + 1, recentlyFlippedCard: newRecentCardFlipped })
+                updateGameState({
+                    ...gameState,
+                    incorrectGuessCount: gameState.incorrectGuessCount + 1,
+                    recentlyFlippedCard: newRecentCardFlipped,
+                    gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }],
+                })
             }
         };
     }
@@ -685,13 +696,18 @@ const RandomImageGridWrapper: React.FC = () => {
             handleCardFlip(100, 100, true);
             setButtonState('give');
         }
+
+        if (demoState === 0) {
+            setDemoState(1);
+        }
     };
 
     const handleGiveClue = () => {
         setButtonState('input');
-        setViewingClue(false);
+        // setViewingClue(false);
         setIsEditing(false);
         setFlippedCardState(null);
+        setDemoState(2);
     };
 
     const enterClue = () => {
@@ -706,6 +722,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setBigImage(null);
             setPlayerAction('guess the card'); // Player action changes after clue is given
             // Player turn change is now in useEffect based on clueCellContent
+            setViewingClue(false);
         }
     }
 
@@ -725,7 +742,10 @@ const RandomImageGridWrapper: React.FC = () => {
             setButtonState('view');
             setFlippedCardState(null);
             // Player turn change is now in useEffect based on clueCellContent
+            setDemoState(1);
+            setViewingClue(false);
         }
+
 
     };
 
@@ -776,6 +796,10 @@ const RandomImageGridWrapper: React.FC = () => {
         // You can trigger side effects here
     }, [gameState]);
 
+    const handleHintClick = (CO: GridCellCO) => {
+        hintCO == null ? setHintCO(CO) : setHintCO(null)
+    }
+
 
     const buttonClasses = "text-xs h-8 px-5 py-2 text-white rounded-sm bg-gray-500 font-semibold"
 
@@ -800,7 +824,6 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     // console.log("playerOnThisDevice", playerOnThisDevice)
-    // console.log("gameState", gameState)
 
     const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
     const playersWithClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] !== "?" && name !== null);
@@ -867,7 +890,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         }
                     }
 
-                                        
+
 
                     let roundedClass = '';
                     if (totalClues >= 5 || totalClues === 3) {
@@ -887,22 +910,49 @@ const RandomImageGridWrapper: React.FC = () => {
                     }
 
                     return (
-                        <div key={index} className={`flex flex-col text-xs px-2 py-3 h-full justify-center items-center overflow-hidden text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
+                        <div key={index} className={`flex flex-col text-xs px-2 py-2 h-full justify-center items-center overflow-hidden text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
                             {/* <div key={index} className={`flex flex-col text-xs p-4 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass} [calc(100vw/${gameState.clueCellContent.length - 1})]`}>     */}
-                            {
-                                <div key={index} className={`flex flex-col text-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? '' : ''}`}>{
+
+                            <div key={index} className={`flex flex-col w-full justify-center items-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? '' : ''}`}>
+                                {
+
                                     (clue != '?' ?
-                                        index + 1 == playerOnThisDevice ? "Your clue: " :
-                                            gameState.playerNames[index + 1] + "'s clue: " :
+                                        index + 1 == playerOnThisDevice ?
+                                            <span className='w-full text-left text-xs pl-1.5 -mb-1' >Your clue: </span> :
+                                            <span className='w-full text-left text-xs pl-1.5 -mb-1'>{gameState.playerNames[index + 1]}'s clue: </span>
+
+
+                                        :
                                         index + 1 === playerOnThisDevice ?
                                             (<div className='flex flex-row items-center gap-2'><span>View card</span><BsArrowRight /><span>Give clue</span></div>) :
-                                            gameState.playerNames[index + 1] + " is thinking of a clue..."
-                                    )}
-                                    <span className='flex flex-col text-center text-2xl text-gray-800'>
-                                        {clue != '?' ? gameState.clueCellContent[index + 1] : ""}
-                                    </span>
-                                </div>
-                            }
+                                            <span>{gameState.playerNames[index + 1]} is thinking of a clue...</span>
+                                    )
+
+                                }
+
+                                <span className='flex flex-col text-center text-2xl text-gray-800'>
+                                    {clue != '?' ? gameState.clueCellContent[index + 1] : ""}
+                                </span>
+
+                                {
+
+                                    (
+                                        clue != '?' ?
+                                            index + 1 != playerOnThisDevice ?
+                                                <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4' onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
+                                                    <span className='bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit'>Hint</span>
+                                                </button>
+                                                :
+                                                <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 cursor-default'>
+                                                    <span className='bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit hidden'>Edit</span>
+                                                </button>
+                                            :
+                                            <></>
+                                    )
+
+                                }
+
+                            </div>
                         </div>
                     );
                 })}
@@ -915,8 +965,24 @@ const RandomImageGridWrapper: React.FC = () => {
                     {gameState.clueCellContent[playerOnThisDevice]}
                 </span> */}
             </div>}
+
             <div className="flex flex-col flex-start items-center space-y-1 pt-1 pb-3 overflow-y-auto w-fit">
                 <div className="h-full overflow-y-auto">
+                    {gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState === 0 && bigImage == null && (
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-10 gap-2">
+                            <span className='text-xs text-gray-600 font-semibold text-center'>Start by giving <br /> a clue for your card</span>
+
+                            {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0) && (
+                                <button
+                                    onClick={handleViewCard}
+                                    className={buttonClasses + (buttonState == 'view' ? ' animate-pulse' : '')}
+                                >
+                                    View card
+                                </button>
+
+                            )}
+                        </div>
+                    )}
                     {
                         gridView ?
                             rowHeaders.length &&
@@ -948,6 +1014,8 @@ const RandomImageGridWrapper: React.FC = () => {
                                 handleHeaderClick={handleHeaderClick}
                                 cellColour={playerColours[playerOnThisDevice]}
                                 recentlyFlippedCardsNColours={gameState.recentlyFlippedCard.filter((card, index) => index === playerOnThisDevice ? null : card)}
+                                demoMode={gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2}
+                                hintCO={hintCO}
                             /> :
                             <CCRows
                                 rowHeaders={rowHeaders}
@@ -960,9 +1028,19 @@ const RandomImageGridWrapper: React.FC = () => {
                     {Array.from({ length: gameState.incorrectGuessCount }).map((_, idx) => (
                         <div key={idx} className='h-1.5 w-full my-0.5 mx-1 bg-red-300'></div>))}
                 </div>
-                <div className="w-full relative flex flex-row justify-end items-center space-x-2 pt-2 px-1">
-                    <div className="flex items-center space-x-2">
-                        {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?') && (
+                <div className="relative w-full flex flex-row justify-between items-start space-x-2 pt-2 px-1">
+                    { buttonState != 'input' &&
+                        <div className="w-full relative h-10 overflow-y-scroll pr-4">
+                            <div className="flex flex-col text-left text-sm text-gray-800">
+                                {gameState.gamelog.toReversed().map((log, index) => (
+                                    log ? <span key={index} className={`text-player${log.player == 1 ? 'One' : log.player == 2 ? 'Two' : log.player == 3 ? 'Three' : log.player == 4 ? 'Four' : log.player == 5 ? 'Five' : 'Six'}Dark`}>{gameState.playerNames[log.player]}  <span className={log.action.includes(`✓`) ? 'text-correct' : log.action.includes(`✗`) ? 'text-wrong' : ''}>{log.action}</span></span> : ''
+                                ))}
+                            </div>
+                            <div className="sticky -bottom-2 left-0 right-0 h-12 bg-gradient-to-t from-gray-100 via-gray-100/70 to-transparent pointer-events-none" />
+                        </div>
+                    }
+                    <div className="w-full flex flex-row items-center space-x-2 justify-end">
+                        {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
                             <button
                                 onClick={handleViewCard}
                                 className={buttonClasses + (buttonState == 'view' ? 'animate-pulse' : '')}
@@ -975,7 +1053,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         {buttonState == 'give' && (
                             <button
                                 onClick={handleGiveClue}
-                                className={buttonClasses}
+                                className={buttonClasses + (demoState == 1 ? ' animate-pulse' : '')}
                             >
                                 Give a clue for this card
                             </button>
@@ -1000,18 +1078,21 @@ const RandomImageGridWrapper: React.FC = () => {
                         {buttonState == 'input' && (
                             <button
                                 onClick={enterClue}
-                                className={`text-md h-8 p-2 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800 `}
+                                className={`text-md h-8 p-2 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800`}
                             >
-                                <BsArrowRight/>
+                                <BsArrowRight />
                             </button>
                         )}
 
                         {
                             gameState.clueCellContent[playerOnThisDevice] != '?' && (
-                                <span className='text-sm text-gray-800 text-right'>
-                                    {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ? 
-                                        "Wait for " + playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join("'s, ") + (playersWithNoClues.length - 1 >= 1 ? "'s and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1) + " to give a clue..." : 
-                                        "Guess " + playersWithClues.slice(0, playersWithClues.length - 1).concat().join("'s, ") + (playersWithClues.length - 1 >= 1 ? "'s and " : "") + playersWithClues.slice(playersWithClues.length - 1) + "'s card" + (playersWithClues.length - 1 > 1 ? "s!" : "!" )}
+                                <span className='w-56 text-sm text-gray-800 text-right'>
+                                    {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ?
+                                        <>
+                                            Wait for {playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join("'s, ") + (playersWithNoClues.length - 1 >= 1 ? "'s and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} <br/> to give a clue...
+                                        </>
+                                        :
+                                        "Guess " + playersWithClues.slice(0, playersWithClues.length - 1).concat().join("'s, ") + (playersWithClues.length - 1 >= 1 ? "'s and " : "") + playersWithClues.slice(playersWithClues.length - 1) + "'s card" + (playersWithClues.length - 1 > 1 ? "s!" : "!")}
                                 </span>
                             )}
                     </div>
@@ -1037,7 +1118,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     </button> */}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

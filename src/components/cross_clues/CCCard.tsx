@@ -190,7 +190,7 @@ const CCCard: React.FC<CCCardProps> = ({
     }
 
     return (
-        <div
+        <button
             className={`${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}`}
             onClick={frontContent.content != '?' && clueCell ? undefined : () => cardClickHandler()}
             style={{ maxWidth: cellSize, maxHeight: cellSize}}
@@ -235,7 +235,7 @@ const CCCard: React.FC<CCCardProps> = ({
                     </div>
                 </div>
             </div>
-        </div>
+        </button>
     );
 };
 

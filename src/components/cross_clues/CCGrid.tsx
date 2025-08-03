@@ -35,6 +35,8 @@ interface GridProps {
     handleHeaderClick: (header: React.ReactNode, CO: string) => void;
     cellColour: string;
     recentlyFlippedCardsNColours: ({ CO: GridCellCO | null, colour: string } | null)[];
+    demoMode: boolean;
+    hintCO: GridCellCO | null;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -60,7 +62,32 @@ const CCGrid: React.FC<GridProps> = ({
     handleHeaderClick,
     cellColour,
     recentlyFlippedCardsNColours,
+    demoMode,
+    hintCO
 }) => {
+
+    const hintRowCol = (co: { rowIndex: number, colIndex: number } | null) => {
+        // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
+
+        if (co) {
+            const colCount = correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean).length
+            // console.log("correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean)", correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean))
+            const rowCount = correctlyGuessedGrid[co.rowIndex].filter(Boolean).length
+            // console.log("correctlyGuessedGrid[co.rowIndex].filter(Boolean)", correctlyGuessedGrid[co.rowIndex].filter(Boolean))
+
+            let hintCo = co
+            if (colCount > rowCount) {
+                hintCo = { rowIndex: -1, colIndex: co.colIndex }
+            } else {
+                hintCo = { rowIndex: co.rowIndex, colIndex: -1 }
+            }
+            return hintCo
+        }
+
+        // if (hintCO) {
+        //     correctlyGuessedGrid[hintCO.rowIndex][hintCO.colIndex] = true;
+        // }
+    }
 
     // Basic validation (optional, but good practice in larger apps)
     if (rowHeaders.length !== numRows || colHeaders.length !== numCols) {
@@ -71,6 +98,7 @@ const CCGrid: React.FC<GridProps> = ({
         rowHeaders = [...rowHeaders, ...Array(numRows).fill('')].slice(0, numRows);
         colHeaders = [...colHeaders, ...Array(numCols).fill('')].slice(0, numCols);
     }
+    hintRowCol(hintCO);
 
 
 
@@ -80,6 +108,7 @@ const CCGrid: React.FC<GridProps> = ({
         key: string | number,
         isHeader: boolean = false,
         headerText: string,
+        demoMode: boolean,
     ) => {
         const baseClasses = `flip-cross-clues-card 
       aspect-square flex items-center justify-center
@@ -96,7 +125,7 @@ const CCGrid: React.FC<GridProps> = ({
         // console.log("headerText", headerText)
         return (
             <div key={key}
-                className={`${baseClasses} ${headerClasses}`}
+                className={`${baseClasses} ${headerClasses} ${demoMode ? 'opacity-20' : ''}`}
                 style={{ maxWidth: cellSize, maxHeight: cellSize }}
                 onClick={() => { handleHeaderClick(content, headerText) }}>
                 {/* Wrap content, especially useful if it's an image */}
@@ -110,6 +139,7 @@ const CCGrid: React.FC<GridProps> = ({
     const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
     );
+
 
     // console.log('completedCards', completedCards)
     // console.log(completedCards.findIndex(cards => cards == 'B1') % 2 == 0)
@@ -157,9 +187,10 @@ const CCGrid: React.FC<GridProps> = ({
             />
 
             {/* Column Headers */}
-            {colHeaders.map((header, index) =>
-                renderCell(header, `col-header-${index}`, true, `${String.fromCharCode(65 + index)}`)
-            )}
+            {colHeaders.map((header, index) => {
+                return renderCell(header, `col-header-${index}`, true, `${String.fromCharCode(65 + index)}`, demoMode && (givenRandomCO?.colIndex !== index || !viewingClue))
+            })}
+
 
 
             {/* Rows: Each row contains a Row Header + Data Cells */}
@@ -167,12 +198,12 @@ const CCGrid: React.FC<GridProps> = ({
                 // Using React.Fragment for key prop on the group of elements per row
                 <React.Fragment key={`row-${rowIndex}`}>
                     {/* Row Header */}
-                    {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true, `${rowIndex + 1}`)}
+                    {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true, `${rowIndex + 1}`, demoMode && (givenRandomCO?.rowIndex !== rowIndex || !viewingClue))}
 
                     {/* Data Cells for the current row */}
                     {row.map((cellContent, colIndex) => {
                         const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
-                        
+
                         let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                         if (correctlyGuessedGrid[rowIndex][colIndex]) {
                             // set classes for when user chooses the correct card
@@ -181,23 +212,23 @@ const CCGrid: React.FC<GridProps> = ({
 
                         } else {
 
-                            const matchingCard = recentlyFlippedCardsNColours.find((card) => 
+                            const matchingCard = recentlyFlippedCardsNColours.find((card) =>
                                 card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
                             );
                             if (matchingCard && !highlightCard) {
                                 highlightClasses = `text-${matchingCard.colour} bg-white`
                             } else {
-                                highlightClasses = `${highlightClasses} bg-white`
+                                highlightClasses = `${highlightClasses} bg-white ${demoMode && (givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex || !viewingClue) ? "opacity-20" : ""}`
                             }
                         };
 
-                        
+
                         let borderClasses = "border-gray-100"
                         if (highlightCard) {
                             // To see what other players choose incorrectly
                             borderClasses = "border-gray-500"
                         } else {
-                            const matchingCard = recentlyFlippedCardsNColours.find((card) => 
+                            const matchingCard = recentlyFlippedCardsNColours.find((card) =>
                                 card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
                             );
                             if (matchingCard) {
@@ -208,10 +239,11 @@ const CCGrid: React.FC<GridProps> = ({
                         // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
                         // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
                         const correct_card = otherPlayersRandomCO.some((CO) => CO.rowIndex == rowIndex && CO.colIndex == colIndex) ? 'correct' : 'incorrect'
+                        // console.log("hintRowCol(hintCO)", hintRowCol(hintCO))
                         return (
                             <CCCard
                                 key={`cell-${colIndex}-${rowIndex}`}
-                                frontContent={cellContent}
+                                frontContent={hintCO !== null && (hintRowCol(hintCO)?.rowIndex != rowIndex && hintRowCol(hintCO)?.colIndex != colIndex) ? { content: "", color: "white" } : cellContent}
                                 backContent={correct_card == 'correct' ? '✓' : '✗'}
                                 beginsFlipped={false}
                                 cellSize={cellSize}
