@@ -937,7 +937,7 @@ const RandomImageGridWrapper: React.FC = () => {
             // style={{ width: getResponsiveGridSize() }}
             >
                 <div className={`justify-start w-full h-full flex flex-row py-1.5 px-2 text-left text-sm text-gray-800 ${hidden ? 'hidden' : ''}`}>
-                    {gameState.gamelog.toReversed().map((log, index, array) => (
+                    {gameState.gamelog.slice().reverse().map((log: GameLog, index: number, array: GameLog[]) => (
                         log && (
                             <div key={index} className="flex items-center">
                                 <div className="whitespace-nowrap">
