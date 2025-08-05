@@ -14,7 +14,7 @@ const rootPath = 'images/'
 
 export type GridCellCO = { rowIndex: number; colIndex: number };
 export type FrontCellContent = { content: string, color: string };
-export type GameLog = { player: number, action: string, detail: GridCellCO | string | null };
+export type GameLog = { player: number, action: string, detail: GridCellCO | string | null | number };
 
 interface StateType {
     imageUrls: string[];
@@ -68,13 +68,14 @@ const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
 const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2', 'jjejej']
 // TODO Fix the randomCO changing for deployed app
 
-function OneDim2TwoDim<T>(OneDimArray: any[], columns: number): T[][] {
+// Using the existing FrontCellContent type from the StateType
+
+function OneDim2TwoDim<T>(oneDimArray: T[], columns: number): T[][] {
     if (columns <= 0) throw new Error("number of columns must be greater than 0");
     const result: T[][] = [];
-    for (let i = 0; i < OneDimArray.length; i += columns) {
-        result.push(OneDimArray.slice(i, i + columns))
+    for (let i = 0; i < oneDimArray.length; i += columns) {
+        result.push(oneDimArray.slice(i, i + columns));
     }
-
     return result;
 }
 
@@ -160,6 +161,7 @@ const RandomImageGridWrapper: React.FC = () => {
     const [supaBaseImages, setsupaBaseImages] = useState<string[]>([]);
     const [isLoadingImages, setIsLoadingImages] = useState<boolean>(false);
     const [hintCO, setHintCO] = useState<GridCellCO | null>(null)
+    const [screenSize, setScreenSize] = useState<'tall' | 'wide'>('tall')
 
     const fetchImages = async () => {
         setIsLoadingImages(true);
@@ -344,12 +346,29 @@ const RandomImageGridWrapper: React.FC = () => {
 
         if (isMobile) {
             // For mobile: use screen width (leave some margin)
+            // setScreenSize('tall')
             return `${Math.min(100, 100)}vw`;
+
         } else {
             // For laptops: use screen height (leave some margin) 
+            // setScreenSize('wide')
             return `${Math.min(80 - (Math.ceil(gameState.playerCount / 2) * 5), 100)}vh`;
         }
     };
+
+    useEffect(() => {
+        const isMobile = window.innerWidth <= window.innerHeight || ('ontouchstart' in window && window.innerWidth <= window.innerHeight);
+
+        if (isMobile) {
+            // For mobile: use screen width (leave some margin)
+            setScreenSize('tall')
+
+        } else {
+            // For laptops: use screen height (leave some margin) 
+            setScreenSize('wide')
+        }
+
+    }, [window.innerWidth, window.innerHeight]);
 
     const regenerateImages = () => {
         if (gameState.imageUrls.length < gameState.numRows * 2) {
@@ -371,7 +390,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
         const generatedRowHeaders = rowPaths.map((src, i) => (
             // <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
-            <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain grayscale`} />
+            <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain grayscale`}
+                // onClick={() => handleHeaderClick(src, `${i + 1}`)}
+            />
 
         ));
         setRowHeaders(generatedRowHeaders);
@@ -379,7 +400,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
         const generatedColHeaders = colPaths.map((src, i) => (
             // <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col => col[i]) ? '' : 'grayscale'}`} />
-            <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain grayscale`} />
+            <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain grayscale`}
+                // onClick={() => handleHeaderClick(src, `${String.fromCharCode(65 + i)}`)}
+            />
         ));
         setColHeaders(generatedColHeaders);
 
@@ -465,7 +488,8 @@ const RandomImageGridWrapper: React.FC = () => {
         updateGameState({
             ...gameState,
             clueCellContent: newClueCellContent,
-            gamelog: newContent == '?' ? [...gameState.gamelog] : [...gameState.gamelog, { player: playerOnThisDevice, action: 'gave clue', detail: newContent }],
+            gamelog: newContent == '?' ? [...gameState.gamelog] :
+                [...gameState.gamelog, { player: playerOnThisDevice, action: 'gave clue', detail: newContent }],
         });
     };
 
@@ -570,17 +594,10 @@ const RandomImageGridWrapper: React.FC = () => {
             // setFlippedCardState({ rowIndex, colIndex });
             // console.log("frontCellContentState", frontCellContentState)
             // console.log("randomCO", randomCO)
-
-            if (rowIndex === 100 && colIndex === 100) {
-                console.log("Setting viewingClue to true");
-                setViewingClue(true);
-                setIsEditing(true);
-            } else {
-                setFlippedCardState({ rowIndex, colIndex });
-                console.log("Setting viewingClue to false");
-                setViewingClue(false);
-                setIsEditing(false);
-            }
+            setFlippedCardState({ rowIndex, colIndex });
+            console.log("Setting viewingClue to false");
+            setViewingClue(false);
+            setIsEditing(false);
 
             console.log("gameState.randomCO", gameState.randomCO.some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex))
             if (gameState.randomCO.filter((_, index) => gameState.clueCellContent[index] !== "?").some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex)) {
@@ -640,8 +657,9 @@ const RandomImageGridWrapper: React.FC = () => {
 
                     // handleClueCellEdit("?");
                     setEditValue("?");
+                    setHintCO(null);
 
-                }, 1500);
+                }, 1000);
 
             } else if (!clueCell) {
                 // Wrong card
@@ -693,8 +711,10 @@ const RandomImageGridWrapper: React.FC = () => {
 
         if (gameState.clueCellContent[playerOnThisDevice] === "?") {
             // handleCardFlip(100, 100, true); simply highlights the card
-            handleCardFlip(100, 100, true);
+            setViewingClue(true);
+            setIsEditing(true);
             setButtonState('give');
+            setHintCO(null);
         }
 
         if (demoState === 0) {
@@ -754,11 +774,17 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     const handleHeaderClick = (header: React.ReactNode, CO: string) => {
-        setBigImage(header);
-        setBigCO(CO);
-        // Find the index of the clicked header in the combined list
-        const index = allHeaderImages.findIndex(item => item.element === header);
-        setCurrentBigImageIndex(index);
+        if (bigImage) {
+            setBigImage(null);
+            setBigCO('');
+            setCurrentBigImageIndex(null);
+        } else {
+            setBigImage(header);
+            setBigCO(CO);
+            // Find the index of the clicked header in the combined list
+            const index = allHeaderImages.findIndex(item => item.element === header);
+            setCurrentBigImageIndex(index);
+        }
     }
 
     const handlePrevImage = () => {
@@ -786,6 +812,91 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("player on this device", player)
     };
 
+    // Get the color name for a player number
+    const getPlayerColor = (playerNumber: number): string => {
+        const colors = ['One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+        return colors[playerNumber - 1] || 'None';
+    };
+
+    // Component for rendering player badges
+    const PlayerBadge = ({ playerName, playerNumber }: { playerName: string | null, playerNumber: number }) => {
+        const color = getPlayerColor(playerNumber);
+        return (
+            <span className={`text-player${color}Dark bg-player${color} px-1 rounded-lg whitespace-nowrap`}>
+                {playerName || 'Unknown Player'}
+            </span>
+        );
+    };
+
+    // Render a hint log entry
+    const renderHintLog = (log: GameLog, index: number, playerColor: string) => {
+        const playersClue = log.detail as number;
+        const targetPlayerColor = getPlayerColor(playersClue); // +1 because players are 1-indexed
+        const [_, hintText] = log.action.split('for ');
+
+        return (
+            <span key={index} className='flex flex-row items-center'>
+                <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
+                <span className="mx-1 whitespace-nowrap">got a hint for</span>
+                <span className={`bg-player${targetPlayerColor} text-player${targetPlayerColor}Dark px-1 rounded-lg whitespace-nowrap`}>
+                    {hintText}
+                </span>
+            </span>
+        );
+    };
+
+    // Render a regular action log entry
+    const renderActionLog = (log: GameLog, index: number, playerColor: string) => {
+        const actionClass = log.action.includes('✓') ? 'text-correct' :
+            log.action.includes('✗') ? 'text-wrong' : '';
+
+        return (
+            <span key={index} className='flex flex-row items-center gap-1'>
+                <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
+                <span className={'whitespace-nowrap ' + actionClass}>
+                    {log.action}
+                </span>
+            </span>
+        );
+    };
+
+    // Render a clue action log entry
+    const renderClueLog = (log: GameLog, index: number, playerColor: string) => {
+
+        return (
+            <span key={index} className='flex flex-row items-center gap-1'>
+                <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
+                <span className={'whitespace-nowrap'}>
+                    {log.action}:
+                </span>
+                <span className={'whitespace-nowrap'}>
+                    {log.detail as string}
+                </span>
+            </span>
+        );
+    };
+
+    const parseGameLog = (log: GameLog, index: number) => {
+        const color = getPlayerColor(log.player);
+
+        // Skip if detail is not a GridCellCO
+        if (log.detail === null) {
+            return null
+        }
+
+        if (typeof log.detail === 'string') {
+            return renderClueLog(log, index, color);
+        }
+
+        // Handle hint logs
+        if (log.action.includes('hint')) {
+            return renderHintLog(log, index, color);
+        }
+
+        // Handle regular action logs
+        return renderActionLog(log, index, color);
+    }
+
     useEffect(() => {
         console.log("buttonState", buttonState)
     }, [buttonState])
@@ -796,12 +907,56 @@ const RandomImageGridWrapper: React.FC = () => {
         // You can trigger side effects here
     }, [gameState]);
 
+
+
+
     const handleHintClick = (CO: GridCellCO) => {
-        hintCO == null ? setHintCO(CO) : setHintCO(null)
+        hintCO == null ? (setHintCO(CO), setButtonState('view')) : setHintCO(null)
+        setViewingClue(false)
+        setIsEditing(false);
+        const playersClue = gameState.randomCO.findIndex((item: GridCellCO) =>
+            item.rowIndex === CO.rowIndex && item.colIndex === CO.colIndex
+        );
+        console.log("playersClue", playersClue);
+
+        updateGameState({
+            ...gameState,
+            gamelog: [...gameState.gamelog,
+            {
+                player: playerOnThisDevice,
+                action: `got a hint for ${gameState.clueCellContent[playersClue]}`,
+                detail: playersClue
+            }]
+        })
+    }
+
+    const gameLogComponent = (hidden: boolean) => {
+        return (
+
+            <div className={`h-full overflow-x-scroll w-full bg-white bg-gradient-to-r from-white to-gray-100 via-white via-80%`}
+            // style={{ width: getResponsiveGridSize() }}
+            >
+                <div className={`justify-start w-full h-full flex flex-row py-1.5 px-2 text-left text-sm text-gray-800 ${hidden ? 'hidden' : ''}`}>
+                    {gameState.gamelog.toReversed().map((log, index, array) => (
+                        log && (
+                            <div key={index} className="flex items-center">
+                                <div className="whitespace-nowrap">
+                                    {parseGameLog(log, index)}
+                                </div>
+                                {index !== array.length - 1 && (
+                                    <div className="h-5 w-px bg-gray-200 mx-1.5" />
+                                )}
+                            </div>
+                        )
+                    ))}
+                </div>
+            </div>
+
+        )
     }
 
 
-    const buttonClasses = "text-xs h-8 px-5 py-2 text-white rounded-sm bg-gray-500 font-semibold"
+    const buttonClasses = "text-xs h-8 px-5 py-2 text-white rounded-sm bg-gray-500 font-semibold whitespace-nowrap"
 
     // Show modal if no GAME_ID
     if (!GAME_ID) {
@@ -829,218 +984,225 @@ const RandomImageGridWrapper: React.FC = () => {
     const playersWithClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] !== "?" && name !== null);
 
     return (
-        <div className='flex flex-col h-full justify-center items-center pb-4'>
-            <div className="relative flex flex-col flex-start max-h-[50vh]" onClick={() => {
-                setBigImage(null);
-                setBigCO('');
-                setCurrentBigImageIndex(null); // Reset index when image is closed
-            }}> {/* Added relative positioning here and reset state on click */}
-                {bigImage} {/* This will render first and be the base layer */}
-                {bigCO && ( // Only render bigCO if it's not an empty string
-                    <div className='absolute -bottom-8 left-0 text-[80px] p-4 text-black tracking-wide font-bold z-10 opacity-60'>
-                        {/* Added absolute positioning, bottom/left, padding, text color, and z-index */}
-                        {bigCO}
-                    </div>
-                )}
-                {currentBigImageIndex !== null && ( // Only show buttons if an image is displayed
-                    <>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevent the parent div's onClick from firing
-                                handlePrevImage();
-                            }}
-                            className="absolute h-full w-12 text-center left-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
-                        >
-                            &#9664; {/* Left arrow character */}
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevent the parent div's onClick from firing
-                                handleNextImage();
-                            }}
-                            className="absolute h-full w-12 text-center right-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
-                        >
-                            &#9654; {/* Right arrow character */}
-                        </button>
-                    </>
-                )}
-            </div>
-            {/* <div className='flex flex-col items-center justify-start pt-5'>
-                <span className='text-xs text-gray-400'>
-                    Your Clue
-                </span>
-                <span className='text-2xl text-gray-800'>
-                    {clueCellContent}
-                </span>
-            </div> */}
-            <div
-                className="grid grid-cols-6 h-fit mb-3 px-1"
-                style={{ width: getResponsiveGridSize() }}
-            >
-                {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => {
-                    const totalClues = gameState.clueCellContent.length - 1;
-                    let colSpanClass = '';
-                    if (totalClues % 2 === 0) {
-                        colSpanClass = 'col-span-3';
-                    } else {
-                        if (index + 1 < totalClues) {
-                            colSpanClass = 'col-span-3';
-                        } else {
-                            colSpanClass = 'col-span-6';
-                        }
-                    }
-
-
-
-                    let roundedClass = '';
-                    if (totalClues >= 5 || totalClues === 3) {
-                        if (index === 0) {
-                            roundedClass = 'rounded-tl-2xl';
-                        }
-                        if (index === 1) {
-                            roundedClass = 'rounded-tr-2xl';
-                        }
-                    } else {
-                        if (index === 0) {
-                            roundedClass = 'rounded-tl-2xl';
-                        }
-                        if (index === 1) {
-                            roundedClass = 'rounded-tr-2xl';
-                        }
-                    }
-
-                    return (
-                        <div key={index} className={`flex flex-col text-xs px-2 py-2 h-full justify-center items-center overflow-hidden text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
-                            {/* <div key={index} className={`flex flex-col text-xs p-4 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass} [calc(100vw/${gameState.clueCellContent.length - 1})]`}>     */}
-
-                            <div key={index} className={`flex flex-col w-full justify-center items-center text-xs text-gray-800 ${index + 1 !== playerOnThisDevice ? '' : ''}`}>
-                                {
-
-                                    (clue != '?' ?
-                                        index + 1 == playerOnThisDevice ?
-                                            <span className='w-full text-left text-xs pl-1.5 -mb-1' >Your clue: </span> :
-                                            <span className='w-full text-left text-xs pl-1.5 -mb-1'>{gameState.playerNames[index + 1]}'s clue: </span>
-
-
-                                        :
-                                        index + 1 === playerOnThisDevice ?
-                                            (<div className='flex flex-row items-center gap-2'><span>View card</span><BsArrowRight /><span>Give clue</span></div>) :
-                                            <span>{gameState.playerNames[index + 1]} is thinking of a clue...</span>
-                                    )
-
-                                }
-
-                                <span className='flex flex-col text-center text-2xl text-gray-800'>
-                                    {clue != '?' ? gameState.clueCellContent[index + 1] : ""}
-                                </span>
-
-                                {
-
-                                    (
-                                        clue != '?' ?
-                                            index + 1 != playerOnThisDevice ?
-                                                <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4' onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
-                                                    <span className='bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit'>Hint</span>
-                                                </button>
-                                                :
-                                                <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 cursor-default'>
-                                                    <span className='bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit hidden'>Edit</span>
-                                                </button>
-                                            :
-                                            <></>
-                                    )
-
-                                }
-
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            {gameState.clueCellContent[playerOnThisDevice] != '?' && <div className='flex flex-col items-center justify-start'>
-                {/* <span className='text-xs text-gray-400'>
-                    Your Clue
-                </span> */}
-                {/* <span className='text-2xl text-gray-800'>
-                    {gameState.clueCellContent[playerOnThisDevice]}
-                </span> */}
-            </div>}
-
-            <div className="flex flex-col flex-start items-center space-y-1 pt-1 pb-3 overflow-y-auto w-fit">
-                <div className="h-full overflow-y-auto">
-                    {gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState === 0 && bigImage == null && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-10 gap-2">
-                            <span className='text-xs text-gray-600 font-semibold text-center'>Start by giving <br /> a clue for your card</span>
-
-                            {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0) && (
-                                <button
-                                    onClick={handleViewCard}
-                                    className={buttonClasses + (buttonState == 'view' ? ' animate-pulse' : '')}
-                                >
-                                    View card
-                                </button>
-
-                            )}
+        <div className='flex flex-row h-full justify-center items-center pb-4 pl'>
+            {
+                // screenSize == 'wide' && gameLogComponent(true)
+            }
+            <div className="flex flex-col gap-2">
+                {/* <div id="bigImageContainer" className={`relative flex flex-col flex-start ${bigImage ? 'h-[25vh]' : ''}`} style={{ width: getResponsiveGridSize() }} onClick={() => {
+                    setBigImage(null);
+                    setBigCO('');
+                    setCurrentBigImageIndex(null); 
+                }}>
+                    {bigImage}
+                    {bigCO && ( // Only render bigCO if it's not an empty string
+                        <div className='absolute -bottom-8 left-0 text-[80px] p-4 text-black tracking-wide font-bold z-10 opacity-60'>
+                            {bigCO}
                         </div>
                     )}
-                    {
-                        gridView ?
-                            rowHeaders.length &&
-                            <CCGrid
-                                rowHeaders={rowHeaders}
-                                colHeaders={colHeaders}
-                                cellSize="auto"
-                                className="mx-auto"
-                                style={{
-                                    width: getResponsiveGridSize(),
-                                    height: getResponsiveGridSize(),
-                                    aspectRatio: '1'
+                    {currentBigImageIndex !== null && ( // Only show buttons if an image is displayed
+                        <>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                    handlePrevImage();
                                 }}
-                                // cellSize="size-[calc(100vw/6)] max-w-[90px] max-h-[90px]"
-                                givenRandomCO={gameState.randomCO[playerOnThisDevice]}
-                                otherPlayersRandomCO={gameState.randomCO.filter((CO, index) => index != playerOnThisDevice && gameState.clueCellContent[index] !== "?")}
-                                numRows={gameState.numRows}
-                                numCols={gameState.numCols}
-                                frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)}
-                                handleCardFlip={handleCardFlip}
-                                clueCellContent={gameState.clueCellContent[playerOnThisDevice]}
-                                handleClueCellEdit={handleClueCellEdit}
-                                flippedCard={flippedCardState}
-                                resetFlippedCardState={resetFlippedCardState}
-                                completedCards={gameState.completedCards}
-                                setViewingClue={isViewingClue}
-                                viewingClue={viewingClue}
-                                correctlyGuessedGrid={correctlyGuessedGrid}
-                                handleHeaderClick={handleHeaderClick}
-                                cellColour={playerColours[playerOnThisDevice]}
-                                recentlyFlippedCardsNColours={gameState.recentlyFlippedCard.filter((card, index) => index === playerOnThisDevice ? null : card)}
-                                demoMode={gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2}
-                                hintCO={hintCO}
-                            /> :
-                            <CCRows
-                                rowHeaders={rowHeaders}
-                                colHeaders={colHeaders}
-                                cellSize="size-[150px]"
-                            />
-                    }
-                </div>
-                <div className={`flex flex-row justify-start pb-1 w-full`}>
-                    {Array.from({ length: gameState.incorrectGuessCount }).map((_, idx) => (
-                        <div key={idx} className='h-1.5 w-full my-0.5 mx-1 bg-red-300'></div>))}
-                </div>
-                <div className="relative w-full flex flex-row justify-between items-start space-x-2 pt-2 px-1">
-                    { buttonState != 'input' &&
-                        <div className="w-full relative h-10 overflow-y-scroll pr-4">
-                            <div className="flex flex-col text-left text-sm text-gray-800">
-                                {gameState.gamelog.toReversed().map((log, index) => (
-                                    log ? <span key={index} className={`text-player${log.player == 1 ? 'One' : log.player == 2 ? 'Two' : log.player == 3 ? 'Three' : log.player == 4 ? 'Four' : log.player == 5 ? 'Five' : 'Six'}Dark`}>{gameState.playerNames[log.player]}  <span className={log.action.includes(`✓`) ? 'text-correct' : log.action.includes(`✗`) ? 'text-wrong' : ''}>{log.action}</span></span> : ''
-                                ))}
+                                className="absolute h-full w-12 text-center left-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                            >
+                                &#9664;
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                    handleNextImage();
+                                }}
+                                className="absolute h-full w-12 text-center right-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                            >
+                                &#9654;
+                            </button>
+                        </>
+                    )}
+                </div> */}
+                <div
+                    className="grid grid-cols-6 h-fit px-1"
+                    style={{ width: getResponsiveGridSize() }}
+                    id="playerClues"
+                >
+                    {gameState.clueCellContent.slice(1, gameState.clueCellContent.length).map((clue, index) => {
+                        const totalClues = gameState.clueCellContent.length - 1;
+                        let colSpanClass = '';
+                        if (totalClues % 2 === 0) {
+                            colSpanClass = 'col-span-3';
+                        } else {
+                            if (index + 1 < totalClues) {
+                                colSpanClass = 'col-span-3';
+                            } else {
+                                colSpanClass = 'col-span-6';
+                            }
+                        }
+
+
+
+                        let roundedClass = '';
+                        if (totalClues >= 5 || totalClues === 3) {
+                            if (index === 0) {
+                                roundedClass = 'rounded-tl-2xl';
+                            }
+                            if (index === 1) {
+                                roundedClass = 'rounded-tr-2xl';
+                            }
+                        } else {
+                            if (index === 0) {
+                                roundedClass = 'rounded-tl-2xl';
+                            }
+                            if (index === 1) {
+                                roundedClass = 'rounded-tr-2xl';
+                            }
+                        }
+
+                        return (
+                            <div key={index} className={`flex flex-col text-xs px-2 py-2 h-full justify-center items-center overflow-hidden text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass}`}>
+                                {/* <div key={index} className={`flex flex-col text-xs p-4 h-full justify-center items-center text-gray-800 bg-${playerColours[index + 1]} ${colSpanClass} ${roundedClass} [calc(100vw/${gameState.clueCellContent.length - 1})]`}>     */}
+
+                                <div key={index} className={`flex flex-col w-full h-full justify-center items-center text-xs text-[#6B7280] ${index + 1 !== playerOnThisDevice ? '' : ''}`}>
+                                    {
+
+                                        (clue != '?' ?
+                                            index + 1 == playerOnThisDevice ?
+                                                <span className='w-full text-left text-xs pl-1.5 -mb-1' >Your clue: </span> :
+                                                <span className='w-full text-left text-xs pl-1.5 -mb-1'>{gameState.playerNames[index + 1]}'s clue: </span>
+
+
+                                            :
+                                            index + 1 === playerOnThisDevice ?
+                                                (<div className='flex flex-row justify-center items-center gap-2'><span>View card</span><BsArrowRight /><span>Give clue</span></div>) :
+                                                <span>{gameState.playerNames[index + 1]} is thinking of a clue...</span>
+                                        )
+                                    }
+                                    {
+                                        clue != '?' ? <span className='flex flex-col text-center text-2xl text-gray-800 font-medium py-1'>
+                                            {gameState.clueCellContent[index + 1]}
+                                        </span> : ""
+                                    }
+                                    {
+
+                                        (
+                                            clue != '?' ?
+                                                index + 1 != playerOnThisDevice && hintCO == null ?
+                                                    <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4' onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
+                                                        {<span className={`bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit`}>Hint</span>}
+                                                    </button>
+                                                    :
+                                                    <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 cursor-default'>
+                                                        <span className='bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit hidden'>Edit</span>
+                                                    </button>
+                                                :
+                                                <></>
+                                        )
+
+                                    }
+
+                                </div>
                             </div>
-                            <div className="sticky -bottom-2 left-0 right-0 h-12 bg-gradient-to-t from-gray-100 via-gray-100/70 to-transparent pointer-events-none" />
+                        );
+                    })}
+                </div>
+                <div className="flex flex-col flex-start items-center space-y-1 overflow-y-auto w-fit gap-1"
+                    id="gridBoard">
+                    <div className="h-full">
+                        {gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState === 0 && bigImage == null && (
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-10 gap-2">
+                                <span className='text-xs text-gray-600 font-semibold text-center'>Start by giving <br /> a clue for your card</span>
+
+                                {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0) && (
+                                    <button
+                                        onClick={handleViewCard}
+                                        className={buttonClasses + (buttonState == 'view' ? ' animate-pulse' : '')}
+                                    >
+                                        View card
+                                    </button>
+
+                                )}
+                            </div>
+                        )}
+                        {
+                            gridView ?
+                                rowHeaders.length &&
+                                <CCGrid
+                                    rowHeaders={rowHeaders}
+                                    colHeaders={colHeaders}
+                                    cellSize="auto"
+                                    className="mx-auto"
+                                    style={{
+                                        width: getResponsiveGridSize(),
+                                        height: getResponsiveGridSize(),
+                                        aspectRatio: '1'
+                                    }}
+                                    // cellSize="size-[calc(100vw/6)] max-w-[90px] max-h-[90px]"
+                                    givenRandomCO={gameState.randomCO[playerOnThisDevice]}
+                                    otherPlayersRandomCO={gameState.randomCO.map((CO, index) => index != playerOnThisDevice && gameState.clueCellContent[index] !== "?" ? CO : null)}
+                                    numRows={gameState.numRows}
+                                    numCols={gameState.numCols}
+                                    frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)}
+                                    handleCardFlip={handleCardFlip}
+                                    clueCellContent={gameState.clueCellContent[playerOnThisDevice]}
+                                    handleClueCellEdit={handleClueCellEdit}
+                                    flippedCard={flippedCardState}
+                                    resetFlippedCardState={resetFlippedCardState}
+                                    completedCards={gameState.completedCards}
+                                    setViewingClue={isViewingClue}
+                                    viewingClue={viewingClue}
+                                    correctlyGuessedGrid={correctlyGuessedGrid}
+                                    handleHeaderClick={(header, CO) => handleHeaderClick(header, CO)}
+                                    cellColour={playerColours[playerOnThisDevice]}
+                                    recentlyFlippedCardsNColours={gameState.recentlyFlippedCard.filter((card, index) => index === playerOnThisDevice ? null : card)}
+                                    demoMode={gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2}
+                                    hintCO={hintCO}
+                                    bigImage={bigImage}
+                                    bigCO={bigCO}
+                                    currentBigImageIndex={currentBigImageIndex}
+                                    handlePrevImage={handlePrevImage}
+                                    handleNextImage={handleNextImage}
+                                /> :
+                                <CCRows
+                                    rowHeaders={rowHeaders}
+                                    colHeaders={colHeaders}
+                                    cellSize="size-[150px]"
+                                />
+                        }
+                    </div>
+                </div>
+                <div id="gameLog" className="relative w-full flex flex-col justify-between items-start pt-0">
+                    {OneDim2TwoDim(gameState.gamelog.filter((log) => log.action.includes(`✗`) || log.action.includes(`hint`)), 48).map((log_row, row_idx) => (
+                        <div key={row_idx} className={`flex flex-row justify-start gap-1.5 px-1 pb-1 w-full`}>
+                            {log_row.map((log, idx) => (
+                                <div key={idx} className={`w-full rounded-full h-1.5 ${log.action.includes(`hint`) ? ('bg-' + playerColours[log.player]) : ('bg-red-300')}`}>
+                                    {/* {log.action.includes(`✗`) ? (
+                                <div className='h-1.5 w-full my-0.5 bg-red-300'></div>
+                            ) : log.action.includes(`hint`) ? (
+                                <div className={`h-1.5 w-full my-0.5 bg-${playerColours[log.player]}`}></div>
+                            ) : ''} */}
+                                </div>
+                            ))}
                         </div>
+                    ))}
+                </div>
+                <div id="playerControls" className="flex flex-row justify-end items-start pt-0 px-1 gap-2" style={{ width: getResponsiveGridSize() }}>
+                    {
+                        gameState.gamelog.length > 0 && gameLogComponent(false)
                     }
-                    <div className="w-full flex flex-row items-center space-x-2 justify-end">
-                        {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
+                    <div className="flex flex-row h-8 items-center gap-2 justify-end whitespace-nowrap">
+
+                        {bigImage && (
+                            <button
+                                onClick={() => handleHeaderClick(bigImage, bigCO)}
+                                className={buttonClasses}
+                            >
+                                Close image
+                            </button>
+                        )}
+
+                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
                             <button
                                 onClick={handleViewCard}
                                 className={buttonClasses + (buttonState == 'view' ? 'animate-pulse' : '')}
@@ -1050,7 +1212,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
                         )}
 
-                        {buttonState == 'give' && (
+                        {!bigImage && buttonState == 'give' && (
                             <button
                                 onClick={handleGiveClue}
                                 className={buttonClasses + (demoState == 1 ? ' animate-pulse' : '')}
@@ -1058,7 +1220,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 Give a clue for this card
                             </button>
                         )}
-                        {buttonState === 'input' && (
+                        {!bigImage && buttonState === 'input' && (
                             <input
                                 type="text"
                                 value={editValue === '?' ? '' : editValue}
@@ -1075,7 +1237,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
                         )}
 
-                        {buttonState == 'input' && (
+                        {!bigImage && buttonState == 'input' && (
                             <button
                                 onClick={enterClue}
                                 className={`text-md h-8 p-2 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800`}
@@ -1085,39 +1247,22 @@ const RandomImageGridWrapper: React.FC = () => {
                         )}
 
                         {
-                            gameState.clueCellContent[playerOnThisDevice] != '?' && (
-                                <span className='w-56 text-sm text-gray-800 text-right'>
+                            gameState.clueCellContent[playerOnThisDevice] != '?' && !bigImage && (
+                                <span className='w-full text-sm text-gray-800 text-right font-semibold'>
                                     {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ?
-                                        <>
-                                            Wait for {playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join("'s, ") + (playersWithNoClues.length - 1 >= 1 ? "'s and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} <br/> to give a clue...
-                                        </>
+                                        <span className='text-sm pl-2'>
+                                            Wait for {playersWithNoClues.length == 1 ? playersWithNoClues[0] : "others"} to give a clue...
+                                        </span>
                                         :
                                         "Guess " + playersWithClues.slice(0, playersWithClues.length - 1).concat().join("'s, ") + (playersWithClues.length - 1 >= 1 ? "'s and " : "") + playersWithClues.slice(playersWithClues.length - 1) + "'s card" + (playersWithClues.length - 1 > 1 ? "s!" : "!")}
                                 </span>
                             )}
                     </div>
-
-                    {/* <button
-                        onClick={() => {
-                            setGridView(!gridView);
-                        }}
-                        className="size-10 p-2 text-black rounded"
-                    > {
-                            gridView ?
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                    stroke="currentColor" className="size-full">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                        d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
-                                </svg> :
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                    stroke="currentColor" className="size-full">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                        d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                                </svg>
-                        }
-                    </button> */}
                 </div>
             </div>
+            {
+                // screenSize == 'wide' && gameLogComponent(false)
+            }
         </div >
     );
 };

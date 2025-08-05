@@ -192,7 +192,7 @@ const CCCard: React.FC<CCCardProps> = ({
     return (
         <button
             className={`${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}`}
-            onClick={frontContent.content != '?' && clueCell ? undefined : () => cardClickHandler()}
+            onClick={frontContent.color != '' ? undefined : () => cardClickHandler()}
             style={{ maxWidth: cellSize, maxHeight: cellSize}}
         >
             <div className="flip-cross-clues-card-inner">

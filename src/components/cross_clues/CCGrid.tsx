@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import CCCard from './CCCard';
 import { FrontCellContent } from './RandomImageGridWrapper';
 import { GridCellCO } from './RandomImageGridWrapper';
@@ -19,7 +19,7 @@ interface GridProps {
     /** Optional: Tailwind size class for cells (e.g., 'w-16', 'h-16'). If not provided, relies purely on aspect-square and grid layout. */
     cellSize?: string; // Changed from 'size' to 'cellSize' for clarity
     givenRandomCO: { rowIndex: number, colIndex: number } | null;
-    otherPlayersRandomCO: { rowIndex: number, colIndex: number }[];
+    otherPlayersRandomCO: ({ rowIndex: number, colIndex: number } | null)[];
     numRows: number;
     numCols: number;
     clueCellContent: string;
@@ -37,6 +37,11 @@ interface GridProps {
     recentlyFlippedCardsNColours: ({ CO: GridCellCO | null, colour: string } | null)[];
     demoMode: boolean;
     hintCO: GridCellCO | null;
+    bigImage: React.ReactNode | null;
+    bigCO: string | null;
+    currentBigImageIndex: number | null;
+    handlePrevImage: () => void;
+    handleNextImage: () => void;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -63,44 +68,109 @@ const CCGrid: React.FC<GridProps> = ({
     cellColour,
     recentlyFlippedCardsNColours,
     demoMode,
-    hintCO
+    hintCO,
+    bigImage,
+    bigCO,
+    currentBigImageIndex,
+    handlePrevImage,
+    handleNextImage
 }) => {
+    const [hintCOState, setHintCOState] = useState<GridCellCO | null>(null);
+    const [poppingCells, setPoppingCells] = useState<{ [key: string]: boolean }>({});
+    const [hiddenCells, setHiddenCells] = useState<{ [key: string]: boolean }>({});
+    const prevHintCOState = useRef<GridCellCO | null>(null);
 
     const hintRowCol = (co: { rowIndex: number, colIndex: number } | null) => {
         // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
 
         if (co) {
-            const colCount = correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean).length
+            // const colCount = correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean).length
             // console.log("correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean)", correctlyGuessedGrid.map(row => row[co.colIndex]).filter(Boolean))
-            const rowCount = correctlyGuessedGrid[co.rowIndex].filter(Boolean).length
+            // const rowCount = correctlyGuessedGrid[co.rowIndex].filter(Boolean).length
             // console.log("correctlyGuessedGrid[co.rowIndex].filter(Boolean)", correctlyGuessedGrid[co.rowIndex].filter(Boolean))
 
+            // choose row or col randomly
             let hintCo = co
-            if (colCount > rowCount) {
-                hintCo = { rowIndex: -1, colIndex: co.colIndex }
-            } else {
+            if ((co.colIndex * co.rowIndex) % 2 == 0) {
                 hintCo = { rowIndex: co.rowIndex, colIndex: -1 }
+            } else {
+                hintCo = { rowIndex: -1, colIndex: co.colIndex }
             }
+            setHintCOState(hintCo)
             return hintCo
+        } else {
+            setHintCOState(null)
+            return null
         }
-
-        // if (hintCO) {
-        //     correctlyGuessedGrid[hintCO.rowIndex][hintCO.colIndex] = true;
-        // }
     }
 
-    // Basic validation (optional, but good practice in larger apps)
-    if (rowHeaders.length !== numRows || colHeaders.length !== numCols) {
-        console.warn(
-            `GridComponent mismatch: Expected ${numRows} row headers and ${numCols} column headers, but received ${rowHeaders.length} and ${colHeaders.length}. Rendering truncated/padded grid.`
-        );
-        // Adjust arrays to prevent runtime errors, though ideally props validation should handle this upstream
-        rowHeaders = [...rowHeaders, ...Array(numRows).fill('')].slice(0, numRows);
-        colHeaders = [...colHeaders, ...Array(numCols).fill('')].slice(0, numCols);
-    }
-    hintRowCol(hintCO);
+    useEffect(() => {
+        hintRowCol(hintCO)
+    }, [hintCO])
 
+    useEffect(() => {
+        // When hintCOState changes, trigger pop animation for cells that are being hidden
+        if (hintCOState !== prevHintCOState.current) {
+            // If we have a new hint, find all cells that should be hidden
+            if (hintCOState) {
+                // First, clear any existing popping cells
+                setPoppingCells({});
 
+                // Then, set up staggered animations
+                const cellsToPop: { row: number, col: number }[] = [];
+
+                frontCellContent.forEach((row, rowIndex) => {
+                    row.forEach((_, colIndex) => {
+                        if (hintCOState.rowIndex !== rowIndex && hintCOState.colIndex !== colIndex && !correctlyGuessedGrid[rowIndex][colIndex]) {
+                            cellsToPop.push({ row: rowIndex, col: colIndex });
+                        }
+                    });
+                });
+
+                // Shuffle the cells for a more random popping effect
+                const shuffledCells = [...cellsToPop].sort(() => Math.random() - 0.5);
+
+                // Animate cells in groups with staggered delays
+                const groupSize = Math.max(1, Math.floor(shuffledCells.length / 5)); // Split into ~5 groups
+                const animationDuration = 170; // ms between groups
+
+                // First, clear any previously hidden cells
+                setHiddenCells({});
+
+                shuffledCells.forEach((cell, index) => {
+                    const delay = Math.floor(index / groupSize) * animationDuration;
+                    const cellKey = `${cell.row}-${cell.col}`;
+
+                    setTimeout(() => {
+                        // Start the pop animation
+                        setPoppingCells(prev => ({
+                            ...prev,
+                            [cellKey]: true
+                        }));
+
+                        // After pop animation completes, hide the cell
+                        setTimeout(() => {
+                            setHiddenCells(prev => ({
+                                ...prev,
+                                [cellKey]: true
+                            }));
+
+                            // Clear the pop state after a short delay
+                            setPoppingCells(prev => {
+                                const newState = { ...prev };
+                                delete newState[cellKey];
+                                return newState;
+                            });
+                        }, 250); // Slightly before the full animation completes to ensure smooth transition
+                    }, delay);
+                });
+            } else {
+                setPoppingCells({});
+            }
+
+            prevHintCOState.current = hintCOState;
+        }
+    }, [hintCOState, frontCellContent]);
 
     // Helper function to render a single cell
     const renderCell = (
@@ -134,137 +204,201 @@ const CCGrid: React.FC<GridProps> = ({
         );
     };
 
-
     // Generate column letters ('A', 'B', ...)
     const colLetters = Array.from({ length: numCols }, (_, i) =>
         String.fromCharCode(65 + i)
     );
 
-
-    // console.log('completedCards', completedCards)
-    // console.log(completedCards.findIndex(cards => cards == 'B1') % 2 == 0)
-    // console.log(completedCards.findIndex(cards => cards == 'D1') % 2 == 0)
-    // console.log(completedCards.findIndex(cards => cards == 'D2') % 2 == 0)
-    // console.log(completedCards.findIndex(cards => cards == 'B4') % 2 == 0)
-    // console.log("completedCards", completedCards)
+    const popAnimation = `@keyframes pop {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.9; }
+        100% { transform: scale(0.8); opacity: 0; }
+    }
+    
+    .pop-out {
+        animation: pop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        will-change: transform, opacity;
+    }`;
 
     return (
-        // The main grid container. grid-cols-6 because we have 1 header col + 5 data cols.
-        // gap-0 ensures borders touch cleanly.
+        <>
+            <style>{popAnimation}</style>
+            <div
+                className={`grid gap-0 ${className}`}
+                style={{
+                    width: 'fit-content',
+                    gridTemplateColumns: `repeat(${numCols + 1}, 1fr)`,
+                    ...style
+                }}
+            >
+                {/* Top-left clue cell */}
+                <CCCard
+                    frontContent={
+                        // clueCellContent
+                        { content: " ", color: "white" }
+                    }
+                    backContent={""}
+                    beginsFlipped={false}
+                    cellSize={cellSize}
+                    frontClassName="text-gray-500 bg-gray"
+                    backClassName="text-gray-500"
+                    clueCell={true}
+                    // onContentEdit={handleClueCellEdit}
+                    isFlipped={
+                        flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100
+                    }
+                    // handleCardFlip={handleCardFlip}
+                    handleCardFlip={() => { }}
+                    rowIndex={100}
+                    colIndex={100}
+                    resetFlippedCardState={resetFlippedCardState}
+                    setViewingClue={setViewingClue}
+                    highlightClass={"border-gray-100"}
+                />
 
+                {/* Column Headers */}
+                {colHeaders.map((header, index) => {
+                    return renderCell(header, `col-header-${index}`, true, `${String.fromCharCode(65 + index)}`, demoMode && (givenRandomCO?.colIndex !== index || !viewingClue))
+                })}
+                {/* Rows: Each row contains a Row Header + Data Cells */}
+                {bigImage ? (
+                    // Big Image Layout
+                    <>
 
-        <div
-            className={`grid gap-0 ${className}`}
-            style={{
-                width: 'fit-content',
-                gridTemplateColumns: `repeat(${numCols + 1}, 1fr)`,
-                ...style
-            }}
-        >
-            {/* Top-left clue cell */}
-            <CCCard
-                frontContent={
-                    // clueCellContent
-                    { content: " ", color: "white" }
-                }
-                backContent={""}
-                beginsFlipped={false}
-                cellSize={cellSize}
-                frontClassName="text-gray-500 bg-gray"
-                backClassName="text-gray-500"
-                clueCell={true}
-                // onContentEdit={handleClueCellEdit}
-                isFlipped={
-                    flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100
-                }
-                // handleCardFlip={handleCardFlip}
-                handleCardFlip={() => { }}
-                rowIndex={100}
-                colIndex={100}
-                resetFlippedCardState={resetFlippedCardState}
-                setViewingClue={setViewingClue}
-                highlightClass={"border-gray-100"}
-            />
+                        {/* Row Headers */}
+                        {rowHeaders.map((_, idx) => (
+                            <React.Fragment key={`row-header-${idx}`}>
+                                {renderCell(
+                                    rowHeaders[idx],
+                                    `row-header-${idx}`,
+                                    true,
+                                    `${idx + 1}`,
+                                    demoMode && (givenRandomCO?.rowIndex !== idx || !viewingClue)
+                                )}
+                            </React.Fragment>
+                        ))}
+                        {/* Big Image */}
+                        <div
+                            key="big-image"
+                            className="col-start-2 col-span-5 row-start-2 row-span-5 relative flex items-center justify-center bg-gray-100"
+                        >
+                            <div className="w-full h-full object-contain p-1">{bigImage}</div>
+                            {bigCO && ( // Only render bigCO if it's not an empty string
+                                <div className='absolute -top-6 left-1 text-[80px] p-4 text-black tracking-wide font-bold z-10 opacity-60'>
+                                    {bigCO}
+                                </div>
+                            )}
+                            {currentBigImageIndex !== null && ( // Only show buttons if an image is displayed
+                                <>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                            handlePrevImage();
+                                        }}
+                                        className="absolute h-full w-12 text-center left-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                                    >
+                                        &#9664;
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent the parent div's onClick from firing
+                                            handleNextImage();
+                                        }}
+                                        className="absolute h-full w-12 text-center right-2 top-1/2 transform -translate-y-1/2 bg-none bg-opacity-50 text-black p-2 z-20"
+                                    >
+                                        &#9654;
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    // Normal Grid Layout
+                    frontCellContent.map((row, rowIndex) => (
 
-            {/* Column Headers */}
-            {colHeaders.map((header, index) => {
-                return renderCell(header, `col-header-${index}`, true, `${String.fromCharCode(65 + index)}`, demoMode && (givenRandomCO?.colIndex !== index || !viewingClue))
-            })}
+                        <React.Fragment key={`row-${rowIndex}`}>
+                            {/* Row Header */}
+                            {renderCell(
+                                rowHeaders[rowIndex],
+                                `row-header-${rowIndex}`,
+                                true,
+                                `${rowIndex + 1}`,
+                                demoMode && (givenRandomCO?.rowIndex !== rowIndex || !viewingClue)
+                            )}
 
+                            {/* Data Cells for the current row */}
+                            {row.map((cellContent, colIndex) => {
+                                const cellKey = `${rowIndex}-${colIndex}`;
+                                const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
 
+                                let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
+                                if (correctlyGuessedGrid[rowIndex][colIndex]) {
+                                    highlightClasses = `text-gray-800 bg-${cellContent.color}`;
+                                } else {
+                                    const matchingCard = recentlyFlippedCardsNColours.find((card) =>
+                                        card && card.CO?.colIndex === colIndex && card.CO?.rowIndex === rowIndex
+                                    );
 
-            {/* Rows: Each row contains a Row Header + Data Cells */}
-            {frontCellContent.map((row, rowIndex) => (
-                // Using React.Fragment for key prop on the group of elements per row
-                <React.Fragment key={`row-${rowIndex}`}>
-                    {/* Row Header */}
-                    {renderCell(rowHeaders[rowIndex], `row-header-${rowIndex}`, true, `${rowIndex + 1}`, demoMode && (givenRandomCO?.rowIndex !== rowIndex || !viewingClue))}
+                                    if (matchingCard && !highlightCard) {
+                                        highlightClasses = `text-${matchingCard.colour} bg-white`;
+                                    } else {
+                                        highlightClasses = `${highlightClasses} bg-white`;
+                                    }
 
-                    {/* Data Cells for the current row */}
-                    {row.map((cellContent, colIndex) => {
-                        const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
+                                    // Apply demo mode opacity if needed
+                                    if (demoMode && (givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex || !viewingClue)) {
+                                        highlightClasses = `${highlightClasses} opacity-20`;
+                                    }
+                                }
 
-                        let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
-                        if (correctlyGuessedGrid[rowIndex][colIndex]) {
-                            // set classes for when user chooses the correct card
+                                let borderClasses = "border-gray-100";
+                                if (highlightCard) {
+                                    borderClasses = "border-gray-500";
+                                } else {
+                                    const matchingCard = recentlyFlippedCardsNColours.find((card) =>
+                                        card && card.CO?.colIndex === colIndex && card.CO?.rowIndex === rowIndex
+                                    );
+                                    if (matchingCard) {
+                                        borderClasses = `border-${matchingCard.colour}`;
+                                    }
+                                }
 
-                            highlightClasses = `text-gray-800 bg-${cellContent.color}`
+                                const correct_card = otherPlayersRandomCO.some((CO) =>
+                                    CO && CO.rowIndex === rowIndex && CO.colIndex === colIndex
+                                ) ? 'correct' : 'incorrect';
 
-                        } else {
+                                const isPopping = poppingCells[cellKey];
+                                const shouldHide = hintCOState !== null &&
+                                    hintCOState?.rowIndex !== rowIndex &&
+                                    hintCOState?.colIndex !== colIndex &&
+                                    hiddenCells[cellKey];
 
-                            const matchingCard = recentlyFlippedCardsNColours.find((card) =>
-                                card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
-                            );
-                            if (matchingCard && !highlightCard) {
-                                highlightClasses = `text-${matchingCard.colour} bg-white`
-                            } else {
-                                highlightClasses = `${highlightClasses} bg-white ${demoMode && (givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex || !viewingClue) ? "opacity-20" : ""}`
-                            }
-                        };
-
-
-                        let borderClasses = "border-gray-100"
-                        if (highlightCard) {
-                            // To see what other players choose incorrectly
-                            borderClasses = "border-gray-500"
-                        } else {
-                            const matchingCard = recentlyFlippedCardsNColours.find((card) =>
-                                card && card.CO?.colIndex == colIndex && card.CO?.rowIndex == rowIndex
-                            );
-                            if (matchingCard) {
-                                borderClasses = `border-${matchingCard.colour}`;
-                            }
-                        }
-                        // if (correctlyGuessedGrid[rowIndex][colIndex]) {highlightClasses = "text-green-500"};
-                        // if (completedCards.includes(`${colLetters[colIndex]}${rowIndex + 1}`)) {highlightClasses = "text-green-500"};
-                        // if (!cellContent.match('[A-F][1-5]')) {highlightClasses = "text-green-500"};
-                        const correct_card = otherPlayersRandomCO.some((CO) => CO.rowIndex == rowIndex && CO.colIndex == colIndex) ? 'correct' : 'incorrect'
-                        // console.log("hintRowCol(hintCO)", hintRowCol(hintCO))
-                        return (
-                            <CCCard
-                                key={`cell-${colIndex}-${rowIndex}`}
-                                frontContent={hintCO !== null && (hintRowCol(hintCO)?.rowIndex != rowIndex && hintRowCol(hintCO)?.colIndex != colIndex) ? { content: "", color: "white" } : cellContent}
-                                backContent={correct_card == 'correct' ? '✓' : '✗'}
-                                beginsFlipped={false}
-                                cellSize={cellSize}
-                                frontClassName={`${highlightClasses}`}
-                                backClassName={correct_card == 'correct' ? 'text-correct' : 'text-wrong'}
-                                clueCell={false}
-                                correctCard={correct_card}
-                                isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
-                                handleCardFlip={handleCardFlip}
-                                rowIndex={rowIndex}
-                                colIndex={colIndex}
-                                resetFlippedCardState={resetFlippedCardState}
-                                setViewingClue={setViewingClue}
-                                highlightClass={borderClasses}
-                            />
-                        )
-                    })}
-                </React.Fragment>
-            ))}
-        </div>
-    ); // End of the returned JSX element
-}; // End of the GridComponent function
+                                return (
+                                    <CCCard
+                                        key={`cell-${colIndex}-${rowIndex}`}
+                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent}
+                                        backContent={correct_card === 'correct' ? '✓' : '✗'}
+                                        beginsFlipped={false}
+                                        cellSize={cellSize}
+                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''}`}
+                                        backClassName={correct_card === 'correct' ? 'text-correct' : 'text-wrong'}
+                                        clueCell={false}
+                                        correctCard={correct_card}
+                                        isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
+                                        handleCardFlip={handleCardFlip}
+                                        rowIndex={rowIndex}
+                                        colIndex={colIndex}
+                                        resetFlippedCardState={resetFlippedCardState}
+                                        setViewingClue={setViewingClue}
+                                        highlightClass={borderClasses}
+                                    />
+                                );
+                            })}
+                        </React.Fragment>
+                    )))}
+            </div>
+        </>
+    );
+};
 
 export default CCGrid;
