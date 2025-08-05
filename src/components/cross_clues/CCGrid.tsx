@@ -376,11 +376,11 @@ const CCGrid: React.FC<GridProps> = ({
                                 return (
                                     <CCCard
                                         key={`cell-${colIndex}-${rowIndex}`}
-                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent}
+                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent }
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
-                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''}`}
+                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20' : ''}`}
                                         backClassName={correct_card === 'correct' ? 'text-correct' : 'text-wrong'}
                                         clueCell={false}
                                         correctCard={correct_card}
@@ -390,7 +390,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         colIndex={colIndex}
                                         resetFlippedCardState={resetFlippedCardState}
                                         setViewingClue={setViewingClue}
-                                        highlightClass={borderClasses}
+                                        highlightClass={`${borderClasses} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20' : ''}`}
                                     />
                                 );
                             })}

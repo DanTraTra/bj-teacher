@@ -762,7 +762,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setButtonState('view');
             setFlippedCardState(null);
             // Player turn change is now in useEffect based on clueCellContent
-            setDemoState(1);
+            setDemoState(0);
             setViewingClue(false);
         }
 
