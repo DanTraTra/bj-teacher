@@ -362,7 +362,8 @@ const CCGrid: React.FC<GridProps> = ({
                                         // Find which player voted for this cell
                                         playerIndex: voteData.CO?.findIndex(co =>
                                             co?.rowIndex === rowIndex && co?.colIndex === colIndex
-                                        )
+                                        ),
+                                        co: {rowIndex, colIndex}
                                     }))
                                     .filter(vote => vote.playerIndex !== -1) // Filter out any not found
                                     .map(vote => ({
@@ -370,7 +371,8 @@ const CCGrid: React.FC<GridProps> = ({
                                         color: getPlayerColor(vote.playerIndex)
                                     }));
 
-                                console.log("votedClues", votedClues);
+                                // console.log("votedClues", votedClues);
+                                // console.log("votedClues", votedClues);
 
                                 let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                                 if (correctlyGuessedGrid[rowIndex][colIndex]) {
@@ -414,7 +416,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         correctCard={correct_card}
                                         isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
                                         handleCardFlip={handleCardFlip}
-                                        isVoted={votedClues.length > 0}
+                                        isVoted={false}
                                         handleVoteSelect={handleVoteSelect}
                                         playerVotes={playerVotes}
                                         rowIndex={rowIndex}

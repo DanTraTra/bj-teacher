@@ -501,11 +501,11 @@ const RandomImageGridWrapper: React.FC = () => {
             clueCellContent: newClueCellContent,
             gamelog: newContent == '?' ? [...gameState.gamelog] :
                 [...gameState.gamelog,
-                    {
-                        player: playerOnThisDevice,
-                        action: 'gave clue',
-                        detail: newContent,
-                    }],
+                {
+                    player: playerOnThisDevice,
+                    action: 'gave clue',
+                    detail: newContent,
+                }],
         });
     };
 
@@ -607,13 +607,20 @@ const RandomImageGridWrapper: React.FC = () => {
             // console.log("gameState", gameState)
             alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
 
-        } else if (gameState.clueCellContent?.some((clue) => gameState.playerVotes[clue]?.CO?.some((CO) => CO?.rowIndex === rowIndex && CO?.colIndex === colIndex))) {
+        } else if (!Object.values(gameState.playerVotes).filter((vote) => {
+            const playerVote = vote.CO[playerOnThisDevice -1]
+            console.log("playerOnThisDevice", playerOnThisDevice)
+            console.log("playerVote", playerVote)
+            return playerVote?.rowIndex === rowIndex && playerVote?.colIndex === colIndex
+        })) {
+
+            console.log("player has voted for this card")
             // setFlippedCardState(null);
             // console.log("setting flippedCardState to null", flippedCardState)
 
         } else {
             console.log("voting for", rowIndex, colIndex)
-            handleVoteSelect(gameState.clueCellContent[playerOnThisDevice], { rowIndex, colIndex });
+            // handleVoteSelect(gameState.clueCellContent[playerOnThisDevice], { rowIndex, colIndex });
             setViewingClue(false);
             setIsEditing(false);
 
