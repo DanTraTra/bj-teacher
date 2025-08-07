@@ -28,7 +28,7 @@ interface StateType {
     playerNames: (string | null)[];
     numRows: number;
     numCols: number;
-    recentlyFlippedCard: ({ CO: GridCellCO | null, colour: string } | null)[];
+    playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } }; //each clue has an array of votes. index of each clue is the player number e.g. playerOne -> playerVotes[1]. Each vote has player + 1 co-ordinates and the clue
     gamelog: GameLog[];
 }
 
@@ -53,6 +53,12 @@ const fetchRandomSupabaseImages = async (count: number = 10): Promise<string[]> 
     const allImages = await fetchSupabaseImagePaths();
     const shuffled = allImages.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
+};
+
+// Get the color name for a player number
+export const getPlayerColor = (playerNumber: number): string => {
+    const colors = ['playerOne', 'playerTwo', 'playerThree', 'playerFour', 'playerFive', 'playerSix'];
+    return colors[playerNumber - 1] || 'None';
 };
 
 const getRandomImages = (imagePaths: string[], count: number): React.JSX.Element[] => {
@@ -140,7 +146,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [buttonState, setButtonState] = useState<'view' | 'give' | 'input' | null>('view');
     const [playerColours, setPlayerColours] = useState<string[]>(['', 'playerOne', 'playerTwo', 'playerThree', 'playerFour', 'playerFive', 'playerSix'])
-
+    // const [playerVotes, setPlayerVotes] = useState<{ clue: string, CO: GridCellCO | null }[][]>([]);
+    // Playervotes is an array of each persons votes. each vote should be the clue, color and co-ordinate. Players can have 
     const [gameState, setGameState] = useState<StateType>({
         imageUrls: [],
         randomCO: [{ rowIndex: -1, colIndex: -1 }], // player one random CO is at index 1, player two is at index 2 etc.
@@ -153,7 +160,7 @@ const RandomImageGridWrapper: React.FC = () => {
         playerNames: [null, null],
         numRows: 0,
         numCols: 0,
-        recentlyFlippedCard: [null, null],
+        playerVotes: {},
         gamelog: [],
     });
     const [demoState, setDemoState] = useState(0)
@@ -263,7 +270,7 @@ const RandomImageGridWrapper: React.FC = () => {
         const game_code = generateSlug(2)
         console.log("game_code", game_code)
 
-        const newState = {
+        const newState: StateType = {
             imageUrls: images,
             randomCO: randomCoOrdinates,
             availiableRandomCo: allRandomCo,
@@ -275,7 +282,7 @@ const RandomImageGridWrapper: React.FC = () => {
             playerCount: playerCount,
             numRows: length,
             numCols: length,
-            recentlyFlippedCard: Array(playerCount + 1).fill(null),
+            playerVotes: {},
             gamelog: [],
         }
 
@@ -391,7 +398,7 @@ const RandomImageGridWrapper: React.FC = () => {
         const generatedRowHeaders = rowPaths.map((src, i) => (
             // <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid[i].every(card => card) ? '' : 'grayscale'}`} />
             <img key={`row-${i}`} src={src} alt={`row-${i}`} className={`w-full h-full object-contain grayscale`}
-                // onClick={() => handleHeaderClick(src, `${i + 1}`)}
+            // onClick={() => handleHeaderClick(src, `${i + 1}`)}
             />
 
         ));
@@ -401,7 +408,7 @@ const RandomImageGridWrapper: React.FC = () => {
         const generatedColHeaders = colPaths.map((src, i) => (
             // <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain ${correctlyGuessedGrid.every(col => col[i]) ? '' : 'grayscale'}`} />
             <img key={`col-${i}`} src={src} alt={`col-${i}`} className={`w-full h-full object-contain grayscale`}
-                // onClick={() => handleHeaderClick(src, `${String.fromCharCode(65 + i)}`)}
+            // onClick={() => handleHeaderClick(src, `${String.fromCharCode(65 + i)}`)}
             />
         ));
         setColHeaders(generatedColHeaders);
@@ -483,13 +490,22 @@ const RandomImageGridWrapper: React.FC = () => {
         const newClueCellContent = [...gameState.clueCellContent];
         newClueCellContent[playerOnThisDevice] = newContent;
 
+        const newPlayerVotes = { ...gameState.playerVotes };
+        newPlayerVotes[newContent] = { CO: Array.from({ length: numCols }, () => null) };
+
         setGameState({ ...gameState, clueCellContent: newClueCellContent });
         console.log("handleClueCellEdit", newContent)
         updateGameState({
             ...gameState,
+            playerVotes: newPlayerVotes,
             clueCellContent: newClueCellContent,
             gamelog: newContent == '?' ? [...gameState.gamelog] :
-                [...gameState.gamelog, { player: playerOnThisDevice, action: 'gave clue', detail: newContent }],
+                [...gameState.gamelog,
+                    {
+                        player: playerOnThisDevice,
+                        action: 'gave clue',
+                        detail: newContent,
+                    }],
         });
     };
 
@@ -566,6 +582,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
     // Add state to track the currently flipped card
     const [flippedCardState, setFlippedCardState] = useState<GridCellCO | null>(null);
+    // const [votedCardState, setVotedCardState] = useState<GridCellCO | null>(null);
 
     const changeflippedCardState = (coOrdinate: GridCellCO | null) => {
         setFlippedCardState(coOrdinate);
@@ -575,6 +592,44 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("resetFlippedCardState", flippedCardState)
         setFlippedCardState(null);
     }
+
+    const handleCardVote = (rowIndex: number, colIndex: number, clueCell: boolean) => {
+
+        if (gameState.clueCellContent.filter(clue => clue !== "?").length === 0) { return }
+
+        const defaultClue = gameState.clueCellContent.find((clue, index) => index !== playerOnThisDevice && clue !== "?") ?? ""
+
+        if (gameState.clueCellContent.filter((player, index) => index !== playerOnThisDevice).every((player) => player === "?") && !clueCell) {
+
+            const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
+
+            console.log("playersWithNoClues", playersWithNoClues)
+            // console.log("gameState", gameState)
+            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
+
+        } else if (gameState.clueCellContent?.some((clue) => gameState.playerVotes[clue]?.CO?.some((CO) => CO?.rowIndex === rowIndex && CO?.colIndex === colIndex))) {
+            // setFlippedCardState(null);
+            // console.log("setting flippedCardState to null", flippedCardState)
+
+        } else {
+            console.log("voting for", rowIndex, colIndex)
+            handleVoteSelect(gameState.clueCellContent[playerOnThisDevice], { rowIndex, colIndex });
+            setViewingClue(false);
+            setIsEditing(false);
+
+            const newRecentCardVoted = { ...gameState.playerVotes };
+
+            newRecentCardVoted[defaultClue].CO[playerOnThisDevice] = { rowIndex, colIndex };
+
+            updateGameState({
+                ...gameState,
+                playerVotes: newRecentCardVoted,
+            })
+
+        }
+
+    }
+
     // Handler for card flips
     const handleCardFlip = (rowIndex: number, colIndex: number, clueCell: boolean) => {
         // console.log("rowIndex", rowIndex)
@@ -664,17 +719,30 @@ const RandomImageGridWrapper: React.FC = () => {
             } else if (!clueCell) {
                 // Wrong card
                 // update the incorrect guess count for the player
-                const newRecentCardFlipped = [...gameState.recentlyFlippedCard];
-                newRecentCardFlipped[playerOnThisDevice] = { CO: { rowIndex, colIndex }, colour: playerColours[playerOnThisDevice] };
-                updateGameState({
-                    ...gameState,
-                    incorrectGuessCount: gameState.incorrectGuessCount + 1,
-                    recentlyFlippedCard: newRecentCardFlipped,
-                    gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }],
-                })
+                // const newRecentCardVoted = [...gameState.recentlyVotedCards];
+                // newRecentCardVoted[playerOnThisDevice] = { CO: { rowIndex, colIndex }, colour: playerColours[playerOnThisDevice] };
+                // updateGameState({
+                //     ...gameState,
+                //     incorrectGuessCount: gameState.incorrectGuessCount + 1,
+                //     recentlyVotedCards: newRecentCardVoted,
+                //     gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }],
+                // })
             }
         };
     }
+
+    const handleVoteSelect = (clue: string, CO: GridCellCO | null) => {
+        const newPlayerVotes = { ...gameState.playerVotes };
+        console.log("clue", clue)
+        // remove clue and use the object.from
+        newPlayerVotes[clue].CO[playerOnThisDevice] = CO;
+        updateGameState({
+            ...gameState,
+            playerVotes: newPlayerVotes,
+        })
+
+        console.log("newPlayerVotes", newPlayerVotes)
+    };
 
     useEffect(() => {
 
@@ -812,17 +880,11 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("player on this device", player)
     };
 
-    // Get the color name for a player number
-    const getPlayerColor = (playerNumber: number): string => {
-        const colors = ['One', 'Two', 'Three', 'Four', 'Five', 'Six'];
-        return colors[playerNumber - 1] || 'None';
-    };
-
     // Component for rendering player badges
     const PlayerBadge = ({ playerName, playerNumber }: { playerName: string | null, playerNumber: number }) => {
         const color = getPlayerColor(playerNumber);
         return (
-            <span className={`text-player${color}Dark bg-player${color} px-1 rounded-lg whitespace-nowrap`}>
+            <span className={`text-${color}Dark bg-${color} px-1 rounded-lg whitespace-nowrap`}>
                 {playerName || 'Unknown Player'}
             </span>
         );
@@ -838,7 +900,7 @@ const RandomImageGridWrapper: React.FC = () => {
             <span key={index} className='flex flex-row items-center'>
                 <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
                 <span className="mx-1 whitespace-nowrap">got a hint for</span>
-                <span className={`bg-player${targetPlayerColor} text-player${targetPlayerColor}Dark px-1 rounded-lg whitespace-nowrap`}>
+                <span className={`bg-${targetPlayerColor} text-${targetPlayerColor}Dark px-1 rounded-lg whitespace-nowrap`}>
                     {hintText}
                 </span>
             </span>
@@ -1139,15 +1201,18 @@ const RandomImageGridWrapper: React.FC = () => {
                                         aspectRatio: '1'
                                     }}
                                     // cellSize="size-[calc(100vw/6)] max-w-[90px] max-h-[90px]"
+                                    playerOnThisDevice={playerOnThisDevice}
                                     givenRandomCO={gameState.randomCO[playerOnThisDevice]}
                                     otherPlayersRandomCO={gameState.randomCO.map((CO, index) => index != playerOnThisDevice && gameState.clueCellContent[index] !== "?" ? CO : null)}
                                     numRows={gameState.numRows}
                                     numCols={gameState.numCols}
                                     frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)}
-                                    handleCardFlip={handleCardFlip}
-                                    clueCellContent={gameState.clueCellContent[playerOnThisDevice]}
+                                    handleCardFlip={handleCardVote}
+                                    handleVoteSelect={handleVoteSelect}
+                                    clueCellContent={gameState.clueCellContent}
                                     handleClueCellEdit={handleClueCellEdit}
                                     flippedCard={flippedCardState}
+                                    playerVotes={gameState.playerVotes}
                                     resetFlippedCardState={resetFlippedCardState}
                                     completedCards={gameState.completedCards}
                                     setViewingClue={isViewingClue}
@@ -1155,7 +1220,8 @@ const RandomImageGridWrapper: React.FC = () => {
                                     correctlyGuessedGrid={correctlyGuessedGrid}
                                     handleHeaderClick={(header, CO) => handleHeaderClick(header, CO)}
                                     cellColour={playerColours[playerOnThisDevice]}
-                                    recentlyFlippedCardsNColours={gameState.recentlyFlippedCard.filter((card, index) => index === playerOnThisDevice ? null : card)}
+                                    playerColours={playerColours}
+                                    // recentlyVotedCards={gameState.playerVotes[playerOnThisDevice].map((card) => ({ CO: card.CO, clue: card.clue, colour: playerColours[playerOnThisDevice] }))}
                                     demoMode={gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2}
                                     hintCO={hintCO}
                                     bigImage={bigImage}
@@ -1199,6 +1265,15 @@ const RandomImageGridWrapper: React.FC = () => {
                                 className={buttonClasses}
                             >
                                 Close image
+                            </button>
+                        )}
+
+                        {gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
+                            <button
+                                onClick={() => handleHeaderClick(bigImage, bigCO)}
+                                className={buttonClasses}
+                            >
+                                Confirm Guess
                             </button>
                         )}
 
@@ -1247,7 +1322,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         )}
 
                         {
-                            gameState.clueCellContent[playerOnThisDevice] != '?' && !bigImage && (
+                            !gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
                                 <span className='w-full text-sm text-gray-800 text-right font-semibold'>
                                     {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ?
                                         <span className='text-sm pl-2'>

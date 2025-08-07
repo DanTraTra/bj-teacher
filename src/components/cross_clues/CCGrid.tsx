@@ -2,12 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import CCCard from './CCCard';
 import { FrontCellContent } from './RandomImageGridWrapper';
 import { GridCellCO } from './RandomImageGridWrapper';
+import { getPlayerColor } from './RandomImageGridWrapper';
 // Define the types for header content
 // React.ReactNode allows strings, numbers, JSX elements (like <img>), etc.
 type HeaderContent = React.ReactNode;
 
 // Define the props for the component
 interface GridProps {
+    playerOnThisDevice: number;
     /** Array of content for the row headers (e.g., ['1', '2', '3', '4', '5'] or image elements). Expecting 5 elements. */
     rowHeaders: HeaderContent[];
     /** Array of content for the column headers (e.g., ['A', 'B', 'C', 'D', 'E'] or image elements). Expecting 5 elements. */
@@ -22,9 +24,10 @@ interface GridProps {
     otherPlayersRandomCO: ({ rowIndex: number, colIndex: number } | null)[];
     numRows: number;
     numCols: number;
-    clueCellContent: string;
+    clueCellContent: string[];
     handleClueCellEdit: (newContent: string) => void;
     flippedCard: { rowIndex: number, colIndex: number } | null;
+    playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } };
     resetFlippedCardState: () => void;
     frontCellContent: FrontCellContent[][];
     correctlyGuessedGrid: boolean[][];
@@ -34,7 +37,8 @@ interface GridProps {
     viewingClue: boolean;
     handleHeaderClick: (header: React.ReactNode, CO: string) => void;
     cellColour: string;
-    recentlyFlippedCardsNColours: ({ CO: GridCellCO | null, colour: string } | null)[];
+    playerColours: string[];
+    // recentlyVotedCards: ({ CO: GridCellCO | null, clue: string, colour: string })[];
     demoMode: boolean;
     hintCO: GridCellCO | null;
     bigImage: React.ReactNode | null;
@@ -42,9 +46,11 @@ interface GridProps {
     currentBigImageIndex: number | null;
     handlePrevImage: () => void;
     handleNextImage: () => void;
+    handleVoteSelect: (clue: string, CO: GridCellCO | null) => void;
 }
 
 const CCGrid: React.FC<GridProps> = ({
+    playerOnThisDevice,
     rowHeaders,
     colHeaders,
     className = '',
@@ -58,6 +64,7 @@ const CCGrid: React.FC<GridProps> = ({
     handleClueCellEdit,
     completedCards = [],
     flippedCard,
+    playerVotes,
     resetFlippedCardState,
     frontCellContent,
     correctlyGuessedGrid,
@@ -66,14 +73,16 @@ const CCGrid: React.FC<GridProps> = ({
     viewingClue,
     handleHeaderClick,
     cellColour,
-    recentlyFlippedCardsNColours,
+    playerColours,
+    // recentlyVotedCards,
     demoMode,
     hintCO,
     bigImage,
     bigCO,
     currentBigImageIndex,
     handlePrevImage,
-    handleNextImage
+    handleNextImage,
+    handleVoteSelect
 }) => {
     const [hintCOState, setHintCOState] = useState<GridCellCO | null>(null);
     const [poppingCells, setPoppingCells] = useState<{ [key: string]: boolean }>({});
@@ -247,13 +256,23 @@ const CCGrid: React.FC<GridProps> = ({
                     isFlipped={
                         flippedCard?.rowIndex === 100 && flippedCard?.colIndex === 100
                     }
+                    isVoted={
+                        false
+                    }
+                    // thisPlayerVotes={clueCellContent.map(clue => { return { clue: clue, CO: playerVotes[clue].CO[playerOnThisDevice] } })}
+                    // otherPlayerVotes={playerVotes.filter((player, index) => index !== playerOnThisDevice).flat()}
                     // handleCardFlip={handleCardFlip}
+                    playerVotes={playerVotes}
                     handleCardFlip={() => { }}
+                    handleVoteSelect={() => { }}
+                    // recentlyVotedCards={recentlyVotedCards}
                     rowIndex={100}
                     colIndex={100}
                     resetFlippedCardState={resetFlippedCardState}
                     setViewingClue={setViewingClue}
                     highlightClass={"border-gray-100"}
+                    clueCellContent={clueCellContent}
+                    playerOnThisDevice={playerOnThisDevice}
                 />
 
                 {/* Column Headers */}
@@ -330,20 +349,36 @@ const CCGrid: React.FC<GridProps> = ({
                             {row.map((cellContent, colIndex) => {
                                 const cellKey = `${rowIndex}-${colIndex}`;
                                 const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
+                                // Check if card has been voted by others - you can initialize a vote which creates the pie slice selection buttons or you can agree with another person's vote clicking the same square
+                                // const votedByOthersCards = playerVotes.map((player, index) => player.map((card) => {return  {...card, color: getPlayerColor(index)} })).filter((player, index) => index !== playerOnThisDevice).flat().find((card) => card.CO?.rowIndex === rowIndex && card.CO?.colIndex === colIndex);
+                                const votedClues = Object.entries(playerVotes)
+                                    .filter(([_, voteData]) =>
+                                        voteData.CO?.some(co =>
+                                            co?.rowIndex === rowIndex && co?.colIndex === colIndex
+                                        )
+                                    )
+                                    .map(([clue, voteData]) => ({
+                                        clue,
+                                        // Find which player voted for this cell
+                                        playerIndex: voteData.CO?.findIndex(co =>
+                                            co?.rowIndex === rowIndex && co?.colIndex === colIndex
+                                        )
+                                    }))
+                                    .filter(vote => vote.playerIndex !== -1) // Filter out any not found
+                                    .map(vote => ({
+                                        ...vote,
+                                        color: getPlayerColor(vote.playerIndex)
+                                    }));
+
+                                console.log("votedClues", votedClues);
 
                                 let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
                                 if (correctlyGuessedGrid[rowIndex][colIndex]) {
                                     highlightClasses = `text-gray-800 bg-${cellContent.color}`;
                                 } else {
-                                    const matchingCard = recentlyFlippedCardsNColours.find((card) =>
-                                        card && card.CO?.colIndex === colIndex && card.CO?.rowIndex === rowIndex
-                                    );
 
-                                    if (matchingCard && !highlightCard) {
-                                        highlightClasses = `text-${matchingCard.colour} bg-white`;
-                                    } else {
-                                        highlightClasses = `${highlightClasses} bg-white`;
-                                    }
+                                    highlightClasses = `${highlightClasses} bg-white`;
+
 
                                     // Apply demo mode opacity if needed
                                     if (demoMode && (givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex || !viewingClue)) {
@@ -354,13 +389,6 @@ const CCGrid: React.FC<GridProps> = ({
                                 let borderClasses = "border-gray-100";
                                 if (highlightCard) {
                                     borderClasses = "border-gray-500";
-                                } else {
-                                    const matchingCard = recentlyFlippedCardsNColours.find((card) =>
-                                        card && card.CO?.colIndex === colIndex && card.CO?.rowIndex === rowIndex
-                                    );
-                                    if (matchingCard) {
-                                        borderClasses = `border-${matchingCard.colour}`;
-                                    }
                                 }
 
                                 const correct_card = otherPlayersRandomCO.some((CO) =>
@@ -376,7 +404,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 return (
                                     <CCCard
                                         key={`cell-${colIndex}-${rowIndex}`}
-                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent }
+                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent}
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
@@ -386,11 +414,19 @@ const CCGrid: React.FC<GridProps> = ({
                                         correctCard={correct_card}
                                         isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
                                         handleCardFlip={handleCardFlip}
+                                        isVoted={votedClues.length > 0}
+                                        handleVoteSelect={handleVoteSelect}
+                                        playerVotes={playerVotes}
                                         rowIndex={rowIndex}
                                         colIndex={colIndex}
                                         resetFlippedCardState={resetFlippedCardState}
                                         setViewingClue={setViewingClue}
                                         highlightClass={`${borderClasses} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20' : ''}`}
+                                        clueCellContent={clueCellContent}
+                                        playerOnThisDevice={playerOnThisDevice}
+                                    // playerCount={clueCellContent.filter((content) => content !== "?").length}
+                                    // playerColors={playerColours.filter((colour, index) => clueCellContent[index] !== "?")}
+
                                     />
                                 );
                             })}

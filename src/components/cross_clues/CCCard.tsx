@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FrontCellContent } from './RandomImageGridWrapper';
+import React, { useState, useCallback } from 'react';
+import { Textfit } from '@ataverascrespo/react18-ts-textfit';
+import { FrontCellContent, getPlayerColor, GridCellCO } from './RandomImageGridWrapper';
 
 interface CCCardProps {
     frontContent: FrontCellContent;
@@ -16,13 +17,23 @@ interface CCCardProps {
     onContentEdit?: (newContent: string) => void;
     /** Whether the card is currently flipped */
     isFlipped: boolean;
+    /** Whether the card is currently voted */
+    isVoted: boolean;
     /** Callback when the card is flipped */
     handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
+    /** Callback when a player's vote is selected */
+    handleVoteSelect: (clue: string, CO: GridCellCO | null) => void;
+    playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } };
+    // thisPlayerVotes: { clue: string, CO: GridCellCO | null }[];
+    // otherPlayerVotes: { clue: string, CO: GridCellCO | null }[];
+    // recentlyVotedCards: { CO: GridCellCO | null, clue: string, colour: string }[];
     rowIndex: number;
     colIndex: number;
     resetFlippedCardState: () => void;
     setViewingClue: (boolean: boolean) => void;
     highlightClass: string;
+    clueCellContent: string[];
+    playerOnThisDevice: number;
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -36,147 +47,45 @@ const CCCard: React.FC<CCCardProps> = ({
     correctCard,
     onContentEdit,
     isFlipped,
+    // isVoted,
     handleCardFlip,
+    handleVoteSelect,
+    playerVotes,
+    // otherPlayerVotes,
+    // thisPlayerVotes,
+    // recentlyVotedCards,
     rowIndex,
     colIndex,
     resetFlippedCardState,
     setViewingClue,
     highlightClass,
+    clueCellContent,
+    playerOnThisDevice,
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
-    const [frontTextSize, setFrontTextSize] = useState(54);
-    const [frontTextColorClass, setfrontTextColorClass] = useState('');
-    const [backTextSize, setBackTextSize] = useState(54);
+    const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
+    // const [votedByThisPlayer, setvotedByThisPlayer] = useState(thisPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
+    // const [votedByOtherPlayers, setvotedByOtherPlayers] = useState(otherPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
 
-    const frontContentRef = useRef<HTMLSpanElement>(null);
-    const backContentRef = useRef<HTMLSpanElement>(null);
-    const frontContainerRef = useRef<HTMLDivElement>(null);
-    const backContainerRef = useRef<HTMLDivElement>(null);
+    // const [playerVoted, setPlayerVoted] = useState(clueCellContent.findIndex((content) => content !== "?" && ));
 
-    const calculateFrontTextSize = () => {
-        if (frontContentRef.current && frontContainerRef.current) {
-            const content = frontContentRef.current;
-            const container = frontContainerRef.current;
-            let currentSize = 54;
-            content.style.fontSize = `${currentSize}px`;
-
-            // Get the actual width of the container, accounting for padding
-            const containerWidth = container.clientWidth - 18; // 20px for padding
-
-            if (typeof frontContent.content === 'string' && !frontContent.content.match('^[A-E][1-5]$')) {
-                while (content.scrollWidth > containerWidth && currentSize > 8) {
-                    currentSize -= 2;
-                    content.style.fontSize = `${currentSize}px`;
-                }
-                setFrontTextSize(currentSize);
-
-            } else {
-                content.style.fontSize = `${container.clientHeight * 0.5}px`;
-                setFrontTextSize(container.clientHeight * 0.5);
-            }
-        }
-    };
-
-    const calculateBackTextSize = () => {
-        if (backContentRef.current && backContainerRef.current) {
-            const content = backContentRef.current;
-            const container = backContainerRef.current;
-            let currentSize = 54;
-            content.style.fontSize = `${currentSize}px`;
-
-            // Get the actual width of the container, accounting for padding
-            const containerWidth = container.clientWidth - 20; // 20px for padding
-
-            while (content.scrollWidth > containerWidth && currentSize > 8) {
-                currentSize -= 2;
-                content.style.fontSize = `${currentSize}px`;
-            }
-            setBackTextSize(currentSize);
-        }
-    };
-
-    // Trigger text resizing when content changes
-    useEffect(() => {
-        // Use requestAnimationFrame to ensure DOM has updated
-        const frameId = requestAnimationFrame(() => {
-            calculateFrontTextSize();
-        });
-        return () => cancelAnimationFrame(frameId);
-    }, [frontContent]);
-
-    useEffect(() => {
-        // Use requestAnimationFrame to ensure DOM has updated
-        const frameId = requestAnimationFrame(() => {
-            calculateBackTextSize();
-        });
-        return () => cancelAnimationFrame(frameId);
-    }, [backContent]);
-
-    // Also recalculate on mount and when refs become available
-    useEffect(() => {
-        if (frontContainerRef.current && frontContentRef.current) {
-            calculateFrontTextSize();
-        }
-    }, [frontContainerRef.current, frontContentRef.current]);
-
-    useEffect(() => {
-        if (backContainerRef.current && backContentRef.current) {
-            calculateBackTextSize();
-        }
-    }, [backContainerRef.current, backContentRef.current]);
-
-    // Add ResizeObserver to monitor container size changes
-    useEffect(() => {
-        const frontContainer = frontContainerRef.current;
-        if (!frontContainer) return;
-
-        const resizeObserver = new ResizeObserver(() => {
-            // Use requestAnimationFrame to ensure DOM has updated
-            requestAnimationFrame(() => {
-                calculateFrontTextSize();
-            });
-        });
-
-        resizeObserver.observe(frontContainer);
-
-        return () => {
-            resizeObserver.disconnect();
-        };
-    }, [frontContainerRef.current]);
-
-    useEffect(() => {
-        const backContainer = backContainerRef.current;
-        if (!backContainer) return;
-
-        const resizeObserver = new ResizeObserver(() => {
-            // Use requestAnimationFrame to ensure DOM has updated
-            requestAnimationFrame(() => {
-                calculateBackTextSize();
-            });
-        });
-
-        resizeObserver.observe(backContainer);
-
-        return () => {
-            resizeObserver.disconnect();
-        };
-    }, [backContainerRef.current]);
+    // const handleVoteSelect = (playerIndex: number) => {
+    //     setPlayerVoted(playerIndex);
+    // };
 
     const baseClasses = `flip-cross-clues-card 
         aspect-square flex items-center justify-center
         overflow-hidden text-center border border-4
         cursor-pointer`;
 
-    // const baseClasses = `flip-cross-clues-card 
-    //     aspect-square flex items-center justify-center
-    //     overflow-hidden text-center border border-4 ${cellSize} 
-    //     cursor-pointer`;
-
     const correctCardClasses = `border-[#10563F]`;
     const incorrectCardClasses = `border-[#C44104]`;
     const closeCardClasses = `border-[#F37332]`;
 
     const cardClickHandler = () => {
+        // Don't flip if we're showing the voting UI
+        // if (isVoted) return;
+
         handleCardFlip(rowIndex, colIndex, clueCell);
 
         if (!clueCell) {
@@ -187,55 +96,148 @@ const CCCard: React.FC<CCCardProps> = ({
                         correctCard === 'close' ? closeCardClasses : '');
             }, 1); // Small delay to ensure flip state is updated
         }
-    }
+    };
 
-    return (
-        <button
-            className={`${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}`}
-            onClick={frontContent.color != '' ? undefined : () => cardClickHandler()}
-            style={{ maxWidth: cellSize, maxHeight: cellSize}}
-        >
-            <div className="flip-cross-clues-card-inner">
-                <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
-                    {/* {clueCell && <div className="absolute top-0 left-0 flex items-center justify-center p-2">
-                        <span
-                            className="max-md:hidden text-[8pt] text-gray-300 cursor-pointer !hover:text-gray-500 transition-colors duration-200"
-                        >
-                            {frontContent != '?' ? 'Your clue:' : 'Set clue'}
-                        </span>
-                    </div>} */}
-                    <div ref={frontContainerRef} className="w-full h-full flex items-center justify-center p-2">
-                        {(
-                            <span
-                                ref={frontContentRef}
-                                style={{ fontSize: `${frontTextSize}px` }}
-                                className={`
-                                    ${frontClassName}
-                                    w-[95%]
-                                    whitespace-nowrap
-                                    text-center
-                                    overflow-hidden
-                                    font-bold
-                                `}
-                            >
-                                {frontContent.content}
-                            </span>
-                        )}
-                    </div>
-                </div>
-                <div className={`flip-cross-clues-card-back bg-white flex items-center justify-center ${backClassName}`}>
-                    <div ref={backContainerRef} className="w-full h-full flex items-center justify-center p-2">
-                        <span
-                            ref={backContentRef}
-                            style={{ fontSize: `${backTextSize}px` }}
-                            className='font-bold'
-                        >
-                            {backContent}
-                        </span>
-                    </div>
+    // console.log("thisPlayerVotes", thisPlayerVotes)
+    // console.log("otherPlayerVoted", otherPlayerVotes)
+
+    const renderPieSlices = useCallback(() => {
+
+        // const players = clueCellContent.filter((player, index) => player !== "?" && index != playerOnThisDevice ? index : null);
+        console.log("playerOnThisDevice", playerOnThisDevice)
+        console.log("clueCellContent", clueCellContent)
+        const clueColor = clueCellContent
+            .map((c, index) => (c !== "?" && index !== playerOnThisDevice) ? { clue: c, color: getPlayerColor(index) } : null)
+            .filter(Boolean) as { clue: string, color: string }[];
+
+        console.log("clueColor", clueColor)
+        if (clueColor.length === 0) return null;
+
+        const slices = [];
+        const centerX = 50;
+        const centerY = 50;
+        // const radius = 70.71; // Slightly larger than the card to cover corners
+        const radius = 80; // Slightly larger than the card to cover corners
+
+        // Generate SVG path for each player's slice
+        // Start at the top (12 o'clock position) and go clockwise
+        for (let i = 0; i < clueColor.length; i++) {
+            // if (clueCellContent[i] === "?") return null;
+            // Angle calculations - starting from top (3 o'clock is 0 in SVG, so we add Math.PI/2 to start from top)
+            const startAngle = (i / clueColor.length) * 2 * Math.PI + (3 * Math.PI) / 6;
+            const endAngle = ((i + 1) / clueColor.length) * 2 * Math.PI + (3 * Math.PI) / 6;
+
+            // Calculate start and end points for the arc
+            const startX = centerX + radius * Math.cos(startAngle);
+            const startY = centerY + radius * Math.sin(startAngle);
+            const endX = centerX + radius * Math.cos(endAngle);
+            const endY = centerY + radius * Math.sin(endAngle);
+
+            // Large arc flag (1 for angles > 180 degrees, 0 otherwise)
+            const largeArcFlag = (endAngle - startAngle) <= Math.PI ? '0' : '1';
+
+            // Create the path data
+            const pathData = [
+                `M ${centerX} ${centerY}`,
+                `L ${startX} ${startY}`,
+                `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                'Z'
+            ].join(' ');
+
+            const playerColor = clueColor[i].color;
+            slices.push(
+                <g key={i} role="button" tabIndex={0}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                        }
+                    }}
+                    aria-label={`Vote for player ${i}`}
+                    className={`outline-none`}
+                >
+                    <path
+                        d={pathData}
+                        className={`fill-${playerColor} transition-opacity duration-200`}
+                        role="presentation"
+                    />
+                    {/* <title>Vote for player {i + 1}</title> */}
+                </g>
+            );
+        }
+
+        return (
+            <div
+                className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden"
+                role="menu"
+                aria-label="Vote for a player"
+            >
+                <svg
+                    viewBox="0 0 100 100"
+                    className={`w-full h-full touch-pinch-zoom border-4 border-gray-100`}
+                    role="presentation"
+                >
+                    {slices}
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
+                    <Textfit
+                        mode="single"
+                        forceSingleModeWidth={false}
+                        className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center"
+                        aria-hidden="true"
+                    >
+                        {clueColor[0].clue}
+                    </Textfit>
                 </div>
             </div>
-        </button>
+        );
+    }, [clueCellContent, handleVoteSelect]);
+
+    return (
+        <div className="relative" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
+            <button
+                className={`w-full h-full ${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}`}
+                onClick={frontContent.color != '' ? undefined : () => cardClickHandler()}
+            >
+                <div className="flip-cross-clues-card-inner">
+                    <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
+                        <div className="w-full h-full p-1">
+                            <Textfit
+                                mode="single"
+                                forceSingleModeWidth={false}
+                                className={`w-full h-full flex items-center justify-center font-bold ${frontClassName}`}
+                            >
+                                {!clueCellContent?.some((clue) => playerVotes[clue]?.CO.find((vote, index) => vote?.rowIndex === rowIndex && vote?.colIndex === colIndex && index === playerOnThisDevice)) && frontContent.content}
+                            
+                            </Textfit>
+                        </div>
+                    </div>
+                    <div className={`flip-cross-clues-card-back bg-white flex items-center justify-center ${backClassName}`}>
+                        <div className="w-full h-full p-1">
+                            {backContent && (
+                                <Textfit
+                                    mode="single"
+                                    forceSingleModeWidth={false}
+                                    className="w-full h-full flex items-center justify-center font-bold"
+                                >
+                                    {backContent}
+                                </Textfit>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </button>
+            {clueCellContent?.some((clue) => playerVotes[clue]?.CO?.find((vote, index) => vote?.rowIndex === rowIndex && vote?.colIndex === colIndex && index === playerOnThisDevice)) && (
+                <div className="absolute inset-0 z-10">
+                    {renderPieSlices()}
+                </div>
+            )}
+        </div>
     );
 };
 

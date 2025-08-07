@@ -14,7 +14,9 @@ export default {
         'border-playerOne', 'border-playerTwo', 'border-playerThree', 'border-playerFour', 'border-playerFive', 'border-playerSix',
         'text-playerOneDark', 'text-playerTwoDark', 'text-playerThreeDark', 'text-playerFourDark', 'text-playerFiveDark', 'text-playerSixDark',
         'bg-playerOneDark', 'bg-playerTwoDark', 'bg-playerThreeDark', 'bg-playerFourDark', 'bg-playerFiveDark', 'bg-playerSixDark',
-        'border-playerOneDark', 'border-playerTwoDark', 'border-playerThreeDark', 'border-playerFourDark', 'border-playerFiveDark', 'border-playerSixDark'
+        'border-playerOneDark', 'border-playerTwoDark', 'border-playerThreeDark', 'border-playerFourDark', 'border-playerFiveDark', 'border-playerSixDark',
+        'fill-playerOne', 'fill-playerTwo', 'fill-playerThree', 'fill-playerFour', 'fill-playerFive', 'fill-playerSix',
+
     ],
     theme: {
         extend: {
