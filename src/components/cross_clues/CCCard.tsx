@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Textfit } from '@ataverascrespo/react18-ts-textfit';
 import { FrontCellContent, getPlayerColor, GridCellCO } from './RandomImageGridWrapper';
 
@@ -20,9 +20,9 @@ interface CCCardProps {
     /** Whether the card is currently voted */
     isVoted: boolean;
     /** Callback when the card is flipped */
-    handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
+    openVoteOptions: (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => void;
     /** Callback when a player's vote is selected */
-    handleVoteSelect: (clue: string, CO: GridCellCO | null) => void;
+    handleVoteSelect: (clue: string, CO: GridCellCO) => void;
     playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } };
     // thisPlayerVotes: { clue: string, CO: GridCellCO | null }[];
     // otherPlayerVotes: { clue: string, CO: GridCellCO | null }[];
@@ -48,7 +48,7 @@ const CCCard: React.FC<CCCardProps> = ({
     onContentEdit,
     isFlipped,
     // isVoted,
-    handleCardFlip,
+    openVoteOptions,
     handleVoteSelect,
     playerVotes,
     // otherPlayerVotes,
@@ -64,6 +64,9 @@ const CCCard: React.FC<CCCardProps> = ({
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
     const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
+    const [clue, setClue] = useState<string | null>(Object.entries(playerVotes).find(([key, value]) => {
+        return value.CO[playerOnThisDevice]?.rowIndex === rowIndex && value.CO[playerOnThisDevice]?.colIndex === colIndex
+    })?.[0] ?? null);
     // const [votedByThisPlayer, setvotedByThisPlayer] = useState(thisPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
     // const [votedByOtherPlayers, setvotedByOtherPlayers] = useState(otherPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
 
@@ -72,6 +75,14 @@ const CCCard: React.FC<CCCardProps> = ({
     // const handleVoteSelect = (playerIndex: number) => {
     //     setPlayerVoted(playerIndex);
     // };
+
+    useEffect(() => {
+        setClue(Object.entries(playerVotes).find(([key, value]) => {
+            return value.CO[playerOnThisDevice]?.rowIndex === rowIndex && value.CO[playerOnThisDevice]?.colIndex === colIndex
+        })?.[0] ?? null)
+
+    }, [playerVotes])
+
 
     const baseClasses = `flip-cross-clues-card 
         aspect-square flex items-center justify-center
@@ -82,11 +93,11 @@ const CCCard: React.FC<CCCardProps> = ({
     const incorrectCardClasses = `border-[#C44104]`;
     const closeCardClasses = `border-[#F37332]`;
 
-    const cardClickHandler = () => {
+    const cardClickHandler = (clueIndex = 0) => {
         // Don't flip if we're showing the voting UI
         // if (isVoted) return;
 
-        handleCardFlip(rowIndex, colIndex, clueCell);
+        openVoteOptions(rowIndex, colIndex, clueCell, clueIndex);
 
         if (!clueCell) {
             // Set the border class after the flip animation starts
@@ -98,10 +109,15 @@ const CCCard: React.FC<CCCardProps> = ({
         }
     };
 
+    // find all who have voted for this card
+
+
     // console.log("thisPlayerVotes", thisPlayerVotes)
     // console.log("otherPlayerVoted", otherPlayerVotes)
 
     const renderPieSlices = useCallback(() => {
+
+        // Pie slices is the clue selection modal/buttons for the player to choose which clue they are voting for on this card
 
         // const players = clueCellContent.filter((player, index) => player !== "?" && index != playerOnThisDevice ? index : null);
         console.log("playerOnThisDevice", playerOnThisDevice)
@@ -144,20 +160,34 @@ const CCCard: React.FC<CCCardProps> = ({
                 'Z'
             ].join(' ');
 
+
             const playerColor = clueColor[i].color;
             slices.push(
                 <g key={i} role="button" tabIndex={0}
                     onClick={(e) => {
                         e.stopPropagation();
-                        handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                        clueColor[i].clue == clue ?
+                            handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
+                            cardClickHandler(i);
                     }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             e.stopPropagation();
-                            handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                            clueColor[i].clue == clue ?
+                                handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
+                                cardClickHandler(i);
                         }
                     }}
+                    onMouseEnter={() => {
+                        cardClickHandler(i);
+                    }}
+                    onMouseLeave={() => {
+                        clueColor[i].clue == clue ?
+                            handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
+                            cardClickHandler(0);
+                    }}
+
                     aria-label={`Vote for player ${i}`}
                     className={`outline-none`}
                 >
@@ -191,7 +221,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center"
                         aria-hidden="true"
                     >
-                        {clueColor[0].clue}
+                        {clue}
                     </Textfit>
                 </div>
             </div>
@@ -213,7 +243,7 @@ const CCCard: React.FC<CCCardProps> = ({
                                 className={`w-full h-full flex items-center justify-center font-bold ${frontClassName}`}
                             >
                                 {!clueCellContent?.some((clue) => playerVotes[clue]?.CO.find((vote, index) => vote?.rowIndex === rowIndex && vote?.colIndex === colIndex && index === playerOnThisDevice)) && frontContent.content}
-                            
+
                             </Textfit>
                         </div>
                     </div>

@@ -31,7 +31,7 @@ interface GridProps {
     resetFlippedCardState: () => void;
     frontCellContent: FrontCellContent[][];
     correctlyGuessedGrid: boolean[][];
-    handleCardFlip: (rowIndex: number, colIndex: number, clueCell: boolean) => void;
+    openVoteOptions: (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => void;
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
@@ -46,7 +46,7 @@ interface GridProps {
     currentBigImageIndex: number | null;
     handlePrevImage: () => void;
     handleNextImage: () => void;
-    handleVoteSelect: (clue: string, CO: GridCellCO | null) => void;
+    handleVoteSelect: (clue: string, CO: GridCellCO) => void;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -68,7 +68,7 @@ const CCGrid: React.FC<GridProps> = ({
     resetFlippedCardState,
     frontCellContent,
     correctlyGuessedGrid,
-    handleCardFlip,
+    openVoteOptions,
     setViewingClue,
     viewingClue,
     handleHeaderClick,
@@ -229,6 +229,8 @@ const CCGrid: React.FC<GridProps> = ({
         will-change: transform, opacity;
     }`;
 
+
+    // TODO: SYNC CCCards with gameState for the playerVotes
     return (
         <>
             <style>{popAnimation}</style>
@@ -244,7 +246,7 @@ const CCGrid: React.FC<GridProps> = ({
                 <CCCard
                     frontContent={
                         // clueCellContent
-                        { content: " ", color: "white" }
+                        { content: " ", color: "white", vote: null }
                     }
                     backContent={""}
                     beginsFlipped={false}
@@ -261,9 +263,9 @@ const CCGrid: React.FC<GridProps> = ({
                     }
                     // thisPlayerVotes={clueCellContent.map(clue => { return { clue: clue, CO: playerVotes[clue].CO[playerOnThisDevice] } })}
                     // otherPlayerVotes={playerVotes.filter((player, index) => index !== playerOnThisDevice).flat()}
-                    // handleCardFlip={handleCardFlip}
+                    // openVoteOptions={openVoteOptions}
                     playerVotes={playerVotes}
-                    handleCardFlip={() => { }}
+                    openVoteOptions={() => { }}
                     handleVoteSelect={() => { }}
                     // recentlyVotedCards={recentlyVotedCards}
                     rowIndex={100}
@@ -374,7 +376,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 // console.log("votedClues", votedClues);
                                 // console.log("votedClues", votedClues);
 
-                                let highlightClasses = highlightCard ? "text-gray-500" : "text-gray-200";
+                                let highlightClasses = highlightCard ? "text-gray-500" : frontCellContent[rowIndex][colIndex].vote ? `text-${getPlayerColor(clueCellContent.findIndex((clue) => clue === frontCellContent[rowIndex][colIndex].vote))}` : "text-gray-200";
                                 if (correctlyGuessedGrid[rowIndex][colIndex]) {
                                     highlightClasses = `text-gray-800 bg-${cellContent.color}`;
                                 } else {
@@ -406,16 +408,16 @@ const CCGrid: React.FC<GridProps> = ({
                                 return (
                                     <CCCard
                                         key={`cell-${colIndex}-${rowIndex}`}
-                                        frontContent={shouldHide ? { content: "", color: "white" } : cellContent}
+                                        frontContent={shouldHide ? { content: "", color: "white", vote: "" } : frontCellContent[rowIndex][colIndex].vote ? { content: frontCellContent[rowIndex][colIndex].vote!, color: "", vote: "" } : cellContent}
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
-                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20' : ''}`}
+                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) && 'opacity-20'}`}
                                         backClassName={correct_card === 'correct' ? 'text-correct' : 'text-wrong'}
                                         clueCell={false}
                                         correctCard={correct_card}
                                         isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
-                                        handleCardFlip={handleCardFlip}
+                                        openVoteOptions={openVoteOptions}
                                         isVoted={false}
                                         handleVoteSelect={handleVoteSelect}
                                         playerVotes={playerVotes}

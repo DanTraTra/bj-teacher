@@ -13,7 +13,7 @@ import { BsArrowRight } from 'react-icons/bs';
 const rootPath = 'images/'
 
 export type GridCellCO = { rowIndex: number; colIndex: number };
-export type FrontCellContent = { content: string, color: string };
+export type FrontCellContent = { content: string, color: string , vote: string | null};
 export type GameLog = { player: number, action: string, detail: GridCellCO | string | null | number };
 
 interface StateType {
@@ -249,7 +249,8 @@ const RandomImageGridWrapper: React.FC = () => {
             Array.from({ length: length }, (_, colIndex) =>
             ({
                 content: `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`,
-                color: ''
+                color: '',
+                vote: null
             })
             )
         );
@@ -593,11 +594,14 @@ const RandomImageGridWrapper: React.FC = () => {
         setFlippedCardState(null);
     }
 
-    const handleCardVote = (rowIndex: number, colIndex: number, clueCell: boolean) => {
+    const openVoteOptions = (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => {
+
+        // opens the clue selection modal to select which clue to vote for - to confirm vote, see handleVoteSelect
 
         if (gameState.clueCellContent.filter(clue => clue !== "?").length === 0) { return }
 
-        const defaultClue = gameState.clueCellContent.find((clue, index) => index !== playerOnThisDevice && clue !== "?") ?? ""
+        const cIndex = clueIndex % gameState.clueCellContent.length;
+        const defaultClue = gameState.clueCellContent.filter((clue, index) => index !== playerOnThisDevice && clue !== "?")[cIndex]
 
         if (gameState.clueCellContent.filter((player, index) => index !== playerOnThisDevice).every((player) => player === "?") && !clueCell) {
 
@@ -624,13 +628,17 @@ const RandomImageGridWrapper: React.FC = () => {
             setViewingClue(false);
             setIsEditing(false);
 
-            const newRecentCardVoted = { ...gameState.playerVotes };
+            const newCardVotes = { ...gameState.playerVotes };
 
-            newRecentCardVoted[defaultClue].CO[playerOnThisDevice] = { rowIndex, colIndex };
+            Object.entries(gameState.playerVotes).forEach(([clueKey, co]) => {
+                newCardVotes[clueKey].CO[playerOnThisDevice] = null;
+            });
+            
+            newCardVotes[defaultClue].CO[playerOnThisDevice] = { rowIndex, colIndex };
 
             updateGameState({
                 ...gameState,
-                playerVotes: newRecentCardVoted,
+                playerVotes: newCardVotes,
             })
 
         }
@@ -690,7 +698,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setTimeout(() => {
                     const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
                     const newFrontCellContent2D = [...frontCellContent2D];
-                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer] };
+                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer], vote: null };
                     const newClues = [...gameState.clueCellContent];
                     newClues[guessedClueBelongingToPlayer] = "?";
 
@@ -726,29 +734,35 @@ const RandomImageGridWrapper: React.FC = () => {
             } else if (!clueCell) {
                 // Wrong card
                 // update the incorrect guess count for the player
-                // const newRecentCardVoted = [...gameState.recentlyVotedCards];
-                // newRecentCardVoted[playerOnThisDevice] = { CO: { rowIndex, colIndex }, colour: playerColours[playerOnThisDevice] };
+                // const newCardVotes = [...gameState.recentlyVotedCards];
+                // newCardVotes[playerOnThisDevice] = { CO: { rowIndex, colIndex }, colour: playerColours[playerOnThisDevice] };
                 // updateGameState({
                 //     ...gameState,
                 //     incorrectGuessCount: gameState.incorrectGuessCount + 1,
-                //     recentlyVotedCards: newRecentCardVoted,
+                //     recentlyVotedCards: newCardVotes,
                 //     gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }],
                 // })
             }
         };
     }
 
-    const handleVoteSelect = (clue: string, CO: GridCellCO | null) => {
+    const handleVoteSelect = (clue: string, CO: GridCellCO) => {
         const newPlayerVotes = { ...gameState.playerVotes };
-        console.log("clue", clue)
-        // remove clue and use the object.from
-        newPlayerVotes[clue].CO[playerOnThisDevice] = CO;
+
+        Object.entries(newPlayerVotes).forEach(([clueKey, co]) => {
+            newPlayerVotes[clueKey].CO[playerOnThisDevice] = null;
+        });
+
+        const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
+        const newFrontCellContent2D = [...frontCellContent2D];
+        newFrontCellContent2D[CO.rowIndex][CO.colIndex] = { ...newFrontCellContent2D[CO.rowIndex][CO.colIndex], vote: clue };
+
+        console.log("newFrontCellContent2D", newFrontCellContent2D)
         updateGameState({
             ...gameState,
             playerVotes: newPlayerVotes,
+            frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
         })
-
-        console.log("newPlayerVotes", newPlayerVotes)
     };
 
     useEffect(() => {
@@ -1214,7 +1228,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     numRows={gameState.numRows}
                                     numCols={gameState.numCols}
                                     frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)}
-                                    handleCardFlip={handleCardVote}
+                                    openVoteOptions={openVoteOptions}
                                     handleVoteSelect={handleVoteSelect}
                                     clueCellContent={gameState.clueCellContent}
                                     handleClueCellEdit={handleClueCellEdit}

@@ -42,7 +42,7 @@ export default {
                 playerFour: '#F5EEB7',
                 playerFive: '#F7CDA8',
                 playerSix: '#EDCBCE',
-                playerOneDark: '#233700',
+                playerOneDark: '#5C6D3D',
                 playerTwoDark: '#1A003F',
                 playerThreeDark: '#003638',
                 playerFourDark: '#373100',
