@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Textfit } from '@ataverascrespo/react18-ts-textfit';
 import { FrontCellContent, getPlayerColor, GridCellCO } from './RandomImageGridWrapper';
+import { div } from '@tensorflow/tfjs';
 
 interface CCCardProps {
     frontContent: FrontCellContent;
@@ -67,6 +68,7 @@ const CCCard: React.FC<CCCardProps> = ({
     const [clue, setClue] = useState<string | null>(Object.entries(playerVotes).find(([key, value]) => {
         return value.CO[playerOnThisDevice]?.rowIndex === rowIndex && value.CO[playerOnThisDevice]?.colIndex === colIndex
     })?.[0] ?? null);
+
     // const [votedByThisPlayer, setvotedByThisPlayer] = useState(thisPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
     // const [votedByOtherPlayers, setvotedByOtherPlayers] = useState(otherPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
 
@@ -97,6 +99,10 @@ const CCCard: React.FC<CCCardProps> = ({
         // Don't flip if we're showing the voting UI
         // if (isVoted) return;
 
+        if (clue) {
+            
+        }
+
         openVoteOptions(rowIndex, colIndex, clueCell, clueIndex);
 
         if (!clueCell) {
@@ -120,8 +126,8 @@ const CCCard: React.FC<CCCardProps> = ({
         // Pie slices is the clue selection modal/buttons for the player to choose which clue they are voting for on this card
 
         // const players = clueCellContent.filter((player, index) => player !== "?" && index != playerOnThisDevice ? index : null);
-        console.log("playerOnThisDevice", playerOnThisDevice)
-        console.log("clueCellContent", clueCellContent)
+        // console.log("playerOnThisDevice", playerOnThisDevice)
+        // console.log("clueCellContent", clueCellContent)
         const clueColor = clueCellContent
             .map((c, index) => (c !== "?" && index !== playerOnThisDevice) ? { clue: c, color: getPlayerColor(index) } : null)
             .filter(Boolean) as { clue: string, color: string }[];
@@ -170,22 +176,11 @@ const CCCard: React.FC<CCCardProps> = ({
                             handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
                             cardClickHandler(i);
                     }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clueColor[i].clue == clue ?
-                                handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
-                                cardClickHandler(i);
-                        }
-                    }}
                     onMouseEnter={() => {
                         cardClickHandler(i);
                     }}
                     onMouseLeave={() => {
-                        clueColor[i].clue == clue ?
-                            handleVoteSelect(clueColor[i].clue, { rowIndex: rowIndex, colIndex: colIndex }) :
-                            cardClickHandler(0);
+                        cardClickHandler(0);
                     }}
 
                     aria-label={`Vote for player ${i}`}
@@ -203,13 +198,13 @@ const CCCard: React.FC<CCCardProps> = ({
 
         return (
             <div
-                className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden"
+                className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden rounded-full m-2"
                 role="menu"
                 aria-label="Vote for a player"
             >
                 <svg
                     viewBox="0 0 100 100"
-                    className={`w-full h-full touch-pinch-zoom border-4 border-gray-100`}
+                    className={`w-full h-full touch-pinch-zoom`}
                     role="presentation"
                 >
                     {slices}
@@ -227,6 +222,9 @@ const CCCard: React.FC<CCCardProps> = ({
             </div>
         );
     }, [clueCellContent, handleVoteSelect]);
+
+    // console.log("frontContent", frontContent.playersVoted)
+    // console.log("clueCellContent.length", clueCellContent.length)
 
     return (
         <div className="relative" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
@@ -246,6 +244,18 @@ const CCCard: React.FC<CCCardProps> = ({
 
                             </Textfit>
                         </div>
+
+                        {frontContent.playersVoted != null && frontContent.playersVoted.length > 0 && (
+                            <div className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1.5 px-2 gap-1 z-10">
+                                {frontContent.playersVoted.map((playerVoted, index) => (
+                                    <div key={index} className={`w-2.5 h-2.5 rounded-full bg-${getPlayerColor(playerVoted)}Dark`}></div>
+                                ))}
+                                {Array.from({ length: clueCellContent.length - 2 - frontContent.playersVoted.length }).map((_, index) => (
+                                    <div key={index} className={`w-2.5 h-2.5 rounded-full bg-gray-200`}></div>
+                                ))}
+                            </div>
+                        )}
+
                     </div>
                     <div className={`flip-cross-clues-card-back bg-white flex items-center justify-center ${backClassName}`}>
                         <div className="w-full h-full p-1">
