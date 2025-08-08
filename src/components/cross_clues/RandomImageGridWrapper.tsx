@@ -1435,14 +1435,14 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
+                        {/* {gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
                             <button
                                 onClick={() => handleHeaderClick(bigImage, bigCO)}
                                 className={buttonClasses}
                             >
                                 Confirm Guess
                             </button>
-                        )}
+                        )} */}
 
                         {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
                             <button
