@@ -28,7 +28,9 @@ interface StateType {
     playerNames: (string | null)[];
     numRows: number;
     numCols: number;
-    playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } }; //each clue has an array of votes. index of each clue is the player number e.g. playerOne -> playerVotes[1]. Each vote has player + 1 co-ordinates and the clue
+    // playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } }; //each clue has an array of votes. index of each clue is the player number e.g. playerOne -> playerVotes[1]. Each vote has player + 1 co-ordinates and the clue
+    playerVotes: { CO: (GridCellCO | null), clue: string }[]; //each clue has an array of votes. index of each clue is the player number e.g. playerOne -> playerVotes[1]. Each vote has player + 1 co-ordinates and the clue
+
     gamelog: GameLog[];
 }
 
@@ -160,7 +162,7 @@ const RandomImageGridWrapper: React.FC = () => {
         playerNames: [null, null],
         numRows: 0,
         numCols: 0,
-        playerVotes: {},
+        playerVotes: [],
         gamelog: [],
     });
     const [demoState, setDemoState] = useState(0)
@@ -284,7 +286,7 @@ const RandomImageGridWrapper: React.FC = () => {
             playerCount: playerCount,
             numRows: length,
             numCols: length,
-            playerVotes: {},
+            playerVotes: Array(playerCount + 1).fill({ CO: null, clue: '' }),
             gamelog: [],
         }
 
@@ -492,14 +494,14 @@ const RandomImageGridWrapper: React.FC = () => {
         const newClueCellContent = [...gameState.clueCellContent];
         newClueCellContent[playerOnThisDevice] = newContent;
 
-        const newPlayerVotes = { ...gameState.playerVotes };
-        newPlayerVotes[newContent] = { CO: Array.from({ length: numCols }, () => null) };
+        // const newPlayerVotes = [...gameState.playerVotes];
+        // newPlayerVotes[playerOnThisDevice] = { CO: null, clue: newContent };
 
         setGameState({ ...gameState, clueCellContent: newClueCellContent });
         console.log("handleClueCellEdit", newContent)
         updateGameState({
             ...gameState,
-            playerVotes: newPlayerVotes,
+            // playerVotes: newPlayerVotes,
             clueCellContent: newClueCellContent,
             gamelog: newContent == '?' ? [...gameState.gamelog] :
                 [...gameState.gamelog,
@@ -599,7 +601,14 @@ const RandomImageGridWrapper: React.FC = () => {
 
         // opens the clue selection modal to select which clue to vote for - to confirm vote, see handleVoteSelect
 
-        if (gameState.clueCellContent.filter(clue => clue !== "?").length === 0) { return }
+        if (gameState.clueCellContent.filter(clue => clue !== "?").length === 0) {
+            const playersWithNoClues: (string | null)[] = gameState.playerNames.filter((name, index) => index !== playerOnThisDevice && gameState.clueCellContent[index] === "?" && name !== null);
+
+            console.log("playersWithNoClues", playersWithNoClues)
+            // console.log("gameState", gameState)
+            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
+
+        }
 
         const frontCellContent = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
 
@@ -618,6 +627,7 @@ const RandomImageGridWrapper: React.FC = () => {
             setFlippedCardState(null)
             if (gameState.clueCellContent.findIndex((clue) => clue === frontCellContent[rowIndex][colIndex].vote) === playerOnThisDevice) {
                 // Player voting for their own clue - do nothing
+                console.log("player voting for their own clue")
                 return
             }
             // setFlippedCardState(null);
@@ -634,7 +644,7 @@ const RandomImageGridWrapper: React.FC = () => {
             } else {
                 console.log("player making a contributorial vote")
                 // newCell.playersVoted!.push(playerOnThisDevice)
-                handleVoteSelect(frontCellContent[rowIndex][colIndex].vote!, { rowIndex, colIndex });
+                handleChooseVote(frontCellContent[rowIndex][colIndex].vote!, { rowIndex, colIndex });
             }
             frontCellContent[rowIndex][colIndex] = newCell
 
@@ -646,18 +656,16 @@ const RandomImageGridWrapper: React.FC = () => {
 
         } else {
             setFlippedCardState(null)
-            console.log("Player first to vote", rowIndex, colIndex)
+            console.log("Player first to open vote", rowIndex, colIndex)
+            console.log("clueIndex", clueIndex)
             // handleVoteSelect(gameState.clueCellContent[playerOnThisDevice], { rowIndex, colIndex });
             setViewingClue(false);
             setIsEditing(false);
 
-            const newCardVotes = { ...gameState.playerVotes };
+            const newCardVotes = [...gameState.playerVotes];
 
-            Object.entries(gameState.playerVotes).forEach(([clueKey, co]) => {
-                newCardVotes[clueKey].CO[playerOnThisDevice] = null;
-            });
-
-            newCardVotes[defaultClue].CO[playerOnThisDevice] = { rowIndex, colIndex };
+            newCardVotes[playerOnThisDevice].CO = { rowIndex, colIndex };
+            newCardVotes[playerOnThisDevice].clue = gameState.clueCellContent[clueIndex];
 
             updateGameState({
                 ...gameState,
@@ -670,6 +678,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const handleVoteConfirm = (rowIndex: number, colIndex: number, guessedClueBelongingToPlayer: number, correctCard: boolean) => {
 
+        console.log("handleVoteConfirm", rowIndex, colIndex, guessedClueBelongingToPlayer, correctCard)
         const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
 
         // Clear the vote and playersVoted for this cell
@@ -706,14 +715,13 @@ const RandomImageGridWrapper: React.FC = () => {
         newAvailiableRandomCo.splice(randomIndex, 1);
 
         // Clean up playerVotes for the guessed clue
-        const clueToRemove = gameState.clueCellContent[guessedClueBelongingToPlayer];
-        const newPlayerVotes = { ...gameState.playerVotes };
-        delete newPlayerVotes[clueToRemove];
+        const newPlayerVotes = [...gameState.playerVotes];
+        // delete newPlayerVotes[playerOnThisDevice];
 
         // Add log entry
         const log = correctCard ?
-            [...gameState.gamelog, { player: 0, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }] :
-            [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }];
+            [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }] :
+            [...gameState.gamelog, { player: 0, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }];
 
         // Update the game state
         const updatedGameState = {
@@ -738,7 +746,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
     // Handler for card flips
-    const handleCardFlip = (rowIndex: number, colIndex: number, clueCell = false) => {
+    const handleCardFlip = (clue: string, rowIndex: number, colIndex: number, clueCell = false) => {
         // console.log("rowIndex", rowIndex)
         // console.log("colIndex", colIndex)
         if (gameState.clueCellContent.filter((player, index) => index !== playerOnThisDevice).every((player) => player === "?") && !clueCell) {
@@ -760,16 +768,15 @@ const RandomImageGridWrapper: React.FC = () => {
             console.log("Setting viewingClue to false");
             setViewingClue(false);
             setIsEditing(false);
-            const guessedClueBelongingToPlayer = gameState.clueCellContent.findIndex((clue) => clue === gameState.frontCellContent.map((cell) => cell.vote).find((vote) => vote === clue)) + 1
+            const guessedClueBelongingToPlayer = gameState.clueCellContent.findIndex((c) => c === clue)
 
 
             console.log("gameState.randomCO", gameState.randomCO.some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex))
-            if (gameState.randomCO.filter((_, index) => gameState.clueCellContent[index] !== "?").some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex)) {
+            if (gameState.randomCO.filter((_, index) => index !== playerOnThisDevice).some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex)) {
                 // Correct card chosen - capture the clue content before resetting
 
                 console.log("guessedClueBelongingToPlayer", guessedClueBelongingToPlayer)
 
-                const currentClueContent = gameState.clueCellContent;
 
                 setPlayerAction("View Card & Give Clue")
 
@@ -790,7 +797,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 setTimeout(() => {
                     const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
                     const newFrontCellContent2D = [...frontCellContent2D];
-                    newFrontCellContent2D[rowIndex][colIndex] = { content: currentClueContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer], vote: null, playersVoted: null };
+                    newFrontCellContent2D[rowIndex][colIndex] = { content: gameState.clueCellContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer], vote: null, playersVoted: null };
                     const newClues = [...gameState.clueCellContent];
                     newClues[guessedClueBelongingToPlayer] = "?";
 
@@ -855,59 +862,130 @@ const RandomImageGridWrapper: React.FC = () => {
         };
     }
 
-    const handleVoteSelect = (clue: string, CO: GridCellCO) => {
-        const newPlayerVotes = { ...gameState.playerVotes };
+    const handleChooseVote = (clue: string, CO: GridCellCO) => {
+        const newPlayerVotes = [...gameState.playerVotes];
 
-        Object.entries(newPlayerVotes).forEach(([clueKey, co]) => {
-            newPlayerVotes[clueKey].CO[playerOnThisDevice] = null;
-        });
+        newPlayerVotes[playerOnThisDevice].CO = null;
+        newPlayerVotes[playerOnThisDevice].clue = '';
 
 
         const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(
             // update the front cell content -> remove all matching votes and readd the player who voted
             gameState.frontCellContent.map(cell => {
                 const cellPlayerRemoved = cell.playersVoted?.filter((player) => player !== playerOnThisDevice);
+                if (cell.vote) {
+                    console.log("cell.vote", cell.vote)
+                    console.log("clue", clue)
+                }
+
+                if (gameState.playerCount == 2) {
+                    console.log("player is last to vode - flip the card - see result")
+                    handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+
+                    return { ...cell}
+                }
+
                 if (cell.vote == clue) {
+
                     if (cellPlayerRemoved?.length == 0) {
                         console.log("cellPlayerRemoved", cellPlayerRemoved)
+
                         // If player is last to remove their vote from a cell - remove the vote
+                        console.log("remove vote as well")
+
                         return {
                             ...cell,
                             vote: null,
                             playersVoted: cellPlayerRemoved ?? null
                         }
+
                     } else {
                         // Simply add player to the vote
 
+
                         if (cell.playersVoted?.length == gameState.playerCount - 2) {
                             console.log("player is last to vode - flip the card - see result")
-                            handleCardFlip(CO.rowIndex, CO.colIndex)
+                            handleCardFlip(clue, CO.rowIndex, CO.colIndex)
 
-                            return { ...cell }
+                            return { ...cell}
                         }
                         else {
+                            console.log("not players last vote")
                             return {
                                 ...cell,
-                                // playersVoted: cellPlayerRemoved ?? null
+                                playersVoted: cellPlayerRemoved ?? null
                             }
                         }
                     }
+                } else if (cell.vote == null) {
+
+                    return cell
                 } else {
                     return cell
                 }
             }),
-            gameState.numCols);
+            gameState.numCols
+        );
 
-        // Add new clue to front cell content
-        const newFrontCellContent2D = [...frontCellContent2D];
-        const currentPlayerVoters = [...newFrontCellContent2D[CO.rowIndex][CO.colIndex].playersVoted ?? []];
+        // const newPlayerVotes = [...gameState.playerVotes];
+
+        // newPlayerVotes[playerOnThisDevice].CO = null;
+        // newPlayerVotes[playerOnThisDevice].clue = '';
+        
+        // const newFrontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent.map((cell) => cell.vote == clue ? { ...cell, vote: null, playersVoted: cell.playersVoted!.filter((player) => player !== playerOnThisDevice) } : cell), gameState.numCols);
+        
+        // const cellPlayerRemoved = newFrontCellContent2D[CO.rowIndex][CO.colIndex].playersVoted?.filter((player) => player !== playerOnThisDevice);
+
+        // let newCell = newFrontCellContent2D[CO.rowIndex][CO.colIndex];
+
+        // if (newCell.vote) {
+        //     // console.log("cell.vote", newCell.vote)
+        //     // console.log("clue", clue)
+            
+        // }
+
+        // console.log("newCell", newCell)
+        // console.log("cellPlayerRemoved", cellPlayerRemoved)
+        // console.log("cell.vote", newCell.vote)
+        // console.log("clue", clue)
+        // if (newCell.vote == clue) {
+        //     if (cellPlayerRemoved?.length == 0) {
+        //         console.log("cellPlayerRemoved", cellPlayerRemoved)
+        //         // If player is last to remove their vote from a cell - remove the vote
+        //         newCell = {
+        //             ...newFrontCellContent2D[CO.rowIndex][CO.colIndex],
+        //             vote: null,
+        //             playersVoted: cellPlayerRemoved ?? []
+        //         }
+
+        //     } else {
+        //         // Simply add player to the vote
+
+        //         if (newCell.playersVoted?.length == gameState.playerCount - 2 || (newCell.playersVoted?.length == 1 && gameState.playerCount == 2)) {
+        //             console.log("player is last to vode - flip the card - see result")
+        //             handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+
+        //         }
+        //         else {
+        //             console.log("player is last to vode - flip the card - see result")
+
+        //         }
+        //     }
+        // } else {
+        //     console.log("cell is not the one voted on")
+        //     // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+            
+        // }
+
+        // // Add new clue to front cell content
+        const currentPlayerVoters = [...frontCellContent2D[CO.rowIndex][CO.colIndex].playersVoted ?? []];
         currentPlayerVoters.push(playerOnThisDevice);
-        newFrontCellContent2D[CO.rowIndex][CO.colIndex] = { ...newFrontCellContent2D[CO.rowIndex][CO.colIndex], vote: clue, playersVoted: currentPlayerVoters };
+        frontCellContent2D[CO.rowIndex][CO.colIndex] = { ...frontCellContent2D[CO.rowIndex][CO.colIndex], vote: clue, playersVoted: currentPlayerVoters };
 
         updateGameState({
             ...gameState,
             playerVotes: newPlayerVotes,
-            frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
+            frontCellContent: TwoDim2OneDim<FrontCellContent>(frontCellContent2D),
         })
     };
 
@@ -1375,7 +1453,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     numCols={gameState.numCols}
                                     frontCellContent={OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)}
                                     openVoteOptions={openVoteOptions}
-                                    handleVoteSelect={handleVoteSelect}
+                                    handleVoteSelect={handleChooseVote}
                                     clueCellContent={gameState.clueCellContent}
                                     handleClueCellEdit={handleClueCellEdit}
                                     flippedCard={flippedCardState}
@@ -1435,14 +1513,14 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {/* {gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
+                        {gameState.clueCellContent.some((clue) => gameState.playerVotes[playerOnThisDevice]?.CO != null) && gameState.playerCount == 2 && (
                             <button
                                 onClick={() => handleHeaderClick(bigImage, bigCO)}
                                 className={buttonClasses}
                             >
                                 Confirm Guess
                             </button>
-                        )} */}
+                        )}
 
                         {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
                             <button

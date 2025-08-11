@@ -27,7 +27,7 @@ interface GridProps {
     clueCellContent: string[];
     handleClueCellEdit: (newContent: string) => void;
     flippedCard: { rowIndex: number, colIndex: number } | null;
-    playerVotes: { [key: string]: { CO: (GridCellCO | null)[] } };
+    playerVotes: { CO: (GridCellCO | null), clue: string }[];
     resetFlippedCardState: () => void;
     frontCellContent: FrontCellContent[][];
     correctlyGuessedGrid: boolean[][];
@@ -353,26 +353,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
                                 // Check if card has been voted by others - you can initialize a vote which creates the pie slice selection buttons or you can agree with another person's vote clicking the same square
                                 // const votedByOthersCards = playerVotes.map((player, index) => player.map((card) => {return  {...card, color: getPlayerColor(index)} })).filter((player, index) => index !== playerOnThisDevice).flat().find((card) => card.CO?.rowIndex === rowIndex && card.CO?.colIndex === colIndex);
-                                const votedClues = Object.entries(playerVotes)
-                                    .filter(([_, voteData]) =>
-                                        voteData.CO?.some(co =>
-                                            co?.rowIndex === rowIndex && co?.colIndex === colIndex
-                                        )
-                                    )
-                                    .map(([clue, voteData]) => ({
-                                        clue,
-                                        // Find which player voted for this cell
-                                        playerIndex: voteData.CO?.findIndex(co =>
-                                            co?.rowIndex === rowIndex && co?.colIndex === colIndex
-                                        ),
-                                        co: {rowIndex, colIndex}
-                                    }))
-                                    .filter(vote => vote.playerIndex !== -1) // Filter out any not found
-                                    .map(vote => ({
-                                        ...vote,
-                                        color: getPlayerColor(vote.playerIndex)
-                                    }));
-
+                            
                                 // console.log("votedClues", votedClues);
                                 // console.log("votedClues", votedClues);
 
