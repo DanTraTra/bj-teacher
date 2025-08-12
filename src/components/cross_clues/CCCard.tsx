@@ -248,8 +248,10 @@ const CCCard: React.FC<CCCardProps> = ({
         );
     }, [clueCellContent, handleVoteSelect, playerOnThisDevice, voteOptionsClue, rowIndex, colIndex, cardClickHandler]);
 
-    // console.log("frontContent", frontContent.playersVoted)
-    // console.log("clueCellContent.length", clueCellContent.length)
+    // Calculate dot size based on cell size and number of players
+    const dotBaseSize = 0.15; // Base size as a fraction of available space
+    const dotSize = `${dotBaseSize * 100}%`;
+    const dotGap = `0.2rem`; // Responsive gap
 
     return (
         <div className="relative" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
@@ -266,21 +268,44 @@ const CCCard: React.FC<CCCardProps> = ({
                                 className={`w-full h-full flex items-center justify-center font-bold ${frontClassName}`}
                             >
                                 {!playerVotes.find((vote, index) => vote?.CO?.rowIndex === rowIndex && vote?.CO?.colIndex === colIndex && index === playerOnThisDevice) && frontContent.content}
-
                             </Textfit>
                         </div>
 
                         {frontContent.playersVoted != null && frontContent.playersVoted.length > 0 && (
-                            <div className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1.5 px-2 gap-1 z-10">
+                            <div 
+                                className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1.5 px-1 z-10"
+                                style={{ gap: dotGap }}
+                            >
                                 {frontContent.playersVoted.map((playerVoted, index) => (
-                                    <div key={index} className={`w-2.5 h-2.5 rounded-full bg-${getPlayerColor(playerVoted)}Dark`}></div>
+                                    <div 
+                                        key={index} 
+                                        className={`aspect-square rounded-full bg-${getPlayerColor(playerVoted)}Dark`} 
+                                        style={{ 
+                                            width: dotSize,
+                                            height: 'auto',
+                                            minWidth: '0.25rem',
+                                            minHeight: '0.25rem',
+                                            maxWidth: '1rem',
+                                            maxHeight: '1rem'
+                                        }}
+                                    />
                                 ))}
-                                {Array.from({ length: clueCellContent.length - 2 - frontContent.playersVoted.length }).map((_, index) => (
-                                    <div key={index} className={`w-2.5 h-2.5 rounded-full bg-gray-200`}></div>
+                                {Array.from({ length: Math.max(0, clueCellContent.length - 2 - frontContent.playersVoted.length) }).map((_, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="aspect-square bg-gray-200 rounded-full"
+                                        style={{ 
+                                            width: dotSize,
+                                            height: 'auto',
+                                            minWidth: '0.25rem',
+                                            minHeight: '0.25rem',
+                                            maxWidth: '1rem',
+                                            maxHeight: '1rem'
+                                        }}
+                                    />
                                 ))}
                             </div>
                         )}
-
                     </div>
                     <div className={`flip-cross-clues-card-back bg-white flex items-center justify-center ${backClassName}`}>
                         <div className="w-full h-full p-1">

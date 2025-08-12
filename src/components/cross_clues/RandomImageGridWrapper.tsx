@@ -995,8 +995,6 @@ const RandomImageGridWrapper: React.FC = () => {
         const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
         for (let rowIndex = 0; rowIndex < frontCellContent2D.length; rowIndex++) {
             for (let colIndex = 0; colIndex < frontCellContent2D[rowIndex].length; colIndex++) {
-                console.log("frontCellContent2D[rowIndex][colIndex].playersVoted?.length", frontCellContent2D[rowIndex][colIndex].playersVoted?.length)
-                console.log("gameState.playerCount", gameState.playerCount)
                 if (frontCellContent2D[rowIndex][colIndex].playersVoted?.length == gameState.playerCount - 1) {
                     handleCardFlip(frontCellContent2D[rowIndex][colIndex].vote!, rowIndex, colIndex)
                 }
@@ -1393,7 +1391,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                         (clue != '?' ?
                                             index + 1 == playerOnThisDevice ?
                                                 <span className='w-full text-left text-xs pl-1.5 -mb-1' >Your clue: </span> :
-                                                <span className='w-full text-left text-xs pl-1.5 -mb-1'>{gameState.playerNames[index + 1]}'s clue: </span>
+                                                <span className='w-full text-left text-xs pl-1.5 -mb-1'>{gameState.playerNames[index + 1]}'s: </span>
 
 
                                             :
@@ -1403,7 +1401,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                         )
                                     }
                                     {
-                                        clue != '?' ? <span className='flex flex-col text-center text-2xl text-gray-800 font-medium py-1'>
+                                        clue != '?' ? <span className={`flex flex-col text-center text-${gameState.clueCellContent.length <= 4 ? '2xl py-1' : 'lg py-0'} text-gray-800 font-medium`}>
                                             {gameState.clueCellContent[index + 1]}
                                         </span> : ""
                                     }
