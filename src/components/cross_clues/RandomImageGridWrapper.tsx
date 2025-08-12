@@ -879,8 +879,8 @@ const RandomImageGridWrapper: React.FC = () => {
                 }
 
                 if (gameState.playerCount == 2) {
-                    console.log("player is last to vode - flip the card - see result")
-                    handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+                    console.log("twoplayer game")
+                    // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
 
                     return { ...cell}
                 }
@@ -901,11 +901,11 @@ const RandomImageGridWrapper: React.FC = () => {
 
                     } else {
                         // Simply add player to the vote
-
+                        // TODO: cell.vote == gameState.playerCount - 2 and cell.vote == clue but on different cells!! - still triggers the card flip >:( grrr
 
                         if (cell.playersVoted?.length == gameState.playerCount - 2) {
                             console.log("player is last to vode - flip the card - see result")
-                            handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+                            // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
 
                             return { ...cell}
                         }
@@ -988,6 +988,22 @@ const RandomImageGridWrapper: React.FC = () => {
             frontCellContent: TwoDim2OneDim<FrontCellContent>(frontCellContent2D),
         })
     };
+
+    useEffect(() => {
+
+        if (gameState.frontCellContent.length > 0) {
+        const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
+        for (let rowIndex = 0; rowIndex < frontCellContent2D.length; rowIndex++) {
+            for (let colIndex = 0; colIndex < frontCellContent2D[rowIndex].length; colIndex++) {
+                console.log("frontCellContent2D[rowIndex][colIndex].playersVoted?.length", frontCellContent2D[rowIndex][colIndex].playersVoted?.length)
+                console.log("gameState.playerCount", gameState.playerCount)
+                if (frontCellContent2D[rowIndex][colIndex].playersVoted?.length == gameState.playerCount - 1) {
+                    handleCardFlip(frontCellContent2D[rowIndex][colIndex].vote!, rowIndex, colIndex)
+                }
+            }
+        }}
+        
+    }, [gameState.frontCellContent])
 
     useEffect(() => {
 
