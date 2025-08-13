@@ -193,7 +193,7 @@ const CCGrid: React.FC<GridProps> = ({
     ) => {
         const baseClasses = `flip-cross-clues-card 
       aspect-square flex items-center justify-center
-      overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4`; // Added overflow-hidden, padding, text-center
+      overflow-hidden text-center text-7xl text-gray-100 hover:text-gray-500 border border-gray-100 border-4 z-30`; // Added overflow-hidden, padding, text-center
 
         //   const baseClasses = `flip-cross-clues-card 
         //   aspect-square flex items-center justify-center
@@ -357,11 +357,11 @@ const CCGrid: React.FC<GridProps> = ({
                                 const highlightCard = viewingClue && cellContent.content === `${colLetters[givenRandomCO!.colIndex]}${givenRandomCO!.rowIndex + 1}`;
                                 // Check if card has been voted by others - you can initialize a vote which creates the pie slice selection buttons or you can agree with another person's vote clicking the same square
                                 // const votedByOthersCards = playerVotes.map((player, index) => player.map((card) => {return  {...card, color: getPlayerColor(index)} })).filter((player, index) => index !== playerOnThisDevice).flat().find((card) => card.CO?.rowIndex === rowIndex && card.CO?.colIndex === colIndex);
-                            
+
                                 // console.log("votedClues", votedClues);
                                 // console.log("votedClues", votedClues);
 
-                                let highlightClasses = highlightCard ? "text-gray-500" : frontCellContent[rowIndex][colIndex].vote ? `text-${getPlayerColor(clueCellContent.findIndex((clue) => clue === frontCellContent[rowIndex][colIndex].vote))}` : "text-gray-200";
+                                let highlightClasses = highlightCard ? "text-gray-500" : frontCellContent[rowIndex][colIndex].vote ? `text-${getPlayerColor(clueCellContent.findIndex((clue) => clue === frontCellContent[rowIndex][colIndex].vote))}Dark` : "text-gray-200";
                                 if (correctlyGuessedGrid[rowIndex][colIndex]) {
                                     highlightClasses = `text-gray-800 bg-${cellContent.color}`;
                                 } else {

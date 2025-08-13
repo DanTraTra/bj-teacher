@@ -1342,7 +1342,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     )}
                 </div> */}
                 <div
-                    className="grid grid-cols-6 h-fit px-1"
+                    className="grid grid-cols-6 h-fit px-1 z-30"
                     style={{ width: getResponsiveGridSize() }}
                     id="playerClues"
                 >
@@ -1495,7 +1495,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         }
                     </div>
                 </div>
-                <div id="gameLog" className="relative w-full flex flex-col justify-between items-start pt-0">
+                <div id="gameLog" className="relative w-full flex flex-col justify-between items-start pt-0 z-30">
                     {OneDim2TwoDim(gameState.gamelog.filter((log) => log.action.includes(`✗`) || log.action.includes(`hint`)), 48).map((log_row, row_idx) => (
                         <div key={row_idx} className={`flex flex-row justify-start gap-1.5 px-1 pb-1 w-full`}>
                             {log_row.map((log, idx) => (
@@ -1510,7 +1510,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         </div>
                     ))}
                 </div>
-                <div id="playerControls" className="flex flex-row justify-end items-start pt-0 px-1 gap-2" style={{ width: getResponsiveGridSize() }}>
+                <div id="playerControls" className="flex flex-row justify-end items-start pt-0 px-1 gap-2 z-30" style={{ width: getResponsiveGridSize() }}>
                     {
                         gameState.gamelog.length > 0 && gameLogComponent(false)
                     }

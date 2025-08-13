@@ -146,7 +146,7 @@ const CCCard: React.FC<CCCardProps> = ({
 
         const centerX = 50;
         const centerY = 50;
-        const radius = 80; // Slightly larger than before but not too big
+        const radius = 60; // Slightly larger than before but not too big
         const innerRadius = 40; // Size of the white center circle
 
         const slices = [];
@@ -176,14 +176,16 @@ const CCCard: React.FC<CCCardProps> = ({
             ].join(' ');
 
             slices.push(
-                <g key={i} role="button" tabIndex={0}
+                <g 
+                    key={i} 
+                    role="button" 
+                    tabIndex={0}
                     onClick={(e) => {
                         e.stopPropagation();
                         console.log('voteOptionsClue', voteOptionsClue)
                         console.log('clueColor[i].clue', clueColor[i].clue)
 
                         if (clueColor[i].clue == voteOptionsClue) {
-                            
                             handleVoteSelect(clueCellContent[clueColor[i].index], { rowIndex: rowIndex, colIndex: colIndex })
                         } else {
                             cardClickHandler(clueColor[i].index)
@@ -193,11 +195,18 @@ const CCCard: React.FC<CCCardProps> = ({
                     onMouseLeave={() => cardClickHandler(clueColor[0].index)}
                     aria-label={`Vote for player ${clueColor[i].index}`}
                     className="outline-none"
+                    style={{
+                        transformOrigin: '50% 50%',
+                        transform: clueColor[i].clue === voteOptionsClue ? 'scale(1.1)' : 'scale(1)',
+                        transition: 'transform 200ms ease-in-out'
+                    }}
                 >
                     <path
                         d={pathData}
-                        className={`fill-${clueColor[i].color} transition-opacity duration-200`}
+                        className={`fill-${clueColor[i].color} transition-all duration-200 ${clueColor[i].clue === voteOptionsClue ? 'opacity-100' : 'opacity-80 hover:opacity-95'}`}
                         role="presentation"
+                        stroke={clueColor[i].clue === voteOptionsClue ? `bg-${clueColor[i].color}` : 'none'}
+                        strokeWidth={clueColor[i].clue === voteOptionsClue ? '2' : '0'}
                     />
                 </g>
             );
@@ -229,7 +238,7 @@ const CCCard: React.FC<CCCardProps> = ({
                                 role="presentation"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex })
+                                    handleVoteSelect(voteOptionsClue, { rowIndex: rowIndex, colIndex: colIndex })
                                 }}
                             /> : slices // Multi-slice pie chart for more than 1 player
                         }
@@ -241,9 +250,11 @@ const CCCard: React.FC<CCCardProps> = ({
                             r={innerRadius}
                             className="fill-white"
                             role="presentation"
+                            style={{ pointerEvents: 'none' }}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                                handleVoteSelect(voteOptionsClue, { rowIndex: rowIndex, colIndex: colIndex });
+                                // handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex });
                             }}
                         />}
                     </svg>
@@ -251,7 +262,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         <Textfit
                             mode="single"
                             forceSingleModeWidth={false}
-                            className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center p-2"
+                            className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center p-1"
                             aria-hidden="true"
                         >
                             {voteOptionsClue}
@@ -287,20 +298,24 @@ const CCCard: React.FC<CCCardProps> = ({
     return (
         <div className="relative overflow-visible" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
             {/* Dark overlay when pie slices are visible */}
-            {isPieVisible && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-20"
-                    onClick={handleOverlayClick}
-                    style={{ pointerEvents: 'auto' }}
-                />
-            )}
+            {
+            // isPieVisible && 
+            // (
+                // <div
+                //     className="fixed inset-0 bg-black bg-opacity-50 z-20"
+                //     onClick={handleOverlayClick}
+                //     style={{ pointerEvents: 'auto' }}
+                // />
+            // )
+            }
+            
 
             <button
-                className={`w-full h-full ${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`} ${isPieVisible ? 'z-30' : ''}`}
+                className={`w-full h-full ${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}${isPieVisible ? 'z-30' : ''}`}
                 onClick={frontContent.color != '' || clueColor.length === 0 ? undefined : () => cardClickHandler(clueColor[0].index)}
             >
                 <div className="flip-cross-clues-card-inner">
-                    <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
+                    <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName} ${isPieVisible! ? 'opacity-0' : ''}`}>
                         <div className="w-full h-full p-1">
                             <Textfit
                                 mode="single"
@@ -365,7 +380,7 @@ const CCCard: React.FC<CCCardProps> = ({
             {isPieVisible && (
                 <>
                     <div
-                        className="fixed inset-0 bg-black bg-opacity-20 z-20"
+                        className="fixed inset-0 z-20 bg-gray-100 opacity-70"
                         onClick={handleOverlayClick}
                     />
                     <div
