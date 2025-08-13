@@ -685,7 +685,7 @@ const RandomImageGridWrapper: React.FC = () => {
             ...gameState,
             playerVotes: newCardVotes,
         })
-    }   
+    }
 
     const handleVoteConfirm = (rowIndex: number, colIndex: number, guessedClueBelongingToPlayer: number, correctCard: boolean) => {
 
@@ -730,9 +730,13 @@ const RandomImageGridWrapper: React.FC = () => {
         // delete newPlayerVotes[playerOnThisDevice];
 
         // Add log entry
-        const log = correctCard ?
-            [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }] :
-            [...gameState.gamelog, { player: 0, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }];
+        const log = gameState.playerCount == 1 ?
+            correctCard ?
+                [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }] :
+                [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }]
+            : correctCard ?
+                [...gameState.gamelog, { player: guessedClueBelongingToPlayer, action: `${gameState.clueCellContent[guessedClueBelongingToPlayer]} was ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }] :
+                [...gameState.gamelog, { player: guessedClueBelongingToPlayer, action: `${gameState.clueCellContent[guessedClueBelongingToPlayer]} wasn't ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✗`, detail: { rowIndex, colIndex } }];
 
         // Update the game state
         const updatedGameState = {
@@ -861,6 +865,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     const handleVoteSelect = (clue: string, CO: GridCellCO) => {
+        setHintCO(null)
         const newPlayerVotes = [...gameState.playerVotes];
 
         newPlayerVotes[playerOnThisDevice].CO = null;
@@ -1140,7 +1145,7 @@ const RandomImageGridWrapper: React.FC = () => {
     const PlayerBadge = ({ playerName, playerNumber }: { playerName: string | null, playerNumber: number }) => {
         const color = getPlayerColor(playerNumber);
         return (
-            <span className={`text-${color}Dark bg-${color} px-1 rounded-lg whitespace-nowrap`}>
+            <span className={`text-gray-600 bg-${color} px-1.5 rounded-lg whitespace-nowrap`}>
                 {playerName || 'Unknown Player'}
             </span>
         );
@@ -1156,7 +1161,7 @@ const RandomImageGridWrapper: React.FC = () => {
             <span key={index} className='flex flex-row items-center'>
                 <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
                 <span className="mx-1 whitespace-nowrap">got a hint for</span>
-                <span className={`bg-${targetPlayerColor} text-${targetPlayerColor}Dark px-1 rounded-lg whitespace-nowrap`}>
+                <span className={`bg-${targetPlayerColor} text-gray-600 px-1 rounded-lg whitespace-nowrap`}>
                     {hintText}
                 </span>
             </span>
@@ -1168,18 +1173,36 @@ const RandomImageGridWrapper: React.FC = () => {
         const actionClass = log.action.includes('✓') ? 'text-correct' :
             log.action.includes('✗') ? 'text-wrong' : '';
 
-        return (
-            <span key={index} className='flex flex-row items-center gap-1'>
-                <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
-                <span className={'whitespace-nowrap ' + actionClass}>
-                    {log.action}
+
+        if (log.action.includes('was')) {
+
+            const [clue, action] = log.action.split(' was');
+
+            return (
+                <span key={index} className='flex flex-row items-center gap-1'>
+                    <PlayerBadge playerName={clue} playerNumber={log.player} />
+                    <span className={'whitespace-nowrap ' + actionClass}>
+                        was{action}
+                    </span>
                 </span>
-            </span>
-        );
+            );
+
+        } else {
+
+            return (
+                <span key={index} className='flex flex-row items-center gap-1'>
+                    <PlayerBadge playerName={gameState.playerNames[log.player]} playerNumber={log.player} />
+                    <span className={'whitespace-nowrap ' + actionClass}>
+                        {log.action}
+                    </span>
+                </span>
+            );
+        }
     };
 
     // Render a clue action log entry
     const renderClueLog = (log: GameLog, index: number, playerColor: string) => {
+
 
         return (
             <span key={index} className='flex flex-row items-center gap-1'>
@@ -1187,7 +1210,7 @@ const RandomImageGridWrapper: React.FC = () => {
                 <span className={'whitespace-nowrap'}>
                     {log.action}:
                 </span>
-                <span className={'whitespace-nowrap'}>
+                <span className={'whitespace-nowrap font-semibold'}>
                     {log.detail as string}
                 </span>
             </span>
@@ -1499,7 +1522,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     {OneDim2TwoDim(gameState.gamelog.filter((log) => log.action.includes(`✗`) || log.action.includes(`hint`)), 48).map((log_row, row_idx) => (
                         <div key={row_idx} className={`flex flex-row justify-start gap-1.5 px-1 pb-1 w-full`}>
                             {log_row.map((log, idx) => (
-                                <div key={idx} className={`w-full rounded-full h-1.5 ${log.action.includes(`hint`) ? ('bg-' + playerColours[log.player]) : ('bg-red-300')}`}>
+                                <div key={idx} className={`w-full rounded-full h-1.5 ${log.action.includes(`hint`) ? ('bg-' + playerColours[log.player] + 'Dark') : ('bg-red-300')}`}>
                                     {/* {log.action.includes(`✗`) ? (
                                 <div className='h-1.5 w-full my-0.5 bg-red-300'></div>
                             ) : log.action.includes(`hint`) ? (
