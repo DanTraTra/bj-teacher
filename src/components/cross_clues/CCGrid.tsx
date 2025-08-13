@@ -307,7 +307,9 @@ const CCGrid: React.FC<GridProps> = ({
                             key="big-image"
                             className="col-start-2 col-span-5 row-start-2 row-span-5 relative flex items-center justify-center bg-gray-100"
                         >
-                            <div className="w-full h-full object-contain p-1">{bigImage}</div>
+                            <button onClick={() => { handleHeaderClick(bigImage, 'Big Image') }} className="w-full h-full object-contain p-1">
+                                {bigImage}
+                            </button>
                             {bigCO && ( // Only render bigCO if it's not an empty string
                                 <div className='absolute -top-6 left-1 text-[80px] p-4 text-black tracking-wide font-bold z-10 opacity-60'>
                                     {bigCO}
@@ -397,7 +399,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
-                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) && 'opacity-20'}`}
+                                        frontClassName={`${highlightClasses} ${isPopping ? 'pop-out' : ''} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) && 'opacity-20 pointer-events-none'}`}
                                         backClassName={correct_card === 'correct' ? 'text-correct' : 'text-wrong'}
                                         clueCell={false}
                                         correctCard={correct_card}
@@ -412,7 +414,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         colIndex={colIndex}
                                         resetFlippedCardState={resetFlippedCardState}
                                         setViewingClue={setViewingClue}
-                                        highlightClass={`${borderClasses} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20' : ''}`}
+                                        highlightClass={`${borderClasses} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20 pointer-events-none' : demoMode ? 'pointer-events-none' : ''}`}
                                         clueCellContent={clueCellContent}
                                         playerOnThisDevice={playerOnThisDevice}
                                     // playerCount={clueCellContent.filter((content) => content !== "?").length}

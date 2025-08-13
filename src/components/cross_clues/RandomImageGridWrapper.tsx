@@ -171,6 +171,7 @@ const RandomImageGridWrapper: React.FC = () => {
     const [isLoadingImages, setIsLoadingImages] = useState<boolean>(false);
     const [hintCO, setHintCO] = useState<GridCellCO | null>(null)
     const [screenSize, setScreenSize] = useState<'tall' | 'wide'>('tall')
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
     const fetchImages = async () => {
         setIsLoadingImages(true);
@@ -380,6 +381,37 @@ const RandomImageGridWrapper: React.FC = () => {
         }
 
     }, [window.innerWidth, window.innerHeight]);
+
+    useEffect(() => {
+        const handleShow = () => setIsKeyboardVisible(true);
+        const handleHide = () => setIsKeyboardVisible(false);
+        
+        const viewport = window.visualViewport;
+        if (!viewport) return; // Add null check
+        
+        const handleResize = () => {
+            // If the viewport height changes significantly, assume keyboard is toggled
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile) return;
+            
+            const newWindowHeight = viewport.height;
+            const isVisible = (window.screen.height - newWindowHeight) > 100; // Threshold for keyboard
+            setIsKeyboardVisible(isVisible);
+        };
+    
+        // Modern iOS and Android browsers
+        viewport.addEventListener('resize', handleResize);
+    
+        // Fallback for older browsers
+        window.addEventListener('keyboardDidShow', handleShow);
+        window.addEventListener('keyboardDidHide', handleHide);
+        
+        return () => {
+            viewport.removeEventListener('resize', handleResize);
+            window.removeEventListener('keyboardDidShow', handleShow);
+            window.removeEventListener('keyboardDidHide', handleHide);
+        };
+    }, []);
 
     const regenerateImages = () => {
         if (gameState.imageUrls.length < gameState.numRows * 2) {
@@ -1102,12 +1134,12 @@ const RandomImageGridWrapper: React.FC = () => {
         setButtonState('input')
     }
 
-    const handleHeaderClick = (header: React.ReactNode, CO: string) => {
+    const handleHeaderClick = (header?: React.ReactNode, CO?: string) => {
         if (bigImage) {
             setBigImage(null);
             setBigCO('');
             setCurrentBigImageIndex(null);
-        } else {
+        } else if (header && CO) {
             setBigImage(header);
             setBigCO(CO);
             // Find the index of the clicked header in the combined list
@@ -1430,7 +1462,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                         (
                                             clue != '?' ?
                                                 index + 1 != playerOnThisDevice && hintCO == null ?
-                                                    <button className='flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4' onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
+                                                    <button className={`flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 ${demoState < 2 && 'pointer-events-none'}`} onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
                                                         {<span className={`bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit`}>Hint</span>}
                                                     </button>
                                                     :
@@ -1576,20 +1608,22 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
                         {!bigImage && buttonState === 'input' && (
-                            <input
-                                type="text"
-                                value={editValue === '?' ? '' : editValue}
-                                placeholder={`Give a clue for ${String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}${gameState.randomCO[playerOnThisDevice].rowIndex + 1}`}
-                                onChange={handleInputChange}
-                                onKeyDown={handleInputKeyDown}
-                                onBlur={handleInputBlur}
-                                onFocus={handleInputFocus}
-                                className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-500
-                            focus:outline-none focus:ring-0 focus:border-gray-400 border-b-2 border-gray-400
-                            bg-transparent border-t-0 border-l-0 border-r-0 h-8"
-                                autoFocus
-                            />
-
+                            <div className={`transition-transform duration-300 transform ${isKeyboardVisible ? '-translate-y-32' : ''}`}>
+                                <input
+                                    id="clue-input"
+                                    type="text"
+                                    value={editValue === '?' ? '' : editValue}
+                                    placeholder={`Give a clue for ${String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}${gameState.randomCO[playerOnThisDevice].rowIndex + 1}`}
+                                    onChange={handleInputChange}
+                                    onKeyDown={handleInputKeyDown}
+                                    onBlur={handleInputBlur}
+                                    onFocus={handleInputFocus}
+                                    className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-500
+                                focus:outline-none focus:ring-0 focus:border-gray-400 border-b-2 border-gray-400
+                                bg-transparent border-t-0 border-l-0 border-r-0 h-8"
+                                    autoFocus
+                                />
+                            </div>
                         )}
 
                         {!bigImage && buttonState == 'input' && (
@@ -1602,7 +1636,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         )}
 
                         {
-                            // !gameState.clueCellContent.some((clue) => gameState.playerVotes[clue]?.CO[playerOnThisDevice] != null) && (
+                            // !gameState.playerVotes.some((vote) => vote.CO != null) && (
                             //     <span className='w-full text-sm text-gray-800 text-right font-semibold'>
                             //         {playersWithNoClues.length >= gameState.playerCount - playersWithNoClues.length ?
                             //             <span className='text-sm pl-2'>
