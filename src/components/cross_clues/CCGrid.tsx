@@ -32,6 +32,7 @@ interface GridProps {
     frontCellContent: FrontCellContent[][];
     correctlyGuessedGrid: boolean[][];
     openVoteOptions: (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => void;
+    closeVoteOptions: (rowIndex: number, colIndex: number) => void;
     completedCards: string[];
     setViewingClue: (boolean: boolean) => void;
     viewingClue: boolean;
@@ -69,6 +70,7 @@ const CCGrid: React.FC<GridProps> = ({
     frontCellContent,
     correctlyGuessedGrid,
     openVoteOptions,
+    closeVoteOptions,
     setViewingClue,
     viewingClue,
     handleHeaderClick,
@@ -265,7 +267,9 @@ const CCGrid: React.FC<GridProps> = ({
                     // otherPlayerVotes={playerVotes.filter((player, index) => index !== playerOnThisDevice).flat()}
                     // openVoteOptions={openVoteOptions}
                     playerVotes={playerVotes}
+                    playerVote={playerVotes[playerOnThisDevice].clue}
                     openVoteOptions={() => { }}
+                    closeVoteOptions={() => { }}
                     handleVoteSelect={() => { }}
                     // recentlyVotedCards={recentlyVotedCards}
                     rowIndex={100}
@@ -399,9 +403,11 @@ const CCGrid: React.FC<GridProps> = ({
                                         correctCard={correct_card}
                                         isFlipped={flippedCard?.rowIndex === rowIndex && flippedCard?.colIndex === colIndex}
                                         openVoteOptions={openVoteOptions}
+                                        closeVoteOptions={closeVoteOptions}
                                         isVoted={false}
                                         handleVoteSelect={handleVoteSelect}
                                         playerVotes={playerVotes}
+                                        playerVote={playerVotes[playerOnThisDevice].clue}
                                         rowIndex={rowIndex}
                                         colIndex={colIndex}
                                         resetFlippedCardState={resetFlippedCardState}

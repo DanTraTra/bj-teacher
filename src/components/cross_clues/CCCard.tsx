@@ -22,9 +22,11 @@ interface CCCardProps {
     isVoted: boolean;
     /** Callback when the card is flipped */
     openVoteOptions: (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => void;
+    closeVoteOptions: (rowIndex: number, colIndex: number) => void;
     /** Callback when a player's vote is selected */
     handleVoteSelect: (clue: string, CO: GridCellCO) => void;
     playerVotes: { CO: (GridCellCO | null), clue: string }[];
+    playerVote: string;
     // thisPlayerVotes: { clue: string, CO: GridCellCO | null }[];
     // otherPlayerVotes: { clue: string, CO: GridCellCO | null }[];
     // recentlyVotedCards: { CO: GridCellCO | null, clue: string, colour: string }[];
@@ -50,8 +52,10 @@ const CCCard: React.FC<CCCardProps> = ({
     isFlipped,
     // isVoted,
     openVoteOptions,
+    closeVoteOptions,
     handleVoteSelect,
     playerVotes,
+    playerVote,
     // otherPlayerVotes,
     // thisPlayerVotes,
     // recentlyVotedCards,
@@ -64,13 +68,8 @@ const CCCard: React.FC<CCCardProps> = ({
     playerOnThisDevice,
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
-    const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-    // const [clue, setClue] = useState<string | null>(Object.entries(playerVotes).find(([key, value]) => {
-    //     return value[playerOnThisDevice]?.CO?.rowIndex === rowIndex && value[playerOnThisDevice]?.CO?.colIndex === colIndex
-    // })?.[0] ?? null);
-
-    const [voteOptionsClue, setVoteOptionClue] = useState<string | null>(clueCellContent.find((content) => content !== "?") ?? null);
-
+    const [voteOptionsClue, setVoteOptionClue] = useState<string>(''); // The text infront of the vote options
+    const [clueColor, setClueColor] = useState<{ clue: string, color: string, index: number }[]>([])
 
     // const [votedByThisPlayer, setvotedByThisPlayer] = useState(thisPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
     // const [votedByOtherPlayers, setvotedByOtherPlayers] = useState(otherPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
@@ -83,7 +82,13 @@ const CCCard: React.FC<CCCardProps> = ({
 
     useEffect(() => {
         // setVoteOptionClue(playerVotes[playerOnThisDevice].clue)
+        if (playerVotes[playerOnThisDevice].CO == null) {
+            setIsPieVisible(false);
+        }
 
+        // if (playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex) {
+        //     setIsPieVisible(true);
+        // } 
     }, [playerVotes])
 
 
@@ -96,16 +101,16 @@ const CCCard: React.FC<CCCardProps> = ({
     const incorrectCardClasses = `border-[#C44104]`;
     const closeCardClasses = `border-[#F37332]`;
 
-    const cardClickHandler = (clueIndex = 0) => {
+    const cardClickHandler = (clueIndex: number) => {
         // Don't flip if we're showing the voting UI
         // if (isVoted) return;
 
-        if (voteOptionsClue) {
-
-        }
 
         openVoteOptions(rowIndex, colIndex, clueCell, clueIndex);
         setVoteOptionClue(clueCellContent[clueIndex]);
+        if (frontContent.vote == null) {
+            setIsPieVisible(true);
+        }
 
         if (!clueCell) {
             // Set the border class after the flip animation starts
@@ -117,6 +122,19 @@ const CCCard: React.FC<CCCardProps> = ({
         }
     };
 
+    const handleInnerCircleClick = () => {
+        handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex })
+        
+    }   
+
+    useEffect(() => {
+        const clueColor = clueCellContent
+            .map((c, index) => (c !== "?" && index !== playerOnThisDevice) ? { clue: c, color: getPlayerColor(index), index } : null)
+            .filter(Boolean) as { clue: string, color: string, index: number }[];
+
+        setClueColor(clueColor)
+    }, [clueCellContent]);
+
     // find all who have voted for this card
 
 
@@ -124,66 +142,30 @@ const CCCard: React.FC<CCCardProps> = ({
     // console.log("otherPlayerVoted", otherPlayerVotes)
 
     const renderPieSlices = useCallback(() => {
-        const clueColor = clueCellContent
-            .map((c, index) => (c !== "?" && index !== playerOnThisDevice) ? { clue: c, color: getPlayerColor(index), index } : null)
-            .filter(Boolean) as { clue: string, color: string, index: number }[];
-
-        console.log("clueColor", clueColor)
         if (clueColor.length === 0) return null;
 
         const centerX = 50;
         const centerY = 50;
-        const radius = 90;
+        const radius = 80; // Slightly larger than before but not too big
+        const innerRadius = 40; // Size of the white center circle
+
         const slices = [];
-
-        // Handle single slice case - full circle button
-        if (clueColor.length === 1) {
-            const playerColor = clueColor[0].color;
-            return (
-                <div
-                    className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden rounded-full m-2"
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        console.log("handleVoteSelect 2")
-                        handleVoteSelect(clueColor[0].clue, { rowIndex: rowIndex, colIndex: colIndex })
-                    }}
-                    onMouseEnter={() => cardClickHandler(clueColor[0].index)}
-                    onMouseLeave={() => cardClickHandler(0)}
-                    aria-label={`Vote for clue`}
-                >
-                    <svg viewBox="0 0 100 100" className="w-full h-full">
-                        <circle
-                            cx={centerX}
-                            cy={centerY}
-                            r={radius/2}
-                            className={`fill-${playerColor} transition-opacity duration-200`}
-                            role="presentation"
-                        />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
-                        <Textfit
-                            mode="single"
-                            forceSingleModeWidth={false}
-                            className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center"
-                            aria-hidden="true"
-                        >
-                            {voteOptionsClue}
-                        </Textfit>
-                    </div>
-                </div>
-            );
-        }
-
-        // Original multi-slice pie chart code
         for (let i = 0; i < clueColor.length; i++) {
-            const startAngle = (i / clueColor.length) * 2 * Math.PI + (3 * Math.PI) / 6;
-            const endAngle = ((i + 1) / clueColor.length) * 2 * Math.PI + (3 * Math.PI) / 6;
+            const startAngle = (i / clueColor.length) * 2 * Math.PI - Math.PI / 2; // Start from top
+            const endAngle = ((i + 1) / clueColor.length) * 2 * Math.PI - Math.PI / 2;
+
+            // Outer arc points
             const startX = centerX + radius * Math.cos(startAngle);
             const startY = centerY + radius * Math.sin(startAngle);
             const endX = centerX + radius * Math.cos(endAngle);
             const endY = centerY + radius * Math.sin(endAngle);
+
+            // Inner arc points (for the white circle cutout)
+            const innerStartX = centerX + innerRadius * Math.cos(endAngle);
+            const innerStartY = centerY + innerRadius * Math.sin(endAngle);
+            const innerEndX = centerX + innerRadius * Math.cos(startAngle);
+            const innerEndY = centerY + innerRadius * Math.sin(startAngle);
+
             const largeArcFlag = (endAngle - startAngle) <= Math.PI ? '0' : '1';
 
             const pathData = [
@@ -193,28 +175,28 @@ const CCCard: React.FC<CCCardProps> = ({
                 'Z'
             ].join(' ');
 
-            const playerColor = clueColor[i].color;
             slices.push(
                 <g key={i} role="button" tabIndex={0}
                     onClick={(e) => {
                         e.stopPropagation();
-                        // console.log("clueColor[i].clue", clueColor[i].clue)
-                        console.log("clueColor[i].index", clueColor[i].index)    
-                        console.log("voteOptionsClue", voteOptionsClue)
-                    
-                        clueColor[i].clue == voteOptionsClue ?
-                        
-                            handleVoteSelect(clueCellContent[clueColor[i].index], { rowIndex: rowIndex, colIndex: colIndex }) :
-                            cardClickHandler(clueColor[i].index);
+                        console.log('voteOptionsClue', voteOptionsClue)
+                        console.log('clueColor[i].clue', clueColor[i].clue)
+
+                        if (clueColor[i].clue == voteOptionsClue) {
+                            
+                            handleVoteSelect(clueCellContent[clueColor[i].index], { rowIndex: rowIndex, colIndex: colIndex })
+                        } else {
+                            cardClickHandler(clueColor[i].index)
+                        }
                     }}
                     onMouseEnter={() => cardClickHandler(clueColor[i].index)}
-                    onMouseLeave={() => cardClickHandler(0)}
+                    onMouseLeave={() => cardClickHandler(clueColor[0].index)}
                     aria-label={`Vote for player ${clueColor[i].index}`}
                     className="outline-none"
                 >
                     <path
                         d={pathData}
-                        className={`fill-${playerColor} transition-opacity duration-200`}
+                        className={`fill-${clueColor[i].color} transition-opacity duration-200`}
                         role="presentation"
                     />
                 </g>
@@ -223,26 +205,58 @@ const CCCard: React.FC<CCCardProps> = ({
 
         return (
             <div
-                className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden rounded-full m-2"
+                className="absolute inset-0 z-10 flex items-center justify-center"
                 role="menu"
                 aria-label="Vote for a player"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleVoteSelect(clueColor[0].clue, { rowIndex: rowIndex, colIndex: colIndex })
+                    cardClickHandler(clueColor[0].index)
+                }}
             >
-                <svg
-                    viewBox="0 0 100 100"
-                    className="w-full h-full touch-pinch-zoom"
-                    role="presentation"
-                >
-                    {slices}
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
-                    <Textfit
-                        mode="single"
-                        forceSingleModeWidth={false}
-                        className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center"
-                        aria-hidden="true"
+                <div className="relative w-full h-full flex items-center justify-center">
+                    <svg
+                        viewBox="0 0 100 100"
+                        className="w-full h-full touch-pinch-zoom overflow-visible"
+                        role="presentation"
                     >
-                        {voteOptionsClue}
-                    </Textfit>
+                        {clueColor.length === 1 // 2 player
+                            ? <circle
+                                cx={centerX}
+                                cy={centerY}
+                                r={innerRadius}
+                                className={`fill-${clueColor[0].color} transition-opacity duration-200`}
+                                role="presentation"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex })
+                                }}
+                            /> : slices // Multi-slice pie chart for more than 1 player
+                        }
+
+                        {clueColor.length > 1 &&  
+                        <circle
+                            cx={centerX}
+                            cy={centerY}
+                            r={innerRadius}
+                            className="fill-white"
+                            role="presentation"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleVoteSelect(clueColor[clueColor.findIndex((c) => c.clue === voteOptionsClue)].clue, { rowIndex: rowIndex, colIndex: colIndex });
+                            }}
+                        />}
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
+                        <Textfit
+                            mode="single"
+                            forceSingleModeWidth={false}
+                            className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center p-2"
+                            aria-hidden="true"
+                        >
+                            {voteOptionsClue}
+                        </Textfit>
+                    </div>
                 </div>
             </div>
         );
@@ -253,11 +267,37 @@ const CCCard: React.FC<CCCardProps> = ({
     const dotSize = `${dotBaseSize * 100}%`;
     const dotGap = `0.2rem`; // Responsive gap
 
+    // Handle clicks outside pie slices to close them
+    const handleOverlayClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        console.log('bg close')
+        setIsPieVisible(false);
+        closeVoteOptions(rowIndex, colIndex);
+
+    }, [rowIndex, colIndex, handleVoteSelect]);
+
+    // Check if pie slices are currently visible for this card
+    const [isPieVisible, setIsPieVisible] = useState(false);
+
+    // useEffect(() => {
+    //     setIsPieVisible(playerVotes[playerOnThisDevice].clue != '' && playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex);
+
+    // }, [playerVotes]);
+
     return (
-        <div className="relative" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
+        <div className="relative overflow-visible" style={{ maxWidth: cellSize, maxHeight: cellSize }}>
+            {/* Dark overlay when pie slices are visible */}
+            {isPieVisible && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-20"
+                    onClick={handleOverlayClick}
+                    style={{ pointerEvents: 'auto' }}
+                />
+            )}
+
             <button
-                className={`w-full h-full ${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`}`}
-                onClick={frontContent.color != '' ? undefined : () => cardClickHandler()}
+                className={`w-full h-full ${baseClasses} ${isFlipped ? `flipped ${clueCell ? '' : clickEffectClass}` : `${highlightClass}`} ${isPieVisible ? 'z-30' : ''}`}
+                onClick={frontContent.color != '' || clueColor.length === 0 ? undefined : () => cardClickHandler(clueColor[0].index)}
             >
                 <div className="flip-cross-clues-card-inner">
                     <div className={`flip-cross-clues-card-front flex items-center justify-center ${frontClassName}`}>
@@ -267,20 +307,20 @@ const CCCard: React.FC<CCCardProps> = ({
                                 forceSingleModeWidth={false}
                                 className={`w-full h-full flex items-center justify-center font-bold ${frontClassName}`}
                             >
-                                {!playerVotes.find((vote, index) => vote?.CO?.rowIndex === rowIndex && vote?.CO?.colIndex === colIndex && index === playerOnThisDevice) && frontContent.content}
+                                {frontContent.content}
                             </Textfit>
                         </div>
 
                         {frontContent.playersVoted != null && frontContent.playersVoted.length > 0 && (
-                            <div 
+                            <div
                                 className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1.5 px-1 z-10"
                                 style={{ gap: dotGap }}
                             >
                                 {frontContent.playersVoted.map((playerVoted, index) => (
-                                    <div 
-                                        key={index} 
-                                        className={`aspect-square rounded-full bg-${getPlayerColor(playerVoted)}Dark`} 
-                                        style={{ 
+                                    <div
+                                        key={index}
+                                        className={`aspect-square rounded-full bg-${getPlayerColor(playerVoted)}Dark`}
+                                        style={{
                                             width: dotSize,
                                             height: 'auto',
                                             minWidth: '0.25rem',
@@ -291,10 +331,10 @@ const CCCard: React.FC<CCCardProps> = ({
                                     />
                                 ))}
                                 {Array.from({ length: Math.max(0, clueCellContent.length - 2 - frontContent.playersVoted.length) }).map((_, index) => (
-                                    <div 
-                                        key={index} 
+                                    <div
+                                        key={index}
                                         className="aspect-square bg-gray-200 rounded-full"
-                                        style={{ 
+                                        style={{
                                             width: dotSize,
                                             height: 'auto',
                                             minWidth: '0.25rem',
@@ -322,10 +362,19 @@ const CCCard: React.FC<CCCardProps> = ({
                     </div>
                 </div>
             </button>
-            {playerVotes.find((vote, index) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex && index === playerOnThisDevice) && (
-                <div className="absolute inset-0 z-10">
-                    {renderPieSlices()}
-                </div>
+            {isPieVisible && (
+                <>
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-20 z-20"
+                        onClick={handleOverlayClick}
+                    />
+                    <div
+                        className="absolute inset-0 z-40"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {renderPieSlices()}
+                    </div>
+                </>
             )}
         </div>
     );
