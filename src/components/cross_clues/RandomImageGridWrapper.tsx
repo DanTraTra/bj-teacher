@@ -74,7 +74,6 @@ const getRandomImages = (imagePaths: string[], count: number): React.JSX.Element
 const testGrid = [[1, 2, 3], [1, 23, 4], [2, 412, 2]]
 const testArray = [1, 2, 3, 1, 23, 4, 2, 412, 2]
 const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2', 'jjejej']
-// TODO Fix the randomCO changing for deployed app
 
 // Using the existing FrontCellContent type from the StateType
 
@@ -955,8 +954,6 @@ const RandomImageGridWrapper: React.FC = () => {
 
                     } else {
                         // Simply add player to the vote
-                        // TODO: cell.vote == gameState.playerCount - 2 and cell.vote == clue but on different cells!! - still triggers the card flip >:( grrr
-
                         if (cell.playersVoted?.length == gameState.playerCount - 2) {
                             console.log("player is last to vode - flip the card - see result")
                             // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
@@ -1399,7 +1396,7 @@ const RandomImageGridWrapper: React.FC = () => {
             {
                 // screenSize == 'wide' && gameLogComponent(true)
             }
-            <div className={`flex flex-col gap-2 transition-transform duration-300 transform ${isKeyboardVisible ? '-translate-y-56' : ''}`}>
+            <div className={`flex flex-col gap-2 transition-transform duration-300 transform ${isKeyboardVisible ? '-translate-y-1/2' : ''}`}>
                 {/* <div id="bigImageContainer" className={`relative flex flex-col flex-start ${bigImage ? 'h-[25vh]' : ''}`} style={{ width: getResponsiveGridSize() }} onClick={() => {
                     setBigImage(null);
                     setBigCO('');
@@ -1518,7 +1515,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         );
                     })}
                 </div>
-                <div className="flex flex-col flex-start items-center space-y-1 overflow-y-auto w-fit gap-1"
+                <div className="flex flex-col flex-start items-center space-y-1 overflow-visible w-fit gap-1"
                     id="gridBoard">
                     <div className="h-full">
                         {gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState === 0 && bigImage == null && (
@@ -1543,7 +1540,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     rowHeaders={rowHeaders}
                                     colHeaders={colHeaders}
                                     cellSize="auto"
-                                    className="mx-auto"
+                                    className="mx-auto overflow-visible"
                                     style={{
                                         width: getResponsiveGridSize(),
                                         height: getResponsiveGridSize(),

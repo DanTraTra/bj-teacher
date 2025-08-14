@@ -214,7 +214,7 @@ const CCCard: React.FC<CCCardProps> = ({
 
         return (
             <div
-                className="absolute inset-0 z-10 flex items-center justify-center"
+                className="absolute inset-0 z-10 flex items-center justify-center overflow-visible"
                 role="menu"
                 aria-label="Vote for a player"
                 onClick={(e) => {
