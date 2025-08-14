@@ -328,14 +328,14 @@ const CCCard: React.FC<CCCardProps> = ({
 
                         {frontContent.playersVoted != null && frontContent.playersVoted.length > 0 && (
                             <div
-                                className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1.5 px-1 z-10"
+                                className="absolute bottom-0 left-0 flex flex-row-reverse w-full h-fit pb-1 px-1 z-10"
                                 style={{ gap: dotGap }}
                             >
                                 {frontContent.playersVoted.map((playerVoted, index) => (
                                     <div
                                         key={index}
-                                        className={`aspect-square rounded-full bg-${getPlayerColor(playerVoted)}Dark`}
-                                        style={{
+                                        // className={`aspect-square rounded-full bg-${getPlayerColor(playerVoted)}Dark`}
+                                        className={` bg-${getPlayerColor(playerVoted)}Dark`}                                        style={{
                                             width: dotSize,
                                             height: 'auto',
                                             minWidth: '0.25rem',
@@ -348,7 +348,8 @@ const CCCard: React.FC<CCCardProps> = ({
                                 {Array.from({ length: Math.max(0, clueCellContent.length - 2 - frontContent.playersVoted.length) }).map((_, index) => (
                                     <div
                                         key={index}
-                                        className="aspect-square bg-gray-200 rounded-full"
+                                        // className="aspect-square bg-gray-200 rounded-full"
+                                        className="bg-gray-200"
                                         style={{
                                             width: dotSize,
                                             height: 'auto',
