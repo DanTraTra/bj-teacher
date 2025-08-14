@@ -400,34 +400,34 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [window.innerWidth, window.innerHeight]);
 
     useEffect(() => {
-        const handleShow = () => setIsKeyboardVisible(true);
-        const handleHide = () => setIsKeyboardVisible(false);
+        // const handleShow = () => setIsKeyboardVisible(true);
+        // const handleHide = () => setIsKeyboardVisible(false);
 
-        const viewport = window.visualViewport;
-        if (!viewport) return; // Add null check
+        // const viewport = window.visualViewport;
+        // if (!viewport) return; // Add null check
 
-        const handleResize = () => {
-            // If the viewport height changes significantly, assume keyboard is toggled
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (!isMobile) return;
+        // const handleResize = () => {
+        //     // If the viewport height changes significantly, assume keyboard is toggled
+        //     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        //     if (!isMobile) return;
 
-            const newWindowHeight = viewport.height;
-            const isVisible = (window.screen.height - newWindowHeight) > 100; // Threshold for keyboard
-            setIsKeyboardVisible(isVisible);
-        };
+        //     const newWindowHeight = viewport.height;
+        //     const isVisible = (window.screen.height - newWindowHeight) > 100; // Threshold for keyboard
+        //     setIsKeyboardVisible(isVisible);
+        // };
 
-        // Modern iOS and Android browsers
-        viewport.addEventListener('resize', handleResize);
+        // // Modern iOS and Android browsers
+        // viewport.addEventListener('resize', handleResize);
 
-        // Fallback for older browsers
-        window.addEventListener('keyboardDidShow', handleShow);
-        window.addEventListener('keyboardDidHide', handleHide);
+        // // Fallback for older browsers
+        // window.addEventListener('keyboardDidShow', handleShow);
+        // window.addEventListener('keyboardDidHide', handleHide);
 
-        return () => {
-            viewport.removeEventListener('resize', handleResize);
-            window.removeEventListener('keyboardDidShow', handleShow);
-            window.removeEventListener('keyboardDidHide', handleHide);
-        };
+        // return () => {
+        //     viewport.removeEventListener('resize', handleResize);
+        //     window.removeEventListener('keyboardDidShow', handleShow);
+        //     window.removeEventListener('keyboardDidHide', handleHide);
+        // };
     }, []);
 
     const regenerateImages = () => {
@@ -1161,6 +1161,15 @@ const RandomImageGridWrapper: React.FC = () => {
     const handleInputFocus = () => {
         setButtonState('input')
     }
+
+    useEffect(() => {
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
+        if (screenSize == 'tall' && buttonState == 'input' && isMobile) {
+            setIsKeyboardVisible(true)
+        } else {
+            setIsKeyboardVisible(false)
+        }
+    }, [buttonState])
 
     const handleHeaderClick = (header?: React.ReactNode, CO?: string) => {
         if (bigImage) {
