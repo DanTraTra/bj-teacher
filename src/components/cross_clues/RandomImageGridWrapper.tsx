@@ -1208,6 +1208,18 @@ const RandomImageGridWrapper: React.FC = () => {
         console.log("player on this device", player)
     };
 
+    // Load saved player name from localStorage when component mounts and when player names change
+    useEffect(() => {
+        const savedPlayerName = localStorage.getItem('crossCluesPlayerName');
+        if (savedPlayerName && gameState.playerNames.includes(savedPlayerName)) {
+            const playerIndex = gameState.playerNames.indexOf(savedPlayerName);
+            if (playerIndex !== -1) {
+                // Auto-select the player if their name is in the list
+                handleSelectPlayerTurn(playerIndex);
+            }
+        }
+    }, [gameState.playerNames]);
+
     // Component for rendering player badges
     const PlayerBadge = ({ playerName, playerNumber }: { playerName: string | null, playerNumber: number }) => {
         const color = getPlayerColor(playerNumber);

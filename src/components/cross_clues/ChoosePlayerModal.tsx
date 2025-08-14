@@ -10,6 +10,17 @@ const ChoosePlayerModal: React.FC<ChoosePlayerModalProps> = ({ playerNames, play
 
   // console.log("playerNames", playerNames)
 
+  const handlePlayerSelect = (player: number) => {
+    const selectedName = playerNames[player];
+
+    if (playerNames.find(name => name?.toLowerCase() == 'admin123')) {
+      
+    } else if (selectedName) {
+      localStorage.setItem('crossCluesPlayerName', selectedName);
+    }
+    onSelectPlayer(player);
+  };
+
   // Map color names to complete Tailwind classes
   const getColorClasses = (colorName: string) => {
     const colorMap: { [key: string]: string } = {
@@ -45,12 +56,12 @@ const ChoosePlayerModal: React.FC<ChoosePlayerModalProps> = ({ playerNames, play
 
             let colSpanClass = Math.ceil(playerNames.length / 3);
             if (playerNames.length - 1 == 2 || playerNames.length - 1 == 4) {
-              colSpanClass = 3; 
+              colSpanClass = 3;
             } else if (playerNames.length - 1 == 3 || playerNames.length - 1 == 6) {
-              colSpanClass = 2; 
+              colSpanClass = 2;
             } else if (playerNames.length - 1 == 5) {
 
-              if (index - 1  < 2) {
+              if (index - 1 < 2) {
                 colSpanClass = 2;
               } else {
                 colSpanClass = 3;
@@ -60,7 +71,7 @@ const ChoosePlayerModal: React.FC<ChoosePlayerModalProps> = ({ playerNames, play
             return (
               <button
                 key={index}
-                onClick={() => onSelectPlayer(index + 1)}
+                onClick={() => handlePlayerSelect(index + 1)}
                 className={`px-3 w-full overflow-hidden ${getColSpanClass(colSpanClass)} ${getColorClasses(playerColours[index + 1])} text-gray-800 font-semibold py-2 rounded transition`}
               >
                 {name}
