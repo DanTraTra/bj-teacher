@@ -7,8 +7,8 @@ import CCRows from './CCRows'; // Adjust the import path based on your structure
 import { generateSlug } from "random-word-slugs";
 import { createClient } from '@supabase/supabase-js';
 import ChoosePlayerModal from './ChoosePlayerModal';
-import { BiArrowToRight } from 'react-icons/bi';
-import { BsArrowRight } from 'react-icons/bs';
+import { BiArrowToRight, BiSkipNext } from 'react-icons/bi';
+import { BsArrowRight, BsCheck } from 'react-icons/bs';
 
 const rootPath = 'images/'
 
@@ -172,6 +172,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const [hintCO, setHintCO] = useState<GridCellCO | null>(null)
     const [screenSize, setScreenSize] = useState<'tall' | 'wide'>('tall')
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const [demoMode, setDemoMode] = useState(false);
+
 
     const fetchImages = async () => {
         setIsLoadingImages(true);
@@ -368,6 +370,21 @@ const RandomImageGridWrapper: React.FC = () => {
         }
     };
 
+
+    useEffect(() => {
+        if (gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2) {
+            console.log("demoMode")
+            console.log("player", gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length)
+            console.log("demoState", demoState)
+            setDemoMode(true)
+        }
+        else {
+            console.log("not demoMode")
+            setDemoMode(false)
+        }
+    }, [demoState, gameState, playerOnThisDevice])
+
+
     useEffect(() => {
         const isMobile = window.innerWidth <= window.innerHeight || ('ontouchstart' in window && window.innerWidth <= window.innerHeight);
 
@@ -385,27 +402,27 @@ const RandomImageGridWrapper: React.FC = () => {
     useEffect(() => {
         const handleShow = () => setIsKeyboardVisible(true);
         const handleHide = () => setIsKeyboardVisible(false);
-        
+
         const viewport = window.visualViewport;
         if (!viewport) return; // Add null check
-        
+
         const handleResize = () => {
             // If the viewport height changes significantly, assume keyboard is toggled
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (!isMobile) return;
-            
+
             const newWindowHeight = viewport.height;
             const isVisible = (window.screen.height - newWindowHeight) > 100; // Threshold for keyboard
             setIsKeyboardVisible(isVisible);
         };
-    
+
         // Modern iOS and Android browsers
         viewport.addEventListener('resize', handleResize);
-    
+
         // Fallback for older browsers
         window.addEventListener('keyboardDidShow', handleShow);
         window.addEventListener('keyboardDidHide', handleHide);
-        
+
         return () => {
             viewport.removeEventListener('resize', handleResize);
             window.removeEventListener('keyboardDidShow', handleShow);
@@ -704,6 +721,8 @@ const RandomImageGridWrapper: React.FC = () => {
 
         }
 
+        setHintCO(null);
+
     }
 
     const closeVoteOptions = (rowIndex: number, colIndex: number) => {
@@ -788,7 +807,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
         // Reset local state
         setEditValue("?");
-        setHintCO(null);
+        // setHintCO(null);
     }
 
 
@@ -1107,6 +1126,15 @@ const RandomImageGridWrapper: React.FC = () => {
         }
     }
 
+    const skipClueGive = () => {
+        setButtonState('view');
+        setIsEditing(false);
+        setFlippedCardState(null);
+        setBigImage(null);
+        setViewingClue(false);
+        setDemoState(2);
+    }
+
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             enterClue()
@@ -1170,6 +1198,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const handleSelectPlayerTurn = (player: number) => {
         setPlayerOnThisDevice(player);
+
         console.log("player on this device", player)
     };
 
@@ -1329,7 +1358,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
 
-    const buttonClasses = "text-xs h-8 px-5 py-2 text-white rounded-sm bg-gray-500 font-semibold whitespace-nowrap"
+    const buttonClasses = "text-xs h-8 px-4 py-2 text-white rounded-sm bg-gray-500 font-semibold whitespace-nowrap"
 
     // Show modal if no GAME_ID
     if (!GAME_ID) {
@@ -1361,7 +1390,7 @@ const RandomImageGridWrapper: React.FC = () => {
             {
                 // screenSize == 'wide' && gameLogComponent(true)
             }
-            <div className="flex flex-col gap-2">
+            <div className={`flex flex-col gap-2 transition-transform duration-300 transform ${isKeyboardVisible ? '-translate-y-56' : ''}`}>
                 {/* <div id="bigImageContainer" className={`relative flex flex-col flex-start ${bigImage ? 'h-[25vh]' : ''}`} style={{ width: getResponsiveGridSize() }} onClick={() => {
                     setBigImage(null);
                     setBigCO('');
@@ -1462,7 +1491,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                         (
                                             clue != '?' ?
                                                 index + 1 != playerOnThisDevice && hintCO == null ?
-                                                    <button className={`flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 ${demoState < 2 && 'pointer-events-none'}`} onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
+                                                    <button className={`flex flex-col w-full items-end text-xs text-gray-500 -my-1 h-4 ${gameState.gamelog.length < gameState.playerCount && 'pointer-events-none'}`} onClick={() => handleHintClick(gameState.randomCO[index + 1])}>
                                                         {<span className={`bg-white bg-opacity-30 py-0.5 px-1.5 -mt-1 rounded w-fit`}>Hint</span>}
                                                     </button>
                                                     :
@@ -1490,7 +1519,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 {((buttonState == 'view' || buttonState == 'input') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0) && (
                                     <button
                                         onClick={handleViewCard}
-                                        className={buttonClasses + (buttonState == 'view' ? ' animate-pulse' : '')}
+                                        className={buttonClasses + (demoMode ? ' animate-pulse' : '')}
                                     >
                                         View card
                                     </button>
@@ -1534,7 +1563,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     cellColour={playerColours[playerOnThisDevice]}
                                     playerColours={playerColours}
                                     // recentlyVotedCards={gameState.playerVotes[playerOnThisDevice].map((card) => ({ CO: card.CO, clue: card.clue, colour: playerColours[playerOnThisDevice] }))}
-                                    demoMode={gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length === 0 && demoState < 2}
+                                    demoMode={demoMode}
                                     hintCO={hintCO}
                                     bigImage={bigImage}
                                     bigCO={bigCO}
@@ -1565,7 +1594,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         </div>
                     ))}
                 </div>
-                <div id="playerControls" className="flex flex-row justify-end items-start pt-0 px-1 gap-2 z-30" style={{ width: getResponsiveGridSize() }}>
+                <div id="playerControls" className={`flex flex-row justify-end items-start pt-0 px-1 gap-2 z-30`} style={{ width: getResponsiveGridSize() }}>
                     {
                         gameState.gamelog.length > 0 && gameLogComponent(false)
                     }
@@ -1589,10 +1618,10 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?' && gameState.gamelog.filter((log) => log.player == playerOnThisDevice).length > 0) && (
+                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?') && !demoMode && (
                             <button
                                 onClick={handleViewCard}
-                                className={buttonClasses + (buttonState == 'view' ? 'animate-pulse' : '')}
+                                className={buttonClasses + (demoMode ? 'animate-pulse' : '')}
                             >
                                 View card
                             </button>
@@ -1602,36 +1631,46 @@ const RandomImageGridWrapper: React.FC = () => {
                         {!bigImage && buttonState == 'give' && (
                             <button
                                 onClick={handleGiveClue}
-                                className={buttonClasses + (demoState == 1 ? ' animate-pulse' : '')}
+                                className={buttonClasses + (demoMode ? ' animate-pulse' : '')}
                             >
-                                Give a clue for this card
+                                Give clue for {String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}{gameState.randomCO[playerOnThisDevice].rowIndex + 1}
                             </button>
                         )}
+
+                        {!bigImage && buttonState == 'give' && (
+                            <button
+                                onClick={skipClueGive}
+                                className={'size-8 p-1 text-2xl text-white rounded-sm bg-gray-400'}
+                            >
+                                <BiSkipNext className='size-full' />
+                            </button>
+                        )}
+
                         {!bigImage && buttonState === 'input' && (
-                            <div className={`transition-transform duration-300 transform ${isKeyboardVisible ? '-translate-y-32' : ''}`}>
-                                <input
-                                    id="clue-input"
-                                    type="text"
-                                    value={editValue === '?' ? '' : editValue}
-                                    placeholder={`Give a clue for ${String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}${gameState.randomCO[playerOnThisDevice].rowIndex + 1}`}
-                                    onChange={handleInputChange}
-                                    onKeyDown={handleInputKeyDown}
-                                    onBlur={handleInputBlur}
-                                    onFocus={handleInputFocus}
-                                    className="w-52 text-center text-sm px-2 py-1 placeholder:text-gray-500
-                                focus:outline-none focus:ring-0 focus:border-gray-400 border-b-2 border-gray-400
-                                bg-transparent border-t-0 border-l-0 border-r-0 h-8"
-                                    autoFocus
-                                />
-                            </div>
+                            <input
+                                id="clue-input"
+                                type="text"
+                                value={editValue === '?' ? '' : editValue}
+                                placeholder={`Clue for ${String.fromCharCode(65 + gameState.randomCO[playerOnThisDevice].colIndex)}${gameState.randomCO[playerOnThisDevice].rowIndex + 1}`}
+                                onChange={handleInputChange}
+                                onKeyDown={handleInputKeyDown}
+                                onBlur={handleInputBlur}
+                                onFocus={handleInputFocus}
+                                className="w-fit text-center text-sm py-1 placeholder:text-gray-500
+                            focus:outline-none focus:ring-0 focus:border-gray-400 border-b-2 border-gray-400
+                            bg-transparent border-t-0 border-l-0 border-r-0 h-8"
+                                autoFocus
+                            />
                         )}
 
                         {!bigImage && buttonState == 'input' && (
                             <button
-                                onClick={enterClue}
-                                className={`text-md h-8 p-2 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800`}
+                                onClick={() => {
+                                    enterClue()
+                                }}
+                                className={`text-md size-8 p-1 bg-${playerColours[playerOnThisDevice]} font-bold rounded-sm text-gray-800`}
                             >
-                                <BsArrowRight />
+                                <BsCheck className='size-full font-bold text-gray-400' />
                             </button>
                         )}
 
