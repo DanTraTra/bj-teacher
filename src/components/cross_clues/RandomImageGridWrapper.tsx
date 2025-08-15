@@ -13,7 +13,12 @@ import { BsArrowRight, BsCheck } from 'react-icons/bs';
 const rootPath = 'images/'
 
 export type GridCellCO = { rowIndex: number; colIndex: number };
-export type FrontCellContent = { content: string, color: string, vote: string | null, playersVoted: number[] | null };
+export type FrontCellContent = { 
+    content: string, 
+    color: string, vote: string | null, 
+    playersVoted: number[] | null, // the players who have voted on this card
+    clue: string // the clue given by player for this card
+};
 export type GameLog = { player: number, action: string, detail: GridCellCO | string | null | number };
 
 interface StateType {
@@ -77,7 +82,7 @@ const testArray1 = ['A1', 'B1', 'sadk', 'D1', 'jjejej', 'A2', 'B2', 'sadk', 'D2'
 
 // Using the existing FrontCellContent type from the StateType
 
-function OneDim2TwoDim<T>(oneDimArray: T[], columns: number): T[][] {
+export function OneDim2TwoDim<T>(oneDimArray: T[], columns: number): T[][] {
     if (columns <= 0) throw new Error("number of columns must be greater than 0");
     const result: T[][] = [];
     for (let i = 0; i < oneDimArray.length; i += columns) {
@@ -137,7 +142,7 @@ const RandomImageGridWrapper: React.FC = () => {
     // const [image_numbers, setImageNumbers] = useState<number[]>([]);
     // const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     // const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
-    const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>([[]]);
+    // const [correctlyGuessedGrid, setCorrectlyGuessedGrid] = useState<boolean[][]>([[]]);
     // const [completedCards, setCompletedCards] = useState<string[]>([]);
     const [incorrectGuessCountP1, setIncorrectGuessCountP1] = useState<number[]>([]);
     const [incorrectGuessCountP2, setIncorrectGuessCountP2] = useState<number[]>([]);
@@ -208,7 +213,7 @@ const RandomImageGridWrapper: React.FC = () => {
             // setFrontCellContentState(OneDim2TwoDim(s.frontCellContent || [], numCols));
             // setCompletedCards(s.completedCards || []);
             // setClueCellContent(s.clueCellContent || '?');
-            setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent || [], s.numRows));
+            // setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent || [], s.numRows));
             setIncorrectGuessCountP1(s.incorrectGuessCountP1 || [0]);
             setIncorrectGuessCountP2(s.incorrectGuessCountP2 || [0]);
 
@@ -255,7 +260,8 @@ const RandomImageGridWrapper: React.FC = () => {
                 content: `${String.fromCharCode(65 + colIndex)}${rowIndex + 1}`,
                 color: '',
                 vote: null,
-                playersVoted: []
+                playersVoted: [],
+                clue: ''
             })
             )
         );
@@ -281,7 +287,7 @@ const RandomImageGridWrapper: React.FC = () => {
             randomCO: randomCoOrdinates,
             availiableRandomCo: allRandomCo,
             clueCellContent: Array.from({ length: playerCount + 1 }, () => '?'),
-            frontCellContent: frontCellContent,
+            frontCellContent: frontCellContent as FrontCellContent[],
             completedCards: [],
             incorrectGuessCount: 0,
             playerNames: [null, p1, ...otherPlayers],
@@ -502,50 +508,21 @@ const RandomImageGridWrapper: React.FC = () => {
     //     }
     // }, [correctlyGuessedGrid]); // Added supaBaseImages as dependency
 
-    const regenerateRandomCO: () => { rowIndex: number, colIndex: number } = () => {
-        let tempCO = {
-            rowIndex: Math.floor(Math.random() * numRows),
-            colIndex: Math.floor(Math.random() * numCols)
-        };
-        // console.log("completedCards", completedCards);
-
-        // Convert to coordinate string (e.g., "A1", "B2", etc.)
-        // Check against correctlyGuessedGrid instead of completedCards
-        // const coordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-        // Check if all cells are completed
-        // console.log("correctlyGuessedGrid", correctlyGuessedGrid)
-
-        const allCompleted = correctlyGuessedGrid.every(row => row.every(cell => cell === true)) && correctlyGuessedGrid.length;
-
-        if (!allCompleted) {
-            while (correctlyGuessedGrid[tempCO.rowIndex][tempCO.colIndex]) { // Check correctlyGuessedGrid
-                tempCO = {
-                    rowIndex: Math.floor(Math.random() * numRows),
-                    colIndex: Math.floor(Math.random() * numCols)
-                };
-                // const newCoordString = `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`;
-                if (!correctlyGuessedGrid[tempCO.rowIndex][tempCO.colIndex]) { // Check correctlyGuessedGrid
-                    break;
-                }
-            }
-        } else {
-            // Handle case where all cards are completed (e.g., game over)
-            console.log("All cards completed. Cannot regenerate random CO.");
-            return { rowIndex: 100, colIndex: 100 }; // Exit the function if all completed
-        }
-        console.log("setRandomCO(tempCO):", `${colLetters[tempCO.colIndex]}${tempCO.rowIndex + 1}`);
-        return tempCO;
-    }
 
     // Handler for clue cell content updates
     const handleClueCellEdit = (newContent: string) => {
         const newClueCellContent = [...gameState.clueCellContent];
         newClueCellContent[playerOnThisDevice] = newContent;
 
+        // Update gamestate - frontCellContent with new clue
+        const newFrontCellContent = [...OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols)];
+        const playerCell = {...newFrontCellContent[gameState.randomCO[playerOnThisDevice].rowIndex][gameState.randomCO[playerOnThisDevice].colIndex], clue: newContent};
+        newFrontCellContent[gameState.randomCO[playerOnThisDevice].rowIndex][gameState.randomCO[playerOnThisDevice].colIndex] = playerCell;
+        
         // const newPlayerVotes = [...gameState.playerVotes];
         // newPlayerVotes[playerOnThisDevice] = { CO: null, clue: newContent };
 
-        setGameState({ ...gameState, clueCellContent: newClueCellContent });
+        setGameState({ ...gameState, clueCellContent: newClueCellContent }); // is this necessary?
         console.log("handleClueCellEdit", newContent)
         updateGameState({
             ...gameState,
@@ -558,6 +535,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     action: 'gave clue',
                     detail: newContent,
                 }],
+            frontCellContent: TwoDim2OneDim(newFrontCellContent),
         });
     };
 
@@ -589,7 +567,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
                 // setCompletedCards(s.completedCards || []);
                 // setClueCellContent(s.clueCellContent || '?');
-                setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent || [], s.numRows));
+                // setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent || [], s.numRows));
                 // setIncorrectGuessCountP1(s.incorrectGuessCountP1);
                 // setIncorrectGuessCountP2(s.incorrectGuessCountP2);
                 console.log("fetched gamestate. Setting state to", s)
@@ -615,7 +593,7 @@ const RandomImageGridWrapper: React.FC = () => {
                     // setFrontCellContentState(OneDim2TwoDim(s.frontCellContent, numCols));
                     // setCompletedCards(s.completedCards);
                     // setClueCellContent(s.clueCellContent ?? '?');
-                    setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent, s.numCols));
+                    // setCorrectlyGuessedGrid(convertFrontCellContentStateToBool(s.frontCellContent, s.numCols));
                     setGameState(s)
                 }
             })
@@ -654,8 +632,6 @@ const RandomImageGridWrapper: React.FC = () => {
 
             console.log("playersWithNoClues", playersWithNoClues)
             // console.log("gameState", gameState)
-            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
-
         }
 
         const frontCellContent = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
@@ -666,7 +642,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
             console.log("playersWithNoClues", playersWithNoClues)
             // console.log("gameState", gameState)
-            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
+            // alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
 
         } else if (frontCellContent[rowIndex][colIndex].vote && frontCellContent[rowIndex][colIndex].playersVoted) {
             setFlippedCardState(null)
@@ -759,7 +735,8 @@ const RandomImageGridWrapper: React.FC = () => {
             content: correctCard ? gameState.clueCellContent[guessedClueBelongingToPlayer] : newFrontCellContent2D[rowIndex][colIndex].content,
             color: correctCard ? playerColours[guessedClueBelongingToPlayer] : newFrontCellContent2D[rowIndex][colIndex].color,
             vote: null,
-            playersVoted: []
+            playersVoted: [],
+            clue: newFrontCellContent2D[rowIndex][colIndex].clue
         };
 
         // Create a copy of the clues array and set the guessed player's clue to "?"
@@ -820,8 +797,6 @@ const RandomImageGridWrapper: React.FC = () => {
 
             console.log("playersWithNoClues", playersWithNoClues)
             // console.log("gameState", gameState)
-            alert(`${playersWithNoClues.slice(0, playersWithNoClues.length - 1).concat().join(", ") + (playersWithNoClues.length - 1 >= 1 ? " and " : "") + playersWithNoClues.slice(playersWithNoClues.length - 1)} needs to give a clue first! Go tell 'em!`);
-
         } else if (rowIndex === flippedCardState?.rowIndex && colIndex === flippedCardState?.colIndex) {
             // setFlippedCardState(null);
             // console.log("setting flippedCardState to null", flippedCardState)
@@ -853,11 +828,11 @@ const RandomImageGridWrapper: React.FC = () => {
 
                 setPlayerAction("View Card & Give Clue")
 
-                setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
-                    const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
-                    newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
-                    return newCorrectlyGuessedGrid;
-                });
+                // setCorrectlyGuessedGrid(prevCorrectlyGuessedGrid => {
+                //     const newCorrectlyGuessedGrid = [...prevCorrectlyGuessedGrid];
+                //     newCorrectlyGuessedGrid[rowIndex][colIndex] = true;
+                //     return newCorrectlyGuessedGrid;
+                // });
 
                 // setTimeout(() => {
                 //     console.log("User flipped the correct card")
@@ -1112,6 +1087,7 @@ const RandomImageGridWrapper: React.FC = () => {
             alert('Please enter a single word');
         }
         else if (editValue !== '') {
+            // confirm clue
             handleClueCellEdit(editValue);
             setEditValue('?');
             setButtonState('view');
@@ -1576,7 +1552,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     setViewingClue={isViewingClue}
                                     viewingClue={viewingClue}
                                     closeVoteOptions={closeVoteOptions}
-                                    correctlyGuessedGrid={correctlyGuessedGrid}
+                                    // correctlyGuessedGrid={correctlyGuessedGrid}
                                     handleHeaderClick={(header, CO) => handleHeaderClick(header, CO)}
                                     cellColour={playerColours[playerOnThisDevice]}
                                     playerColours={playerColours}

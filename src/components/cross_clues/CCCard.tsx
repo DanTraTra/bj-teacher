@@ -219,8 +219,9 @@ const CCCard: React.FC<CCCardProps> = ({
                 aria-label="Vote for a player"
                 onClick={(e) => {
                     e.stopPropagation();
-                    handleVoteSelect(clueColor[0].clue, { rowIndex: rowIndex, colIndex: colIndex })
-                    cardClickHandler(clueColor[0].index)
+                    // Handles the player choosing a cell
+                    // handleVoteSelect(clueColor[0].clue, { rowIndex: rowIndex, colIndex: colIndex })
+                    // cardClickHandler(clueColor[0].index)
                 }}
             >
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -234,7 +235,7 @@ const CCCard: React.FC<CCCardProps> = ({
                                 cx={centerX}
                                 cy={centerY}
                                 r={innerRadius}
-                                className={`fill-${clueColor[0].color} transition-opacity duration-200`}
+                                className={`fill-${clueColor[0].color} transition-opacity duration-200 cursor-pointer`}
                                 role="presentation"
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -258,7 +259,7 @@ const CCCard: React.FC<CCCardProps> = ({
                             }}
                         />}
                     </svg>
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
+                    <button className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
                         <Textfit
                             mode="single"
                             forceSingleModeWidth={false}
@@ -267,7 +268,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         >
                             {voteOptionsClue}
                         </Textfit>
-                    </div>
+                    </button>
                 </div>
             </div>
         );
@@ -386,7 +387,6 @@ const CCCard: React.FC<CCCardProps> = ({
                     />
                     <div
                         className="absolute inset-0 z-40"
-                        onClick={(e) => e.stopPropagation()}
                     >
                         {renderPieSlices()}
                     </div>

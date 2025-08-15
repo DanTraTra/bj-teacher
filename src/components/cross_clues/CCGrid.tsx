@@ -3,6 +3,7 @@ import CCCard from './CCCard';
 import { FrontCellContent } from './RandomImageGridWrapper';
 import { GridCellCO } from './RandomImageGridWrapper';
 import { getPlayerColor } from './RandomImageGridWrapper';
+import { OneDim2TwoDim } from './RandomImageGridWrapper';
 // Define the types for header content
 // React.ReactNode allows strings, numbers, JSX elements (like <img>), etc.
 type HeaderContent = React.ReactNode;
@@ -30,7 +31,7 @@ interface GridProps {
     playerVotes: { CO: (GridCellCO | null), clue: string }[];
     resetFlippedCardState: () => void;
     frontCellContent: FrontCellContent[][];
-    correctlyGuessedGrid: boolean[][];
+    // correctlyGuessedGrid: boolean[][];
     openVoteOptions: (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => void;
     closeVoteOptions: (rowIndex: number, colIndex: number) => void;
     completedCards: string[];
@@ -68,7 +69,7 @@ const CCGrid: React.FC<GridProps> = ({
     playerVotes,
     resetFlippedCardState,
     frontCellContent,
-    correctlyGuessedGrid,
+    // correctlyGuessedGrid,
     openVoteOptions,
     closeVoteOptions,
     setViewingClue,
@@ -131,8 +132,8 @@ const CCGrid: React.FC<GridProps> = ({
                 const cellsToPop: { row: number, col: number }[] = [];
 
                 frontCellContent.forEach((row, rowIndex) => {
-                    row.forEach((_, colIndex) => {
-                        if (hintCOState.rowIndex !== rowIndex && hintCOState.colIndex !== colIndex && !correctlyGuessedGrid[rowIndex][colIndex]) {
+                    row.forEach((cell, colIndex) => {
+                        if (hintCOState.rowIndex !== rowIndex && hintCOState.colIndex !== colIndex && cell.color == "") {
                             cellsToPop.push({ row: rowIndex, col: colIndex });
                         }
                     });
@@ -248,7 +249,7 @@ const CCGrid: React.FC<GridProps> = ({
                 <CCCard
                     frontContent={
                         // clueCellContent
-                        { content: " ", color: "white", vote: null, playersVoted: null }
+                        { content: " ", color: "white", vote: null, playersVoted: null, clue: "" }
                     }
                     backContent={""}
                     beginsFlipped={false}
@@ -364,7 +365,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 // console.log("votedClues", votedClues);
 
                                 let highlightClasses = highlightCard ? "text-gray-500" : frontCellContent[rowIndex][colIndex].vote ? `text-${getPlayerColor(clueCellContent.findIndex((clue) => clue === frontCellContent[rowIndex][colIndex].vote))}Dark` : "text-gray-200";
-                                if (correctlyGuessedGrid[rowIndex][colIndex]) {
+                                if (cellContent.color) {
                                     highlightClasses = `text-gray-800 bg-${cellContent.color}`;
                                 } else {
 
@@ -395,7 +396,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 return (
                                     <CCCard
                                         key={`cell-${colIndex}-${rowIndex}`}
-                                        frontContent={shouldHide ? { content: "", color: "white", vote: "", playersVoted: null } : frontCellContent[rowIndex][colIndex].vote ? { content: frontCellContent[rowIndex][colIndex].vote!, color: "", vote: "", playersVoted: frontCellContent[rowIndex][colIndex].playersVoted } : cellContent}
+                                        frontContent={shouldHide ? { content: "", color: "white", vote: "", playersVoted: null, clue: "" } : frontCellContent[rowIndex][colIndex].vote ? { content: frontCellContent[rowIndex][colIndex].vote!, color: "", vote: "", playersVoted: frontCellContent[rowIndex][colIndex].playersVoted, clue: frontCellContent[rowIndex][colIndex].clue } : cellContent}
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
