@@ -263,7 +263,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         <Textfit
                             mode="single"
                             forceSingleModeWidth={false}
-                            className="text-gray-800 opacity-50 font-bold w-full h-full flex items-center justify-center p-1"
+                            className="text-gray-500 opacity-100 font-bold w-full h-full flex items-center justify-center p-1"
                             aria-hidden="true"
                         >
                             {voteOptionsClue}

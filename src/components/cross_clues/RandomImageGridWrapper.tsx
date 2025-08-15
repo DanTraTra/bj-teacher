@@ -1198,10 +1198,10 @@ const RandomImageGridWrapper: React.FC = () => {
     };
 
     const handleConfirmGuess = () => {
-        const voteOptionsClue = gameState.playerVotes[playerOnThisDevice].clue;
+        const currentVote = gameState.playerVotes[playerOnThisDevice].clue;
         const CO = {...gameState.playerVotes[playerOnThisDevice].CO} as GridCellCO;
     
-        handleVoteSelect(voteOptionsClue, CO)
+        handleVoteSelect(currentVote, CO)
     }
 
     // Load saved player name from localStorage when component mounts and when player names change
@@ -1624,7 +1624,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {gameState.playerVotes[playerOnThisDevice]?.CO != null && gameState.playerCount == 2 && (
+                        {gameState.playerVotes[playerOnThisDevice]?.CO != null && (
                             <button
                                 onClick={() => handleConfirmGuess()}
                                 className={buttonClasses}
@@ -1633,7 +1633,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?') && !(gameState.playerVotes[playerOnThisDevice]?.CO != null && gameState.playerCount == 2) && !demoMode && (
+                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?') && !(gameState.playerVotes[playerOnThisDevice]?.CO != null) && !demoMode && (
                             <button
                                 onClick={handleViewCard}
                                 className={buttonClasses + (demoMode ? 'animate-pulse' : '')}
