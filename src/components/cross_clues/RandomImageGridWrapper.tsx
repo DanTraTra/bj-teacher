@@ -8,7 +8,7 @@ import { generateSlug } from "random-word-slugs";
 import { createClient } from '@supabase/supabase-js';
 import ChoosePlayerModal from './ChoosePlayerModal';
 import { BiArrowToRight, BiSkipNext } from 'react-icons/bi';
-import { BsArrowRight, BsCheck } from 'react-icons/bs';
+import { BsArrowRight, BsCheck, BsX } from 'react-icons/bs';
 
 const rootPath = 'images/'
 
@@ -1603,7 +1603,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {gameState.clueCellContent.some((clue) => gameState.playerVotes[playerOnThisDevice]?.CO != null) && gameState.playerCount == 2 && (
+                        {gameState.playerVotes[playerOnThisDevice]?.CO != null && gameState.playerCount == 2 && (
                             <button
                                 onClick={() => handleHeaderClick(bigImage, bigCO)}
                                 className={buttonClasses}
@@ -1612,7 +1612,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             </button>
                         )}
 
-                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?') && !demoMode && (
+                        {!bigImage && ((buttonState == 'view') && gameState.clueCellContent[playerOnThisDevice] == '?') && !(gameState.playerVotes[playerOnThisDevice]?.CO != null && gameState.playerCount == 2) && !demoMode && (
                             <button
                                 onClick={handleViewCard}
                                 className={buttonClasses + (demoMode ? 'animate-pulse' : '')}
@@ -1636,7 +1636,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                 onClick={skipClueGive}
                                 className={'size-8 p-1 text-2xl text-white rounded-sm bg-gray-400'}
                             >
-                                <BiSkipNext className='size-full' />
+                                <BsX className='size-full' />
                             </button>
                         )}
 

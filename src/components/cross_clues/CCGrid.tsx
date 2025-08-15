@@ -306,7 +306,13 @@ const CCGrid: React.FC<GridProps> = ({
                         {/* Big Image */}
                         <div
                             key="big-image"
-                            className="col-start-2 col-span-5 row-start-2 row-span-5 relative flex items-center justify-center bg-gray-100"
+                            style={{
+                                gridColumnStart: 2,
+                                gridColumnEnd: numCols + 2,
+                                gridRowStart: 2,
+                                gridRowEnd: numRows + 2,
+                            }}
+                            className="relative flex items-center justify-center bg-gray-100"
                         >
                             <button onClick={() => { handleHeaderClick(bigImage, 'Big Image') }} className="w-full h-full object-contain p-1">
                                 {bigImage}
