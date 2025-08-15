@@ -44,7 +44,7 @@ interface GridProps {
     demoMode: boolean;
     hintCO: GridCellCO | null;
     bigImage: React.ReactNode | null;
-    bigCO: string | null;
+    bigCO: string;
     currentBigImageIndex: number | null;
     handlePrevImage: () => void;
     handleNextImage: () => void;
@@ -314,7 +314,7 @@ const CCGrid: React.FC<GridProps> = ({
                             }}
                             className="relative flex items-center justify-center bg-gray-100"
                         >
-                            <button onClick={() => { handleHeaderClick(bigImage, 'Big Image') }} className="w-full h-full object-contain p-1">
+                            <button onClick={() => { handleHeaderClick(bigImage, bigCO) }} className="w-full h-full object-contain p-1">
                                 {bigImage}
                             </button>
                             {bigCO && ( // Only render bigCO if it's not an empty string
