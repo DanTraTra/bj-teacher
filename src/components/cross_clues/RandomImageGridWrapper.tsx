@@ -1145,7 +1145,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }, [buttonState])
 
     const handleHeaderClick = (header?: React.ReactNode, CO?: string) => {
-        if (bigImage) {
+        if (bigImage && CO == bigCO) {
             setBigImage(null);
             setBigCO('');
             setCurrentBigImageIndex(null);
