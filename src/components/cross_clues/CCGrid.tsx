@@ -49,6 +49,7 @@ interface GridProps {
     handlePrevImage: () => void;
     handleNextImage: () => void;
     handleVoteSelect: (clue: string, CO: GridCellCO) => void;
+    voteOptionsClue: string;
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -85,7 +86,8 @@ const CCGrid: React.FC<GridProps> = ({
     currentBigImageIndex,
     handlePrevImage,
     handleNextImage,
-    handleVoteSelect
+    handleVoteSelect,
+    voteOptionsClue
 }) => {
     const [hintCOState, setHintCOState] = useState<GridCellCO | null>(null);
     const [poppingCells, setPoppingCells] = useState<{ [key: string]: boolean }>({});
@@ -280,6 +282,7 @@ const CCGrid: React.FC<GridProps> = ({
                     highlightClass={"border-gray-100"}
                     clueCellContent={clueCellContent}
                     playerOnThisDevice={playerOnThisDevice}
+                    voteOptionsClue={voteOptionsClue}
                 />
 
                 {/* Column Headers */}
@@ -424,6 +427,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         highlightClass={`${borderClasses} ${demoMode && (!viewingClue || givenRandomCO?.rowIndex !== rowIndex || givenRandomCO?.colIndex !== colIndex) ? 'opacity-20 pointer-events-none' : demoMode ? 'pointer-events-none' : ''}`}
                                         clueCellContent={clueCellContent}
                                         playerOnThisDevice={playerOnThisDevice}
+                                        voteOptionsClue={voteOptionsClue}
                                     // playerCount={clueCellContent.filter((content) => content !== "?").length}
                                     // playerColors={playerColours.filter((colour, index) => clueCellContent[index] !== "?")}
 

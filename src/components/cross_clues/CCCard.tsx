@@ -37,6 +37,7 @@ interface CCCardProps {
     highlightClass: string;
     clueCellContent: string[];
     playerOnThisDevice: number;
+    voteOptionsClue: string;
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -66,9 +67,9 @@ const CCCard: React.FC<CCCardProps> = ({
     highlightClass,
     clueCellContent,
     playerOnThisDevice,
+    voteOptionsClue
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
-    const [voteOptionsClue, setVoteOptionClue] = useState<string>(''); // The text infront of the vote options
     const [clueColor, setClueColor] = useState<{ clue: string, color: string, index: number }[]>([])
 
     // const [votedByThisPlayer, setvotedByThisPlayer] = useState(thisPlayerVotes?.some((vote) => vote.CO?.rowIndex === rowIndex && vote.CO?.colIndex === colIndex));
@@ -107,7 +108,6 @@ const CCCard: React.FC<CCCardProps> = ({
 
 
         openVoteOptions(rowIndex, colIndex, clueCell, clueIndex);
-        setVoteOptionClue(clueCellContent[clueIndex]);
         if (frontContent.vote == null) {
             setIsPieVisible(true);
         }
@@ -146,8 +146,8 @@ const CCCard: React.FC<CCCardProps> = ({
 
         const centerX = 50;
         const centerY = 50;
-        const radius = 60; // Slightly larger than before but not too big
-        const innerRadius = 40; // Size of the white center circle
+        const radius = 65; // Slightly larger than before but not too big
+        const innerRadius = 45; // Size of the white center circle
 
         const slices = [];
         for (let i = 0; i < clueColor.length; i++) {
@@ -249,7 +249,7 @@ const CCCard: React.FC<CCCardProps> = ({
                             cx={centerX}
                             cy={centerY}
                             r={innerRadius}
-                            className="fill-white"
+                            className="fill-white opacity-50"
                             role="presentation"
                             style={{ pointerEvents: 'none' }}
                             onClick={(e) => {

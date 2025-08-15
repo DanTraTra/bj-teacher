@@ -139,6 +139,8 @@ const RandomImageGridWrapper: React.FC = () => {
     const [currentBigImageIndex, setCurrentBigImageIndex] = useState<number | null>(null); // New state for tracking current big image index
     const [allHeaderImages, setAllHeaderImages] = useState<{ element: React.JSX.Element, co: string }[]>([]); // Store all headers with CO
 
+    const [voteOptionsClue, setVoteOptionClue] = useState<string>(''); // The text infront of the vote options
+
     // const [image_numbers, setImageNumbers] = useState<number[]>([]);
     // const [randomCO, setRandomCO] = useState<{ rowIndex: number, colIndex: number } | null>(null);
     // const [frontCellContentState, setFrontCellContentState] = useState<string[][]>([]);
@@ -501,6 +503,11 @@ const RandomImageGridWrapper: React.FC = () => {
         regenerateImages();
     }, [gameState.imageUrls]);
 
+
+    useEffect(() => {
+        console.log("voteOptionsClue", voteOptionsClue)
+    }, [voteOptionsClue]);
+
     // Generate headers when image numbers are available or correctlyGuessedGrid changes
     // useEffect(() => {
     //     if (correctlyGuessedGrid.flat().every(card => card)) {
@@ -624,7 +631,7 @@ const RandomImageGridWrapper: React.FC = () => {
     }
 
     const openVoteOptions = (rowIndex: number, colIndex: number, clueCell: boolean, clueIndex: number) => {
-
+        
         // opens the clue selection modal to select which clue to vote for - to confirm vote, see handleVoteSelect
 
         if (gameState.clueCellContent.filter(clue => clue !== "?").length === 0) {
@@ -677,11 +684,14 @@ const RandomImageGridWrapper: React.FC = () => {
 
         } else {
             setFlippedCardState(null)
+            setVoteOptionClue(gameState.clueCellContent[clueIndex]);
+
             console.log("Player first to open vote", rowIndex, colIndex)
             console.log("gameState.clueCellContent.find((clue) => clue !== '?')", gameState.clueCellContent.find((clue) => clue !== "?")!)
             // handleVoteSelect(gameState.clueCellContent[playerOnThisDevice], { rowIndex, colIndex });
             setViewingClue(false);
             setIsEditing(false);
+
 
             const newCardVotes = [...gameState.playerVotes];
 
@@ -898,8 +908,8 @@ const RandomImageGridWrapper: React.FC = () => {
 
 
         const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(
-            // update the front cell content -> remove all matching votes and readd the player who voted
-            gameState.frontCellContent.map(cell => {
+            // update the front cell content -> remove all matching votes and re-add the player who voted
+            gameState.frontCellContent.map((cell, index) => {
                 const cellPlayerRemoved = cell.playersVoted?.filter((player) => player !== playerOnThisDevice);
                 if (cell.vote) {
                     console.log("cell.vote", cell.vote)
@@ -930,10 +940,13 @@ const RandomImageGridWrapper: React.FC = () => {
                     } else {
                         // Simply add player to the vote
                         if (cell.playersVoted?.length == gameState.playerCount - 2) {
-                            console.log("player is last to vode - flip the card - see result")
-                            // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
 
-                            return { ...cell }
+                            // If the same vote already exists, remove it, i.e. remove player from that vote
+
+                            return { 
+                                ...cell,
+                                playersVoted: [...cell.playersVoted].filter((player) => player !== playerOnThisDevice)
+                            }
                         }
                         else {
                             console.log("not players last vote")
@@ -1183,6 +1196,13 @@ const RandomImageGridWrapper: React.FC = () => {
 
         console.log("player on this device", player)
     };
+
+    const handleConfirmGuess = () => {
+        const voteOptionsClue = gameState.playerVotes[playerOnThisDevice].clue;
+        const CO = {...gameState.playerVotes[playerOnThisDevice].CO} as GridCellCO;
+    
+        handleVoteSelect(voteOptionsClue, CO)
+    }
 
     // Load saved player name from localStorage when component mounts and when player names change
     useEffect(() => {
@@ -1564,6 +1584,7 @@ const RandomImageGridWrapper: React.FC = () => {
                                     currentBigImageIndex={currentBigImageIndex}
                                     handlePrevImage={handlePrevImage}
                                     handleNextImage={handleNextImage}
+                                    voteOptionsClue={voteOptionsClue}
                                 /> :
                                 <CCRows
                                     rowHeaders={rowHeaders}
@@ -1605,7 +1626,7 @@ const RandomImageGridWrapper: React.FC = () => {
 
                         {gameState.playerVotes[playerOnThisDevice]?.CO != null && gameState.playerCount == 2 && (
                             <button
-                                onClick={() => handleHeaderClick(bigImage, bigCO)}
+                                onClick={() => handleConfirmGuess()}
                                 className={buttonClasses}
                             >
                                 Confirm Guess
