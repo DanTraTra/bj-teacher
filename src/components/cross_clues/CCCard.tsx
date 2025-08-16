@@ -192,7 +192,7 @@ const CCCard: React.FC<CCCardProps> = ({
                         }
                     }}
                     onMouseEnter={() => cardClickHandler(clueColor[i].index)}
-                    onMouseLeave={() => cardClickHandler(clueColor[0].index)}
+                    // onMouseLeave={() => cardClickHandler(clueColor[0].index)}
                     aria-label={`Vote for player ${clueColor[i].index}`}
                     className="outline-none"
                     style={{

@@ -254,7 +254,7 @@ const CCGrid: React.FC<GridProps> = ({
                 <CCCard
                     frontContent={
                         // clueCellContent
-                        { content: " ", color: "white", vote: null, playersVoted: null, clue: "" }
+                        { content: " ", color: "white", vote: null, playersVoted: [], clue: "" }
                     }
                     backContent={""}
                     beginsFlipped={false}
@@ -409,7 +409,7 @@ const CCGrid: React.FC<GridProps> = ({
                                 return (
                                     <CCCard
                                         key={`cell-${colIndex}-${rowIndex}`}
-                                        frontContent={shouldHide ? { content: "", color: "white", vote: "", playersVoted: null, clue: "" } : frontCellContent[rowIndex][colIndex].vote ? { content: frontCellContent[rowIndex][colIndex].vote!, color: "", vote: "", playersVoted: frontCellContent[rowIndex][colIndex].playersVoted, clue: frontCellContent[rowIndex][colIndex].clue } : cellContent}
+                                        frontContent={shouldHide ? { content: "", color: "white", vote: "", playersVoted: [], clue: "" } : frontCellContent[rowIndex][colIndex].vote ? { content: frontCellContent[rowIndex][colIndex].vote!, color: "", vote: "", playersVoted: frontCellContent[rowIndex][colIndex].playersVoted, clue: frontCellContent[rowIndex][colIndex].clue } : cellContent}
                                         backContent={correct_card === 'correct' ? '✓' : '✗'}
                                         beginsFlipped={false}
                                         cellSize={cellSize}
