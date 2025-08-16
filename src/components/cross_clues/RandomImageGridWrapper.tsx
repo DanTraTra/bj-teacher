@@ -943,7 +943,7 @@ const RandomImageGridWrapper: React.FC = () => {
                         return {
                             ...cell,
                             vote: null,
-                            playersVoted: cellPlayerRemoved ?? null
+                            playersVoted: cellPlayerRemoved ?? []
                         }
 
                     } else {
@@ -961,7 +961,7 @@ const RandomImageGridWrapper: React.FC = () => {
                             console.log("not players last vote")
                             return {
                                 ...cell,
-                                playersVoted: cellPlayerRemoved ?? null
+                                playersVoted: cellPlayerRemoved ?? []
                             }
                         }
                     }
@@ -1181,84 +1181,93 @@ const RandomImageGridWrapper: React.FC = () => {
 
     const handleConfirmButtonPress = () => {
         setHintCO(null)
-        setIsPieVisible(false);
 
-        console.log("voteClue 1", gameState.playerVotes[playerOnThisDevice].clue)
-
-        const voteClue = voteOptionsClue;
-        const CO = gameState.playerVotes[playerOnThisDevice].CO;
-
-        if (!voteClue || !CO) {
-            console.log("No vote clue or CO selected");
-            return;
+        const currentVoteCo = gameState.playerVotes[playerOnThisDevice].CO;
+        console.log("confirm button press")
+        console.log("currentVoteCo", currentVoteCo)
+        console.log("voteOptionsClue", voteOptionsClue)
+        if (currentVoteCo) {
+            handleVoteSelect(voteOptionsClue, { rowIndex: currentVoteCo.rowIndex, colIndex: currentVoteCo.colIndex })
         }
 
-        const newPlayerVotes = [...gameState.playerVotes];
+        setIsPieVisible(false);
 
-        newPlayerVotes[playerOnThisDevice].CO = null;
-        newPlayerVotes[playerOnThisDevice].clue = '';
+        // console.log("voteClue 1", gameState.playerVotes[playerOnThisDevice].clue)
+
+        // const voteClue = voteOptionsClue;
+        // const CO = gameState.playerVotes[playerOnThisDevice].CO;
+
+        // if (!voteClue || !CO) {
+        //     console.log("No vote clue or CO selected");
+        //     return;
+        // }
+
+        // const newPlayerVotes = [...gameState.playerVotes];
+
+        // newPlayerVotes[playerOnThisDevice].CO = null;
+        // newPlayerVotes[playerOnThisDevice].clue = '';
 
 
-        const frontCellContent2D: FrontCellContent[][] = OneDim2TwoDim<FrontCellContent>(
-            // update the front cell content -> remove all matching votes and re-add the player who voted
-            gameState.frontCellContent.map((cell, index) => {
-                const cellPlayerRemoved = cell.playersVoted?.filter((player) => player !== playerOnThisDevice) ?? [];
+        // const frontCellContent2D: FrontCellContent[][] = OneDim2TwoDim<FrontCellContent>(
+        //     // update the front cell content -> remove all matching votes and re-add the player who voted
+        //     gameState.frontCellContent.map((cell, index) => {
+        //         const cellPlayerRemoved = cell.playersVoted?.filter((player) => player !== playerOnThisDevice) ?? [];
 
-                if (gameState.playerCount == 2) {
-                    console.log("Confirm butt twoplayer game")
-                    // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
+        //         if (gameState.playerCount == 2) {
+        //             console.log("Confirm butt twoplayer game")
+        //             // handleCardFlip(clue, CO.rowIndex, CO.colIndex)
 
-                    return { ...cell }
-                }
+        //             return { ...cell }
+        //         }
 
-                if (cell.vote == voteClue) {
-                    console.log("cell.vote == voteClue")
-                    console.log("voteClue 2", voteClue)
-                    console.log("cell.vote", cell.vote)
+        //         if (cell.vote == voteClue) {
+        //             console.log("cell.vote == voteClue")
+        //             console.log("voteClue 2", voteClue)
+        //             console.log("cell.vote", cell.vote)
 
-                    // for cells that already have this clue voted for
+        //             // for cells that already have this clue voted for
 
-                    if (index == CO!.rowIndex * gameState.numCols + CO!.colIndex) {
-                        // specifically for the cell being voted on i.e. playersVoted increases
-                        // add player to playersVoted
-                        return {
-                            ...cell,
-                            playersVoted: [...(cell.playersVoted || []), playerOnThisDevice]
-                        }
+        //             if (index == CO!.rowIndex * gameState.numCols + CO!.colIndex) {
+        //                 // specifically for the cell being voted on i.e. playersVoted increases
+        //                 // add player to playersVoted
+        //                 return {
+        //                     ...cell,
+        //                     playersVoted: [...(cell.playersVoted || []), playerOnThisDevice]
+        //                 }
 
-                    } else {
-                        // for others cells that have the same clue voted for but isn't the target cell i.e. playersVoted decreases
+        //             } else {
+        //                 // for others cells that have the same clue voted for but isn't the target cell i.e. playersVoted decreases
 
-                        return {
-                            ...cell,
-                            vote: cellPlayerRemoved.length == 0 ? null : cell.vote, // if no ones voting, remove the vote text
-                            playersVoted: cellPlayerRemoved
-                        }
-                    }
+        //                 return {
+        //                     ...cell,
+        //                     vote: cellPlayerRemoved.length == 0 ? null : cell.vote, // if no ones voting, remove the vote text
+        //                     playersVoted: cellPlayerRemoved
+        //                 }
+        //             }
 
-                } else {
-                    return cell
-                }
-            }),
-            gameState.numCols
-        );
+        //         } else {
+        //             return cell
+        //         }
+        //     }),
+        //     gameState.numCols
+        // );
 
-        // Clear the voteOptionsClue after we've used it
-        setVoteOptionClue('');
+        // // Clear the voteOptionsClue after we've used it
+        // setVoteOptionClue('');
 
-        console.log("Confirm butt CO", CO)
-        console.log("Confirm butt voteClue 2", voteClue)
+        // console.log("Confirm butt CO", CO)
+        // console.log("Confirm butt voteClue 2", voteClue)
 
-        // // Add new clue to front cell content
-        const currentPlayerVoters = [...frontCellContent2D[CO!.rowIndex][CO!.colIndex].playersVoted ?? []];
-        currentPlayerVoters.push(playerOnThisDevice);
-        frontCellContent2D[CO!.rowIndex][CO!.colIndex] = { ...frontCellContent2D[CO!.rowIndex][CO!.colIndex], vote: voteClue, playersVoted: currentPlayerVoters };
+        // // // Add new clue to front cell content
+        // const currentPlayerVoters = [...frontCellContent2D[CO!.rowIndex][CO!.colIndex].playersVoted ?? []];
+        // currentPlayerVoters.push(playerOnThisDevice);
+        // frontCellContent2D[CO!.rowIndex][CO!.colIndex] = { ...frontCellContent2D[CO!.rowIndex][CO!.colIndex], vote: voteClue, playersVoted: currentPlayerVoters };
 
-        updateGameState({
-            ...gameState,
-            playerVotes: newPlayerVotes,
-            frontCellContent: TwoDim2OneDim<FrontCellContent>(frontCellContent2D),
-        })
+        // updateGameState({
+        //     ...gameState,
+        //     playerVotes: newPlayerVotes,
+        //     frontCellContent: TwoDim2OneDim<FrontCellContent>(frontCellContent2D),
+        // })
     };
 
     // Load saved player name from localStorage when component mounts and when player names change
