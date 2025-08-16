@@ -38,6 +38,8 @@ interface CCCardProps {
     clueCellContent: string[];
     playerOnThisDevice: number;
     voteOptionsClue: string;
+    isPieVisible: boolean;
+    
 }
 
 const CCCard: React.FC<CCCardProps> = ({
@@ -67,7 +69,9 @@ const CCCard: React.FC<CCCardProps> = ({
     highlightClass,
     clueCellContent,
     playerOnThisDevice,
-    voteOptionsClue
+    voteOptionsClue,
+    isPieVisible
+    
 }) => {
     const [clickEffectClass, setClickEffectClass] = useState('');
     const [clueColor, setClueColor] = useState<{ clue: string, color: string, index: number }[]>([])
@@ -81,16 +85,16 @@ const CCCard: React.FC<CCCardProps> = ({
     //     setPlayerVoted(playerIndex);
     // };
 
-    useEffect(() => {
-        // setVoteOptionClue(playerVotes[playerOnThisDevice].clue)
-        if (playerVotes[playerOnThisDevice].CO == null) {
-            setIsPieVisible(false);
-        }
+    // useEffect(() => {
+    //     // setVoteOptionClue(playerVotes[playerOnThisDevice].clue)
+    //     if (playerVotes[playerOnThisDevice].CO == null) {
+    //         setIsPieVisible(false);
+    //     }
 
-        // if (playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex) {
-        //     setIsPieVisible(true);
-        // } 
-    }, [playerVotes])
+    //     // if (playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex) {
+    //     //     setIsPieVisible(true);
+    //     // } 
+    // }, [playerVotes])
 
 
     const baseClasses = `flip-cross-clues-card 
@@ -106,11 +110,7 @@ const CCCard: React.FC<CCCardProps> = ({
         // Don't flip if we're showing the voting UI
         // if (isVoted) return;
 
-
         openVoteOptions(rowIndex, colIndex, clueCell, clueIndex);
-        if (frontContent.vote == null) {
-            setIsPieVisible(true);
-        }
 
         if (!clueCell) {
             // Set the border class after the flip animation starts
@@ -261,6 +261,7 @@ const CCCard: React.FC<CCCardProps> = ({
                     </svg>
                     <button className="absolute inset-0 flex items-center justify-center pointer-events-none w-full h-full p-2">
                         <Textfit
+                            id="voteOptionsClue"
                             mode="single"
                             forceSingleModeWidth={false}
                             className="text-gray-500 opacity-100 font-bold w-full h-full flex items-center justify-center p-1"
@@ -283,13 +284,12 @@ const CCCard: React.FC<CCCardProps> = ({
     const handleOverlayClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         console.log('bg close')
-        setIsPieVisible(false);
         closeVoteOptions(rowIndex, colIndex);
 
     }, [rowIndex, colIndex, handleVoteSelect]);
 
     // Check if pie slices are currently visible for this card
-    const [isPieVisible, setIsPieVisible] = useState(false);
+    // const [isPieVisible, setIsPieVisible] = useState(false);
 
     // useEffect(() => {
     //     setIsPieVisible(playerVotes[playerOnThisDevice].clue != '' && playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex);

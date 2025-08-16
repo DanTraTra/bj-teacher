@@ -50,6 +50,8 @@ interface GridProps {
     handleNextImage: () => void;
     handleVoteSelect: (clue: string, CO: GridCellCO) => void;
     voteOptionsClue: string;
+    isPieVisible: boolean;
+    
 }
 
 const CCGrid: React.FC<GridProps> = ({
@@ -87,7 +89,8 @@ const CCGrid: React.FC<GridProps> = ({
     handlePrevImage,
     handleNextImage,
     handleVoteSelect,
-    voteOptionsClue
+    voteOptionsClue,
+    isPieVisible,
 }) => {
     const [hintCOState, setHintCOState] = useState<GridCellCO | null>(null);
     const [poppingCells, setPoppingCells] = useState<{ [key: string]: boolean }>({});
@@ -283,6 +286,7 @@ const CCGrid: React.FC<GridProps> = ({
                     clueCellContent={clueCellContent}
                     playerOnThisDevice={playerOnThisDevice}
                     voteOptionsClue={voteOptionsClue}
+                    isPieVisible={false}
                 />
 
                 {/* Column Headers */}
@@ -428,6 +432,7 @@ const CCGrid: React.FC<GridProps> = ({
                                         clueCellContent={clueCellContent}
                                         playerOnThisDevice={playerOnThisDevice}
                                         voteOptionsClue={voteOptionsClue}
+                                        isPieVisible={playerVotes[playerOnThisDevice].CO?.rowIndex === rowIndex && playerVotes[playerOnThisDevice].CO?.colIndex === colIndex ? isPieVisible : false}
                                     // playerCount={clueCellContent.filter((content) => content !== "?").length}
                                     // playerColors={playerColours.filter((colour, index) => clueCellContent[index] !== "?")}
 
