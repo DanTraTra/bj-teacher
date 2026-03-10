@@ -2062,10 +2062,22 @@ const MainContent: React.FC<MainContentProps> = ({
 
     const saveScore = async (username: string): Promise<{ success: boolean }> => {
         try {
+            const { data: maxIdData } = await supabase
+              .from('userscore')
+              .select('id')
+              .order('id', { ascending: false })
+              .limit(1);
+
+            let nextId = 1;
+            if (maxIdData && maxIdData.length > 0) {
+              nextId = maxIdData[0].id + 1;
+            }
+
             const {data, error} = await supabase
                 .from('userscore')
                 .insert([
                     {
+                        id: nextId,
                         username: username,
                         game_log_data: GameLog  // Ensure GameLog is defined and correct
                     }
