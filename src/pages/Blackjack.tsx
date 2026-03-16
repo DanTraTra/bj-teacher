@@ -74,15 +74,18 @@ function Blackjack() {
 
     useEffect(() => {
         // // // // console.log("LeaderboardData", LeaderboardData)
-        let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => ({
-            rank: 1,
-            player: d.username,
-            cashOut: d.game_log_data[d.game_log_data.length - 1].EndingBalance,
-            hands: d.game_log_data.length,
-            win: parseFloat(((d.game_log_data.filter(game => game.PlayerCards.some(hand => hand.winMultiplier > 1)).length / d.game_log_data.length) * 100).toFixed(0)),
-            db_index: index,
-            game_log_data: d.game_log_data,
-        }));
+        let updatedBoard: LeaderboardRow[] = LeaderboardData.map((d, index) => {
+            const lastGameLog = d.game_log_data && d.game_log_data.length > 0 ? d.game_log_data[d.game_log_data.length - 1] : null;
+            return {
+                rank: 1,
+                player: d.username,
+                cashOut: lastGameLog ? lastGameLog.EndingBalance : 0,
+                hands: d.game_log_data ? d.game_log_data.length : 0,
+                win: d.game_log_data && d.game_log_data.length > 0 ? parseFloat(((d.game_log_data.filter(game => game.PlayerCards.some(hand => hand.winMultiplier > 1)).length / d.game_log_data.length) * 100).toFixed(0)) : 0,
+                db_index: index,
+                game_log_data: d.game_log_data || [],
+            }
+        });
 
         updatedBoard.sort((a, b) => b.cashOut - a.cashOut).forEach((row, index) => {
             row.rank = index + 1;
