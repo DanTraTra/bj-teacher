@@ -396,9 +396,7 @@ const CCGrid: React.FC<GridProps> = ({
                                     borderClasses = "border-gray-500";
                                 }
 
-                                const correct_card = otherPlayersRandomCO.some((CO) =>
-                                    CO && CO.rowIndex === rowIndex && CO.colIndex === colIndex
-                                ) ? 'correct' : 'incorrect';
+                                const correct_card = frontCellContent[rowIndex][colIndex].vote === frontCellContent[rowIndex][colIndex].clue ? 'correct' : 'incorrect';
 
                                 const isPopping = poppingCells[cellKey];
                                 const shouldHide = hintCOState !== null &&

@@ -854,7 +854,7 @@ const RandomImageGridWrapper: React.FC = () => {
             }, 1000);
 
             console.log("gameState.randomCO", gameState.randomCO.some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex) && (gameState.randomCO[playerOnThisDevice].rowIndex !== rowIndex || gameState.randomCO[playerOnThisDevice].colIndex !== colIndex))
-            if (gameState.randomCO.filter((_, index) => index !== playerOnThisDevice).some((co) => co.rowIndex === rowIndex && co.colIndex === colIndex)) {
+            if (gameState.frontCellContent[rowIndex][colIndex].clue === clue) {
                 // Correct card chosen - capture the clue content before resetting
 
                 console.log("guessedClueBelongingToPlayer", guessedClueBelongingToPlayer)
@@ -875,45 +875,46 @@ const RandomImageGridWrapper: React.FC = () => {
 
                 // }, 1000);
 
+                handleVoteConfirm(rowIndex, colIndex, guessedClueBelongingToPlayer, true)
 
-                setTimeout(() => {
-                    handleVoteConfirm(rowIndex, colIndex, guessedClueBelongingToPlayer, true)
-                    // const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
-                    // const newFrontCellContent2D = [...frontCellContent2D];
-                    // newFrontCellContent2D[rowIndex][colIndex] = { content: gameState.clueCellContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer], vote: null, playersVoted: null };
-                    // const newClues = [...gameState.clueCellContent];
-                    // newClues[guessedClueBelongingToPlayer] = "?";
+                // setTimeout(() => {
+                //     handleVoteConfirm(rowIndex, colIndex, guessedClueBelongingToPlayer, true)
+                //     // const frontCellContent2D = OneDim2TwoDim<FrontCellContent>(gameState.frontCellContent, gameState.numCols);
+                //     // const newFrontCellContent2D = [...frontCellContent2D];
+                //     // newFrontCellContent2D[rowIndex][colIndex] = { content: gameState.clueCellContent[guessedClueBelongingToPlayer], color: playerColours[guessedClueBelongingToPlayer], vote: null, playersVoted: null };
+                //     // const newClues = [...gameState.clueCellContent];
+                //     // newClues[guessedClueBelongingToPlayer] = "?";
 
-                    // const randomIndex = Math.floor(Math.random() * gameState.availiableRandomCo.length);
+                //     // const randomIndex = Math.floor(Math.random() * gameState.availiableRandomCo.length);
 
-                    // const newRandomCO = [...gameState.randomCO];
-                    // newRandomCO[guessedClueBelongingToPlayer] = gameState.availiableRandomCo[randomIndex];
+                //     // const newRandomCO = [...gameState.randomCO];
+                //     // newRandomCO[guessedClueBelongingToPlayer] = gameState.availiableRandomCo[randomIndex];
 
-                    // const newAvailiableRandomCo = [...gameState.availiableRandomCo];
-                    // newAvailiableRandomCo.splice(randomIndex, 1);
+                //     // const newAvailiableRandomCo = [...gameState.availiableRandomCo];
+                //     // newAvailiableRandomCo.splice(randomIndex, 1);
 
-                    // const updatedGameState = {
-                    //     ...gameState,
-                    //     clueCellContent: newClues,
-                    //     randomCO: newRandomCO,
-                    //     availiableRandomCo: newAvailiableRandomCo,
-                    //     frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
-                    //     completedCards: [...gameState.completedCards, `${colLetters[colIndex]}${rowIndex + 1}`],
-                    //     incorrectGuessCount: gameState.incorrectGuessCount,
-                    //     gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }],
+                //     // const updatedGameState = {
+                //     //     ...gameState,
+                //     //     clueCellContent: newClues,
+                //     //     randomCO: newRandomCO,
+                //     //     availiableRandomCo: newAvailiableRandomCo,
+                //     //     frontCellContent: TwoDim2OneDim<FrontCellContent>(newFrontCellContent2D),
+                //     //     completedCards: [...gameState.completedCards, `${colLetters[colIndex]}${rowIndex + 1}`],
+                //     //     incorrectGuessCount: gameState.incorrectGuessCount,
+                //     //     gamelog: [...gameState.gamelog, { player: playerOnThisDevice, action: `guessed ${String.fromCharCode(65 + colIndex)}${rowIndex + 1} ✓`, detail: { rowIndex, colIndex } }],
 
-                    // };
+                //     // };
 
-                    // updateGameState(updatedGameState);
-                    // console.log("updatedGameState", updatedGameState)
+                //     // updateGameState(updatedGameState);
+                //     // console.log("updatedGameState", updatedGameState)
 
-                    // // handleClueCellEdit("?");
-                    // setEditValue("?");
-                    // setHintCO(null);
+                //     // // handleClueCellEdit("?");
+                //     // setEditValue("?");
+                //     // setHintCO(null);
 
-                }, 1000);
+                // }, 1000);
 
-            } else if (!clueCell) {
+            } else {
 
                 console.log("Wrong card")
                 // Wrong card
@@ -1125,7 +1126,18 @@ const RandomImageGridWrapper: React.FC = () => {
 
     useEffect(() => {
         const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
-        if (screenSize == 'tall' && buttonState == 'input' && isMobile) {
+        const isAndroid = function isAndroid(): boolean {
+            if ("userAgentData" in navigator) {
+              // Modern way (Chromium-based browsers)
+              // @ts-ignore - userAgentData not fully typed in all TS versions
+              return navigator.userAgentData.platform.toLowerCase().includes("android");
+            } else {
+              // Fallback for older browsers
+              return /android/i.test(navigator.userAgent);
+            }
+          };
+
+        if (screenSize == 'tall' && buttonState == 'input' && isMobile && isAndroid()) {
             setIsKeyboardVisible(true)
         } else {
             setIsKeyboardVisible(false)
@@ -1475,7 +1487,7 @@ const RandomImageGridWrapper: React.FC = () => {
             {
                 // screenSize == 'wide' && gameLogComponent(true)
             }
-            <div className={`flex flex-col gap-2 transition-transform duration-300 transform ${isKeyboardVisible ? '' : ''}`}>
+            <div className={`flex flex-col gap-2 transition-transform duration-300 transform ${isKeyboardVisible && false? '-translate-y-1/2' : ''}`}>
                 {/* <div id="bigImageContainer" className={`relative flex flex-col flex-start ${bigImage ? 'h-[25vh]' : ''}`} style={{ width: getResponsiveGridSize() }} onClick={() => {
                     setBigImage(null);
                     setBigCO('');
