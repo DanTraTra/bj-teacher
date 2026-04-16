@@ -21,7 +21,7 @@ import 'tailwindcss/tailwind.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <Router>
+        <Router basename={import.meta.env.BASE_URL}>
             <React.Suspense fallback={<div>Loading...</div>}>
                 <Routes>
                     {/* Route for Profile Menu at daaaaan.com */}
