@@ -2062,17 +2062,45 @@ const MainContent: React.FC<MainContentProps> = ({
 
     const saveScore = async (username: string): Promise<{ success: boolean }> => {
         try {
+            let nextId = Date.now(); // Fallback ID generation if max query fails or gives collisions
+
+            const { data: idData } = await supabase
+                .from('userscore')
+                .select('id')
+                .order('id', { ascending: false })
+                .limit(1);
+
+            if (idData && idData.length > 0) {
+                nextId = idData[0].id + 1;
+            }
+
             const {data, error} = await supabase
                 .from('userscore')
                 .insert([
                     {
+                        id: nextId,
                         username: username,
                         game_log_data: GameLog  // Ensure GameLog is defined and correct
                     }
                 ]);
 
             if (error) {
-                throw new Error(error.message);
+                if (error.code === '23505') { // unique_violation
+                    // If we encounter a unique violation, retry with a Date.now() derived ID
+                    const randomId = Date.now() + Math.floor(Math.random() * 1000);
+                    const {data: retryData, error: retryError} = await supabase
+                        .from('userscore')
+                        .insert([
+                            {
+                                id: randomId,
+                                username: username,
+                                game_log_data: GameLog
+                            }
+                        ]);
+                    if (retryError) throw new Error(retryError.message);
+                } else {
+                    throw new Error(error.message);
+                }
             }
 
             ////// // console.log('Data inserted:', data);
